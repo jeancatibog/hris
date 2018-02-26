@@ -49,6 +49,36 @@
                                 @endif
                             </div>
                         </div>
+                        <div class="form-group">
+                            <label class="col-md-4 control-label">Country</label>
+                            <div class="col-md-6">
+                                <select class="form-control" name="country_id">
+                                    @foreach ($countries as $country)
+                                        <option {{$employee->country_id == $country->id ? 'selected' : ''}} value="{{$country->id}}">{{$country->name}}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-md-4 control-label">Province</label>
+                            <div class="col-md-6">
+                                <select class="form-control js-provinces" name="province_id">
+                                    @foreach ($provinces as $province)
+                                        <option {{$employee->province_id == $province->id ? 'selected' : ''}} value="{{$province->id}}">{{$province->name}}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-md-4 control-label">City</label>
+                            <div class="col-md-6">
+                                <select class="form-control js-cities" name="city_id">
+                                    @foreach ($cities as $city)
+                                        <option {{$employee->city_id == $city->id ? 'selected' : ''}} value="{{$city->id}}">{{$city->name}}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        </div>
                         <div class="form-group{{ $errors->has('address') ? ' has-error' : '' }}">
                             <label for="address" class="col-md-4 control-label">Address</label>
 
@@ -60,36 +90,6 @@
                                         <strong>{{ $errors->first('address') }}</strong>
                                     </span>
                                 @endif
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label class="col-md-4 control-label">City</label>
-                            <div class="col-md-6">
-                                <select class="form-control" name="city_id">
-                                    @foreach ($cities as $city)
-                                        <option {{$employee->city_id == $city->id ? 'selected' : ''}} value="{{$city->id}}">{{$city->name}}</option>
-                                    @endforeach
-                                </select>
-                            </div>
-                        </div>
-                              <div class="form-group">
-                            <label class="col-md-4 control-label">Province</label>
-                            <div class="col-md-6">
-                                <select class="form-control" name="province_id">
-                                    @foreach ($provinces as $province)
-                                        <option {{$employee->province_id == $province->id ? 'selected' : ''}} value="{{$province->id}}">{{$province->name}}</option>
-                                    @endforeach
-                                </select>
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label class="col-md-4 control-label">Country</label>
-                            <div class="col-md-6">
-                                <select class="form-control" name="country_id">
-                                    @foreach ($countries as $country)
-                                        <option {{$employee->country_id == $country->id ? 'selected' : ''}} value="{{$country->id}}">{{$country->name}}</option>
-                                    @endforeach
-                                </select>
                             </div>
                         </div>
                         <div class="form-group{{ $errors->has('zip') ? ' has-error' : '' }}">
@@ -136,13 +136,7 @@
                                 <input type="file" id="picture" name="picture" />
                             </div>
                         </div>
-                        <div class="form-group">
-                            <div class="col-md-6 col-md-offset-4">
-                                <button type="submit" class="btn btn-primary">
-                                    Update
-                                </button>
-                            </div>
-                        </div>
+                        @include('layouts.update-buttons')
                     </form>
                 </div>
             </div>

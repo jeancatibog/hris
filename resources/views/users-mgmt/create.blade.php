@@ -95,7 +95,7 @@
                                 <input id="password-confirm" type="password" class="form-control" name="password_confirmation" required>
                             </div>
                         </div>
-                        @extends('layout.default-buttons')
+                        @include('layouts.default-buttons')
                     </form>
                 </div>
             </div>

@@ -88,7 +88,7 @@ class CityController extends Controller
         }
 
         $province = Province::all();
-        return view('system-mgmt/city/edit', ['city' => $city, 'province' => $province]);
+        return view('system-mgmt/city/edit', ['city' => $city, 'provinces' => $province]);
     }
 
     /**
@@ -128,7 +128,7 @@ class CityController extends Controller
 
     public function loadCities($provinceId) {
         $cities = City::where('province_id', '=', $provinceId)->get(['id', 'name']);
-
+        
         return response()->json($cities);
     }
 

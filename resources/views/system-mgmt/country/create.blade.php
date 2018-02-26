@@ -35,7 +35,7 @@
                                 @endif
                             </div>
                         </div>
-                        @extends('layout.default-buttons')
+                        @include('layouts.default-buttons')
                     </form>
                 </div>
             </div>

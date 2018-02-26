@@ -70,17 +70,7 @@
                                 <input id="password-confirm" type="password" class="form-control" name="password_confirmation">
                             </div>
                         </div>
-
-                        <div class="form-group">
-                            <div class="col-md-6 col-md-offset-4">
-                                <button type="button" class="btn btn-default btn-back">
-                                    Back
-                                </button>
-                                <button type="submit" class="btn btn-primary">
-                                    Update
-                                </button>
-                            </div>
-                        </div>
+                        @include('layouts.update-buttons')
                     </form>
                 </div>
             </div>

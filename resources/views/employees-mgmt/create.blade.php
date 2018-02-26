@@ -48,19 +48,6 @@
                                 @endif
                             </div>
                         </div>
-                        <div class="form-group{{ $errors->has('address') ? ' has-error' : '' }}">
-                            <label for="address" class="col-md-4 control-label">Address</label>
-
-                            <div class="col-md-6">
-                                <input id="address" type="text" class="form-control" name="address" value="{{ old('address') }}" required>
-
-                                @if ($errors->has('address'))
-                                    <span class="help-block">
-                                        <strong>{{ $errors->first('address') }}</strong>
-                                    </span>
-                                @endif
-                            </div>
-                        </div>
                         <div class="form-group">
                             <label class="col-md-4 control-label">Country</label>
                             <div class="col-md-6">
@@ -92,6 +79,19 @@
                                         <option value="{{$city->id}}">{{$city->name}}</option>
                                     @endforeach  --}}
                                 </select>
+                            </div>
+                        </div>
+                        <div class="form-group{{ $errors->has('address') ? ' has-error' : '' }}">
+                            <label for="address" class="col-md-4 control-label">Address</label>
+
+                            <div class="col-md-6">
+                                <input id="address" type="text" class="form-control" name="address" value="{{ old('address') }}" required>
+
+                                @if ($errors->has('address'))
+                                    <span class="help-block">
+                                        <strong>{{ $errors->first('address') }}</strong>
+                                    </span>
+                                @endif
                             </div>
                         </div>
                         <div class="form-group{{ $errors->has('zip') ? ' has-error' : '' }}">
@@ -178,7 +178,7 @@
                                 <input type="file" id="picture" name="picture" required >
                             </div>
                         </div>
-                        @extends('layout.default-buttons')
+                        @include('layouts.default-buttons')
                     </form>
                 </div>
             </div>

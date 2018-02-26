@@ -34,7 +34,7 @@
             <thead>
               <tr role="row">
                 <th width="20%" class="sorting" tabindex="0" aria-controls="example2" rowspan="1" colspan="1" aria-label="city: activate to sort column ascending">City Name</th>
-                <th width="20%" class="sorting" tabindex="0" aria-controls="example2" rowspan="1" colspan="1" aria-label="state: activate to sort column ascending">State Name</th>
+                <th width="20%" class="sorting" tabindex="0" aria-controls="example2" rowspan="1" colspan="1" aria-label="province: activate to sort column ascending">Province Name</th>
                 <th tabindex="0" aria-controls="example2" rowspan="1" colspan="2" aria-label="Action: activate to sort column ascending">Action</th>
               </tr>
             </thead>
@@ -43,7 +43,7 @@
             @foreach ($cities as $city)
                 <tr role="row" class="odd">
                   <td>{{ $city->name }}</td>
-                  <td>{{ $city->state_name }}</td>
+                  <td>{{ $city->province_name }}</td>
                   <td>
                     <form class="row" method="POST" action="{{ route('city.destroy', ['id' => $city->id]) }}" onsubmit = "return confirm('Are you sure?')">
                         <input type="hidden" name="_method" value="DELETE">
@@ -62,7 +62,7 @@
             <tfoot>
               <tr>
                 <th width="20%" rowspan="1" colspan="1">City Name</th>
-                <th width="20%" class="sorting" tabindex="0" aria-controls="example2" rowspan="1" colspan="1" aria-label="state: activate to sort column ascending">State Name</th>
+                <th width="20%" class="sorting" tabindex="0" aria-controls="example2" rowspan="1" colspan="1" aria-label="province: activate to sort column ascending">Province Name</th>
                 <th rowspan="1" colspan="2">Action</th>
               </tr>
             </tfoot>

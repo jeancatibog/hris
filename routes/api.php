@@ -17,12 +17,12 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
     return $request->user();
 });
 
-Route::group(['prefix' => 'states'], function()
+Route::group(['prefix' => 'province'], function()
 {
-    Route::get('/{countryId}', 'StateController@loadStates');
+    Route::get('/{countryId}', 'ProvinceController@loadProvinces');
 });
 
 Route::group(['prefix' => 'cities'], function()
 {
-    Route::get('/{stateId}', 'CityController@loadCities');
+    Route::get('/{provinceId}', 'CityController@loadCities');
 });
