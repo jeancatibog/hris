@@ -36,8 +36,8 @@ Route::post('system-management/division/search', 'DivisionController@search')->n
 Route::resource('system-management/country', 'CountryController');
 Route::post('system-management/country/search', 'CountryController@search')->name('country.search');
 
-Route::resource('system-management/state', 'StateController');
-Route::post('system-management/state/search', 'StateController@search')->name('state.search');
+Route::resource('system-management/province', 'ProvinceController');
+Route::post('system-management/province/search', 'ProvinceController@search')->name('province.search');
 
 Route::resource('system-management/city', 'CityController');
 Route::post('system-management/city/search', 'CityController@search')->name('city.search');
