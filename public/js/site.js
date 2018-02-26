@@ -29,7 +29,7 @@ function loadItems(element, path, selectInputClass) {
 function loadProvinces(element) {
   $('.js-provinces').empty().append('<option value="-1">Please select your province</option>');
   $('.js-cities').empty().append('<option value="-1">Please select your city</option>');
-  loadItems(element, '../api/provinces/', '.js-provinces');
+  loadItems(element, '../api/province/', '.js-provinces');
 }
 
 function loadCities(element) {

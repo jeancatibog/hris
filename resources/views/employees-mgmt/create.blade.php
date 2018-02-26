@@ -131,47 +131,6 @@
                                 </div>
                             </div>
                         </div>
-                        <!-- <div class="form-group">
-                            <label class="col-md-4 control-label">Hired Date</label>
-                            <div class="col-md-6">
-                                <div class="input-group date">
-                                    <div class="input-group-addon">
-                                        <i class="fa fa-calendar"></i>
-                                    </div>
-                                    <input type="text" value="{{ old('date_hired') }}" name="date_hired" class="form-control pull-right" id="hiredDate" required>
-                                </div>
-                            </div>
-                        </div> -->
-                        <div class="form-group{{ $errors->has('department_id') ? ' has-error' : '' }}">
-                            <label class="col-md-4 control-label">Department</label>
-                            <div class="col-md-6">
-                                <select class="form-control" name="department_id">
-                                    @foreach ($departments as $department)
-                                        <option value="{{$department->id}}">{{$department->name}}</option>
-                                    @endforeach
-                                </select>
-                                 @if ($errors->has('department_id'))
-                                    <span class="help-block">
-                                        <strong>{{ $errors->first('department_id') }}</strong>
-                                    </span>
-                                @endif
-                            </div>
-                        </div>
-                        <div class="form-group{{ $errors->has('division_id') ? ' has-error' : '' }}">
-                            <label class="col-md-4 control-label">Division</label>
-                            <div class="col-md-6">
-                                <select class="form-control" name="division_id">
-                                    @foreach ($divisions as $division)
-                                        <option value="{{$division->id}}">{{$division->name}}</option>
-                                    @endforeach
-                                </select>
-                                 @if ($errors->has('division_id'))
-                                    <span class="help-block">
-                                        <strong>{{ $errors->first('division_id') }}</strong>
-                                    </span>
-                                @endif
-                            </div>
-                        </div>
                         <div class="form-group">
                             <label for="avatar" class="col-md-4 control-label" >Picture</label>
                             <div class="col-md-6">
