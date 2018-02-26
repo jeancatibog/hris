@@ -36,17 +36,12 @@
                                 @endif
                             </div>
                         </div>
-                        <div class="form-group">
-                            <div class="col-md-6 col-md-offset-4">
-                                <button type="submit" class="btn btn-primary">
-                                    Create
-                                </button>
-                            </div>
-                        </div>
+                        @include('layouts.default-buttons')
                     </form>
                 </div>
             </div>
         </div>
     </div>
+    @yield('btn-content')
 </div>
 @endsection

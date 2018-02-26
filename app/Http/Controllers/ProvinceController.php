@@ -25,8 +25,8 @@ class ProvinceController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function index()
-    {die("here");
-         $provinces = DB::table('province')
+    {
+        $provinces = DB::table('province')
         ->leftJoin('country', 'province.country_id', '=', 'country.id')
         ->select('province.id', 'province.name', 'country.name as country_name', 'country.id as country_id')
         ->paginate(5);

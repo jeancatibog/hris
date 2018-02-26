@@ -152,7 +152,8 @@ class DepartmentController extends Controller
         ]);
         // check if unique name for department
         $department = Department::where('name', $request['name'])->first();
-        if($department->id != $id) {
+        echo isset($id);die("here");
+        if(isset($id) && $department->id != $id) {
             $this->validate($request, [
                 'name' => 'unique:department'
             ]);

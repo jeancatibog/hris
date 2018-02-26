@@ -24,22 +24,16 @@
                             </div>
                         </div>
                         <div class="form-group">
-                            <label class="col-md-4 control-label">State</label>
+                            <label class="col-md-4 control-label">Province</label>
                             <div class="col-md-6">
-                                <select class="form-control" name="state_id">
-                                    @foreach ($states as $state)
-                                        <option value="{{$state->id}}">{{$state->name}}</option>
+                                <select class="form-control" name="province_id">
+                                    @foreach ($provinces as $province)
+                                        <option value="{{$province->id}}">{{$province->name}}</option>
                                     @endforeach
                                 </select>
                             </div>
                         </div>
-                        <div class="form-group">
-                            <div class="col-md-6 col-md-offset-4">
-                                <button type="submit" class="btn btn-primary">
-                                    Create
-                                </button>
-                            </div>
-                        </div>
+                        @extends('layout.default-buttons')
                     </form>
                 </div>
             </div>

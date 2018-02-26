@@ -178,13 +178,7 @@
                                 <input type="file" id="picture" name="picture" required >
                             </div>
                         </div>
-                        <div class="form-group">
-                            <div class="col-md-6 col-md-offset-4">
-                                <button type="submit" class="btn btn-primary">
-                                    Create
-                                </button>
-                            </div>
-                        </div>
+                        @extends('layout.default-buttons')
                     </form>
                 </div>
             </div>

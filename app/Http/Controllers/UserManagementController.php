@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\User;
+use App\Employee;
 
 class UserManagementController extends Controller
 {
@@ -44,7 +45,8 @@ class UserManagementController extends Controller
      */
     public function create()
     {
-        return view('users-mgmt/create');
+        $employees  = Employee::all();
+        return view('users-mgmt/create', ['employees' => $employees]);
     }
 
     /**
@@ -60,8 +62,9 @@ class UserManagementController extends Controller
             'username' => $request['username'],
             'email' => $request['email'],
             'password' => bcrypt($request['password']),
-            'firstname' => $request['firstname'],
-            'lastname' => $request['lastname']
+            // 'firstname' => $request['firstname'],
+            // 'lastname' => $request['lastname']
+            'employee_id' => $request['employee_id']
         ]);
 
         return redirect()->intended('/user-management');
@@ -107,13 +110,13 @@ class UserManagementController extends Controller
         $user = User::findOrFail($id);
         $constraints = [
             'username' => 'required|max:20',
-            'firstname'=> 'required|max:60',
-            'lastname' => 'required|max:60'
+            // 'firstname'=> 'required|max:60',
+            // 'lastname' => 'required|max:60'
             ];
         $input = [
             'username' => $request['username'],
-            'firstname' => $request['firstname'],
-            'lastname' => $request['lastname']
+            // 'firstname' => $request['firstname'],
+            // 'lastname' => $request['lastname']
         ];
         if ($request['password'] != null && strlen($request['password']) > 0) {
             $constraints['password'] = 'required|min:6|confirmed';

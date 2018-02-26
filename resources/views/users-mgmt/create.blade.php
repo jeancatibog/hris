@@ -14,10 +14,10 @@
                             <label for="employee_id" class="col-md-4 control-label">Employee</label>
                             <div class="col-md-6">
                                  <select class="form-control js-employees" name="employee_id">
-                                    <option value="-1">Please select your employee</option>
-                                    {{--  @foreach ($employees as $employee)
+                                    <option value="">Please select your employee</option>
+                                    @foreach ($employees as $employee)
                                         <option value="{{$employee->id}}">{{$employee->lastname . ", " . $employee->firstname}}</option>
-                                    @endforeach  --}}
+                                    @endforeach
                                 </select>
                             </div>
                         </div>
@@ -95,17 +95,7 @@
                                 <input id="password-confirm" type="password" class="form-control" name="password_confirmation" required>
                             </div>
                         </div>
-
-                        <div class="form-group">
-                            <div class="col-md-6 col-md-offset-4">
-                                <button type="button" class="btn btn-default btn-back">
-                                    Back
-                                </button>
-                                <button type="submit" class="btn btn-primary">
-                                    Create
-                                </button>
-                            </div>
-                        </div>
+                        @extends('layout.default-buttons')
                     </form>
                 </div>
             </div>
