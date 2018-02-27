@@ -8,7 +8,8 @@ use Response;
 use App\Employee;
 use App\Department;
 use App\Division;
-// use App\Shift;
+use App\Shift;
+use App\Role
 
 class EmployeeSetupManagementController extends Controller
 {
@@ -59,7 +60,7 @@ class EmployeeSetupManagementController extends Controller
     public function store(Request $request)
     {
         $this->validateInput($request);
-        $keys = ['department_id', 'division_id', 'shift_id', 'report_to', 'approver_id'];//, 'date_hired', 'department_id', 'division_id'];
+        $keys = ['date_hired','department_id', 'division_id', 'shift_id', 'report_to', 'approver_id'];
         $input = $this->createQueryInput($keys, $request);
 
         EmployeeSetup::create($input);

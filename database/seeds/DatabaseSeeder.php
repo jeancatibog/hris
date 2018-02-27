@@ -30,5 +30,14 @@ class DatabaseSeeder extends Seeder
             'firstname' => 'admin',
             'employee_id'   => $emp_id
         ]);
+        
+        $roles = [
+            ['name' => 'Super Administrator'],
+            ['name' => 'HR Admin'],
+            ['name' => 'Manager'],
+            ['name' => 'Supervisor'],
+            ['name' => 'Employee']
+        ];
+        DB::table('roles')->insert($roles);
     }
 }

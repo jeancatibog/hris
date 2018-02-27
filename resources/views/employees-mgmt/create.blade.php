@@ -10,6 +10,19 @@
                     <form class="form-horizontal" role="form" method="POST" action="{{ route('employee-management.store') }}" enctype="multipart/form-data">
                         {{ csrf_field() }}
                         <div class="form-group{{ $errors->has('firstname') ? ' has-error' : '' }}">
+                            <label for="employee_number" class="col-md-4 control-label">Employee Number</label>
+
+                            <div class="col-md-6">
+                                <input id="employee_number" type="text" class="form-control" name="employee_number" value="{{ old('employee_number') }}" required autofocus>
+
+                                @if ($errors->has('employee_number'))
+                                    <span class="help-block">
+                                        <strong>{{ $errors->first('employee_number') }}</strong>
+                                    </span>
+                                @endif
+                            </div>
+                        </div>
+                        <div class="form-group{{ $errors->has('firstname') ? ' has-error' : '' }}">
                             <label for="firstname" class="col-md-4 control-label">First Name</label>
 
                             <div class="col-md-6">
@@ -39,7 +52,7 @@
                             <label for="middlename" class="col-md-4 control-label">Middle Name</label>
 
                             <div class="col-md-6">
-                                <input id="middlename" type="text" class="form-control" name="middlename" value="{{ old('middlename') }}" required>
+                                <input id="middlename" type="text" class="form-control" name="middlename" value="{{ old('middlename') }}">
 
                                 @if ($errors->has('middlename'))
                                     <span class="help-block">
@@ -85,7 +98,7 @@
                             <label for="address" class="col-md-4 control-label">Address</label>
 
                             <div class="col-md-6">
-                                <input id="address" type="text" class="form-control" name="address" value="{{ old('address') }}" required>
+                                <input id="address" type="text" class="form-control" name="address" value="{{ old('address') }}">
 
                                 @if ($errors->has('address'))
                                     <span class="help-block">
@@ -98,7 +111,7 @@
                             <label for="zip" class="col-md-4 control-label">Zip</label>
 
                             <div class="col-md-6">
-                                <input id="zip" type="text" class="form-control" name="zip" value="{{ old('zip') }}" required>
+                                <input id="zip" type="text" class="form-control" name="zip" value="{{ old('zip') }}">
 
                                 @if ($errors->has('zip'))
                                     <span class="help-block">
@@ -111,7 +124,7 @@
                             <label for="zip" class="col-md-4 control-label">Age</label>
 
                             <div class="col-md-6">
-                                <input id="age" type="text" class="form-control" name="age" value="{{ old('age') }}" required>
+                                <input id="age" type="text" class="form-control" name="age" value="{{ old('age') }}">
 
                                 @if ($errors->has('age'))
                                     <span class="help-block">
@@ -127,7 +140,7 @@
                                     <div class="input-group-addon">
                                         <i class="fa fa-calendar"></i>
                                     </div>
-                                    <input type="text" value="{{ old('birthdate') }}" name="birthdate" class="form-control pull-right datepicker" id="birthDate" required>
+                                    <input type="text" value="{{ old('birthdate') }}" name="birthdate" class="form-control pull-right datepicker" id="birthDate">
                                 </div>
                             </div>
                         </div>

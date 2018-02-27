@@ -9,8 +9,10 @@ use App\Employee;
 use App\City;
 use App\Province;
 use App\Country;
-// use App\Department;
-// use App\Division;
+use App\Department;
+use App\Division;
+use App\Role;
+use App\Shift;
 
 class EmployeeManagementController extends Controller
 {
@@ -69,18 +71,21 @@ class EmployeeManagementController extends Controller
         $this->validateInput($request);
         // Upload image
         $path = $request->file('picture')->store('avatars');
-        $keys = ['lastname', 'firstname', 'middlename', 'address', 'city_id', 'province_id', 'country_id', 'zip',
+        $keys = ['employee_number','lastname', 'firstname', 'middlename', 'address', 'city_id', 'province_id', 'country_id', 'zip',
         'age', 'birthdate'];//, 'date_hired', 'department_id', 'division_id'];
         $input = $this->createQueryInput($keys, $request);
         $input['picture'] = $path;
 
         $employee = Employee::create($input);
 
-
+        // Upon saving of employee details setup should also be saved
         $departments = Department::all();
         $divisions = Division::all();
-        // Upon saving of employee details setup should also be saved
-        return view('employee-setup-mgmt/create', ['employee_id' => $employee->id]);
+        $roles = Role::all();
+        $shifts = Shift::all();
+        $approvers = Employee::all();
+        return view('employee-setup-mgmt/create', ['employee' => $employee, 'departments' => $departments, 'divisions' => $divisions,
+            'roles' => $roles, 'shifts' => $shifts, 'approvers' => $approvers]);
         // return redirect()->intended('/employee-management');
     }
 

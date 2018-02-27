@@ -51,3 +51,5 @@ Route::get('avatars/{name}', 'EmployeeManagementController@load');
 
 Route::resource('system-management/shift', 'ShiftController');
 Route::post('system-management/shift/search', 'ShiftController@search')->name('shift.search');
+
+Route::resource('employee-setup-management', 'EmployeeSetupManagementController');
