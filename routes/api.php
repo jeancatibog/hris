@@ -22,7 +22,7 @@ Route::group(['prefix' => 'province'], function()
     Route::get('/{countryId}', 'ProvinceController@loadProvinces');
 });
 
-Route::group(['prefix' => 'cities'], function()
+Route::group(['prefix' => 'city'], function()
 {
     Route::get('/{provinceId}', 'CityController@loadCities');
 });

@@ -9,12 +9,11 @@ function loadItems(element, path, selectInputClass) {
   $.ajax({
   type: 'GET',
   url: path + selectedVal,
-  success: function (datas) {console.log(datas);
+  success: function (datas) {
     if (!datas || datas.length === 0) {
        return;
     }
     for (var  i = 0; i < datas.length; i++) {
-console.log(datas[i].name);
       $(selectInputClass).append($('<option>', {
         value: datas[i].id,
         text: datas[i].name
@@ -27,18 +26,18 @@ console.log(datas[i].name);
 }
 
 function loadProvinces(element) {
-  $('.js-provinces').empty().append('<option value="-1">Please select your province</option>');
-  $('.js-cities').empty().append('<option value="-1">Please select your city</option>');
+  $('.js-provinces').empty().append('<option value="">Please select your province</option>');
+  $('.js-cities').empty().append('<option value="">Please select your city</option>');
   loadItems(element, '../api/province/', '.js-provinces');
 }
 
 function loadCities(element) {
-  $('.js-cities').empty().append('<option value="-1">Please select your city</option>');;
-  loadItems(element, '../api/cities/', '.js-cities');
+  $('.js-cities').empty().append('<option value="">Please select your city</option>');;
+  loadItems(element, '../api/city/', '.js-cities');
 }
 
 function loadEmployees(element) {
-  $('.js-employees').empty().append('<option value="-1">Please select your employee</option>');;
+  $('.js-employees').empty().append('<option value="">Please select your employee</option>');;
   loadItems(element, '../api/employees/', '.js-employees');
 }
 

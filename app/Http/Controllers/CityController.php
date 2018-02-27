@@ -126,7 +126,7 @@ class CityController extends Controller
          return redirect()->intended('system-management/city');
     }
 
-    public function loadCities($provinceId) {die("here");
+    public function loadCities($provinceId) {
         $cities = City::where('province_id', $provinceId)->get();
         
         return response()->json($cities);
