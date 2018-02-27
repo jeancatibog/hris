@@ -12,7 +12,7 @@ class DashboardController extends Controller
      * @return void
      */
     public function __construct()
-    {
+    
         $this->middleware('auth');
     }
 
@@ -23,6 +23,9 @@ class DashboardController extends Controller
      */
     public function index()
     {
-        return view('dashboard');
+        die(Auth::user());
+        $employee = Employee::find($id);
+
+        return view('dashboard', ['employees' => $employees]);
     }
 }

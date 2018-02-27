@@ -10,6 +10,16 @@
                     <form class="form-horizontal" role="form" method="POST" action="{{ route('city.store') }}">
                         {{ csrf_field() }}
 
+                        <div class="form-group">
+                            <label class="col-md-4 control-label">Province</label>
+                            <div class="col-md-6">
+                                <select class="form-control" name="province_id">
+                                    @foreach ($provinces as $province)
+                                        <option value="{{$province->id}}">{{$province->name}}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        </div>
                         <div class="form-group{{ $errors->has('name') ? ' has-error' : '' }}">
                             <label for="name" class="col-md-4 control-label">City Name</label>
 
@@ -21,16 +31,6 @@
                                         <strong>{{ $errors->first('name') }}</strong>
                                     </span>
                                 @endif
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label class="col-md-4 control-label">Province</label>
-                            <div class="col-md-6">
-                                <select class="form-control" name="province_id">
-                                    @foreach ($provinces as $province)
-                                        <option value="{{$province->id}}">{{$province->name}}</option>
-                                    @endforeach
-                                </select>
                             </div>
                         </div>
                         @include('layouts.default-buttons')

@@ -55,8 +55,6 @@ class EmployeeManagementController extends Controller
         // $cities = City::all();
         // $states = State::all();
         $countries = Country::all();
-        // $departments = Department::all();
-        // $divisions = Division::all();
         return view('employees-mgmt/create', ['countries' => $countries]);//, 'departments' => $departments, 'divisions' => $divisions*/]);
     }
 
@@ -106,11 +104,9 @@ class EmployeeManagementController extends Controller
         if ($employee == null || count($employee) == 0) {
             return redirect()->intended('/employee-management');
         }
-        $cities = City::all();
-        $provinces = Province::all();
         $countries = Country::all();
-        // $departments = Department::all();
-        // $divisions = Division::all();
+        $provinces = Province::where('country_id', $employee['country_id'])->get();
+        $cities = City::where('province_id',$employee['province_id'])->get();//find($employee['city_id']);
         return view('employees-mgmt/edit', ['employee' => $employee, 'cities' => $cities, 'provinces' => $provinces, 'countries' => $countries]);//, 'departments' => $departments, 'divisions' => $divisions]);
     }
 

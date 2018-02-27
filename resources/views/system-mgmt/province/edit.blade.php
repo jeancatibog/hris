@@ -10,6 +10,16 @@
                     <form class="form-horizontal" role="form" method="POST" action="{{ route('province.update', ['id' => $province->id]) }}">
                         <input type="hidden" name="_method" value="PATCH">
                         <input type="hidden" name="_token" value="{{ csrf_token() }}">
+                        <div class="form-group">
+                            <label class="col-md-4 control-label">Country</label>
+                            <div class="col-md-6">
+                                <select class="form-control" name="country_id">
+                                    @foreach ($countries as $country)
+                                        <option value="{{$country->id}}" {{$country->id == $province->country_id ? 'selected' : ''}}>{{$country->name}}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        </div>
                         <div class="form-group{{ $errors->has('name') ? ' has-error' : '' }}">
                             <label for="name" class="col-md-4 control-label">Province Name</label>
 
@@ -21,16 +31,6 @@
                                         <strong>{{ $errors->first('name') }}</strong>
                                     </span>
                                 @endif
-                            </div>
-                        </div>
-                          <div class="form-group">
-                            <label class="col-md-4 control-label">Country</label>
-                            <div class="col-md-6">
-                                <select class="form-control" name="country_id">
-                                    @foreach ($countries as $country)
-                                        <option value="{{$country->id}}" {{$country->id == $province->country_id ? 'selected' : ''}}>{{$country->name}}</option>
-                                    @endforeach
-                                </select>
                             </div>
                         </div>
                         @include('layouts.update-buttons')

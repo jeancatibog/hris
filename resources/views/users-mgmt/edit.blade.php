@@ -10,6 +10,18 @@
                     <form class="form-horizontal" role="form" method="POST" action="{{ route('user-management.update', ['id' => $user->id]) }}">
                         <input type="hidden" name="_method" value="PATCH">
                         <input type="hidden" name="_token" value="{{ csrf_token() }}">
+                        
+                        <div class="form-group{{ $errors->has('employee_id') ? ' has-error' : '' }}">
+                            <label for="employee_id" class="col-md-4 control-label">Employee</label>
+                            <div class="col-md-6">
+                                 <select class="form-control js-employees" name="employee_id" disabled>
+                                    <option value="">Please select your employee</option>
+                                    @foreach ($employees as $employee)
+                                        <option {{$user->employee_id == $employee->id ? 'selected' : ''}} value="{{$employee->id}}">{{$employee->lastname . ", " . $employee->firstname}}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        </div>
                         <div class="form-group{{ $errors->has('username') ? ' has-error' : '' }}">
                             <label for="username" class="col-md-4 control-label">User Name</label>
 
@@ -19,6 +31,19 @@
                                 @if ($errors->has('username'))
                                     <span class="help-block">
                                         <strong>{{ $errors->first('username') }}</strong>
+                                    </span>
+                                @endif
+                            </div>
+                        </div>
+                        <div class="form-group{{ $errors->has('email') ? ' has-error' : '' }}">
+                            <label for="email" class="col-md-4 control-label">Email</label>
+
+                            <div class="col-md-6">
+                                <input id="email" type="text" class="form-control" name="email" value="{{ $user->email }}" required>
+
+                                @if ($errors->has('email'))
+                                    <span class="help-block">
+                                        <strong>{{ $errors->first('email') }}</strong>
                                     </span>
                                 @endif
                             </div>

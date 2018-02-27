@@ -95,7 +95,9 @@ class UserManagementController extends Controller
             return redirect()->intended('/user-management');
         }
 
-        return view('users-mgmt/edit', ['user' => $user]);
+        $employees = Employee::all(); 
+
+        return view('users-mgmt/edit', ['user' => $user, 'employees' => $employees]);
     }
 
     /**
@@ -109,14 +111,10 @@ class UserManagementController extends Controller
     {
         $user = User::findOrFail($id);
         $constraints = [
-            'username' => 'required|max:20',
-            // 'firstname'=> 'required|max:60',
-            // 'lastname' => 'required|max:60'
+            'username' => 'required|max:20'
             ];
         $input = [
-            'username' => $request['username'],
-            // 'firstname' => $request['firstname'],
-            // 'lastname' => $request['lastname']
+            'username' => $request['username']
         ];
         if ($request['password'] != null && strlen($request['password']) > 0) {
             $constraints['password'] = 'required|min:6|confirmed';

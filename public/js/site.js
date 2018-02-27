@@ -9,12 +9,12 @@ function loadItems(element, path, selectInputClass) {
   $.ajax({
   type: 'GET',
   url: path + selectedVal,
-  success: function (datas) {
+  success: function (datas) {console.log(datas);
     if (!datas || datas.length === 0) {
        return;
     }
-
     for (var  i = 0; i < datas.length; i++) {
+console.log(datas[i].name);
       $(selectInputClass).append($('<option>', {
         value: datas[i].id,
         text: datas[i].name
@@ -33,7 +33,6 @@ function loadProvinces(element) {
 }
 
 function loadCities(element) {
-  alert(element);
   $('.js-cities').empty().append('<option value="-1">Please select your city</option>');;
   loadItems(element, '../api/cities/', '.js-cities');
 }
@@ -45,11 +44,11 @@ function loadEmployees(element) {
 
 function registerEvents() {
   $('.js-country').on('change', function() {
-    loadProvinces($(this).val());
+    loadProvinces(this);
   });
 
   $('.js-provinces').on('change', function() {
-    loadCities($(this).val());
+    loadCities(this);
   });
 }
 

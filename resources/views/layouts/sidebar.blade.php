@@ -10,7 +10,7 @@
           <img src="{{ asset("/bower_components/AdminLTE/dist/img/user2-160x160.jpg") }}" class="img-circle" alt="User Image">
         </div>
         <div class="pull-left info">
-          <p>{{ Auth::user()->name}}</p>
+          <p>{{ Auth::user()->firstname}}</p>
           <!-- Status -->
           <a href="#"><i class="fa fa-circle text-success"></i> Online</a>
         </div>
@@ -32,9 +32,9 @@
       <ul class="sidebar-menu">
         <!-- Optionally, you can add icons to the links -->
         <li class="active"><a href="/"><i class="fa fa-link"></i> <span>Dashboard</span></a></li>
-        <li><a href="{{ url('employee-management') }}"><i class="fa fa-link"></i> <span>Employee Management</span></a></li>
+        <li><a href="{{ url('employee-management') }}"><i class="fa fa-users"></i> <span>Employee Management</span></a></li>
         <li class="treeview">
-          <a href="#"><i class="fa fa-link"></i> <span>System Management</span>
+          <a href="#"><i class="fa fa-cogs"></i> <span>System Management</span>
             <span class="pull-right-container">
               <i class="fa fa-angle-left pull-right"></i>
             </span>
@@ -48,7 +48,7 @@
             <li><a href="{{ url('system-management/report') }}">Report</a></li>
           </ul>
         </li>
-        <li><a href="{{ route('user-management.index') }}"><i class="fa fa-link"></i> <span>User management</span></a></li>
+        <li><a href="{{ route('user-management.index') }}"><i class="fa fa-user"></i> <span>User management</span></a></li>
       </ul>
       <!-- /.sidebar-menu -->
     </section>
