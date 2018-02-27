@@ -73,11 +73,15 @@ class EmployeeManagementController extends Controller
         'age', 'birthdate'];//, 'date_hired', 'department_id', 'division_id'];
         $input = $this->createQueryInput($keys, $request);
         $input['picture'] = $path;
-        // Not implement yet
-        // $input['company_id'] = 0;
-        Employee::create($input);
 
-        return redirect()->intended('/employee-management');
+        $employee = Employee::create($input);
+
+
+        $departments = Department::all();
+        $divisions = Division::all();
+        // Upon saving of employee details setup should also be saved
+        return view('employee-setup-mgmt/create', ['employee_id' => $employee->id]);
+        // return redirect()->intended('/employee-management');
     }
 
     /**
