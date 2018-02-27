@@ -40,6 +40,7 @@
             </span>
           </a>
           <ul class="treeview-menu">
+            <li><a href="{{ url('system-management/shift') }}">Shifts</a></li>
             <li><a href="{{ url('system-management/department') }}">Department</a></li>
             <li><a href="{{ url('system-management/division') }}">Division</a></li>
             <li><a href="{{ url('system-management/country') }}">Country</a></li>

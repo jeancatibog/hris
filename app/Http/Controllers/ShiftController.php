@@ -4,10 +4,9 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use App\Province;
-use App\Country;
+use App\Shift;
 
-class ProvinceController extends Controller
+class ShiftController extends Controller
 {
     /**
      * Create a new controller instance.
@@ -26,11 +25,8 @@ class ProvinceController extends Controller
      */
     public function index()
     {
-        $provinces = DB::table('province')
-        ->leftJoin('country', 'province.country_id', '=', 'country.id')
-        ->select('province.id', 'province.name', 'country.name as country_name', 'country.id as country_id')
-        ->paginate(5);
-        return view('system-mgmt/province/index', ['provinces' => $provinces]);
+        $shifts = Shift::paginate(5);
+        return view('system-mgmt/shift/index', ['shifts' => $shifts]);
     }
 
     /**
@@ -40,8 +36,7 @@ class ProvinceController extends Controller
      */
     public function create()
     {
-        $countries = Country::all();
-        return view('system-mgmt/province/create', ['countries' => $countries]);
+        return view('system-mgmt/shift/create');
     }
 
     /**
@@ -52,14 +47,16 @@ class ProvinceController extends Controller
      */
     public function store(Request $request)
     {
-        Country::findOrFail($request['country_id']);
         $this->validateInput($request);
-         Province::create([
-            'name' => $request['name'],
-            'country_id' => $request['country_id']
+         Shift::create([
+            'name'	=> 	$request['name'],
+            'start' => 	date("H:i",strtotime($request['start'])),
+            'end'	=>	date("H:i",strtotime($request['end'])),
+            'first_halfday_end' => 	date("H:i",strtotime($request['first_halfday_end'])),
+            'second_halfday_start'	=>	date("H:i",strtotime($request['second_halfday_start']))
         ]);
 
-        return redirect()->intended('system-management/province');
+        return redirect()->intended('system-management/shift');
     }
 
     /**
@@ -80,14 +77,12 @@ class ProvinceController extends Controller
      */
     public function edit($id)
     {
-        $province = Province::find($id);
-        // Redirect to province list if updating province wasn't existed
-        if ($province == null || count($province) == 0) {
-            return redirect()->intended('/system-management/province');
-        }
-
-        $countries = Country::all();
-        return view('system-mgmt/province/edit', ['province' => $province, 'countries' => $countries]);
+        $shift = Shift::find($id);
+        $shift['start'] = date('h:i A', strtotime($shift['start']));
+        $shift['end'] = date('h:i A', strtotime($shift['end']));
+        $shift['first_halfday_end'] = date('h:i A', strtotime($shift['first_halfday_end']));
+        $shift['second_halfday_start'] = date('h:i A', strtotime($shift['second_halfday_start']));
+        return view('system-mgmt/shift/edit', ['shift' => $shift]);
     }
 
     /**
@@ -99,18 +94,20 @@ class ProvinceController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $province = Province::findOrFail($id);
          $this->validate($request, [
         'name' => 'required|max:60'
         ]);
         $input = [
             'name' => $request['name'],
-            'country_id' => $request['country_id']
+            'start' => 	date("H:i",strtotime($request['start'])),
+            'end'	=>	date("H:i",strtotime($request['end'])),
+            'first_halfday_end' => 	date("H:i",strtotime($request['first_halfday_end'])),
+            'second_halfday_start'	=>	date("H:i",strtotime($request['second_halfday_start']))
         ];
-        Province::where('id', $id)
+        Shift::where('id', $id)
             ->update($input);
         
-        return redirect()->intended('system-management/province');
+        return redirect()->intended('system-management/shift');
     }
 
     /**
@@ -121,18 +118,12 @@ class ProvinceController extends Controller
      */
     public function destroy($id)
     {
-        province::where('id', $id)->delete();
-         return redirect()->intended('system-management/province');
-    }
-
-    public function loadProvinces($countryId) {
-        $provinces = Province::where('country_id', '=', $countryId)->get(['id', 'name']);
-
-        return response()->json($provinces);
+        Shift::where('id', $id)->delete();
+         return redirect()->intended('system-management/shift');
     }
     
     /**
-     * Search province from database base on some specific constraints
+     * Search shift from database base on some specific constraints
      *
      * @param  \Illuminate\Http\Request  $request
      *  @return \Illuminate\Http\Response
@@ -142,12 +133,12 @@ class ProvinceController extends Controller
             'name' => $request['name']
             ];
 
-       $provinces = $this->doSearchingQuery($constraints);
-       return view('system-mgmt/province/index', ['provinces' => $provinces, 'searchingVals' => $constraints]);
+       $shifts = $this->doSearchingQuery($constraints);
+       return view('system-mgmt/shift/index', ['shifts' => $shifts, 'searchingVals' => $constraints]);
     }
 
     private function doSearchingQuery($constraints) {
-        $query = Province::query();
+        $query = Shift::query();
         $fields = array_keys($constraints);
         $index = 0;
         foreach ($constraints as $constraint) {
@@ -161,7 +152,9 @@ class ProvinceController extends Controller
     }
     private function validateInput($request) {
         $this->validate($request, [
-            'name' => 'required|max:60|unique:province'
+            'name'	=>	'required',
+            'start'	=>	'required',
+            'end'	=>	'required'
         ]);
     }
 }
