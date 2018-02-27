@@ -127,7 +127,7 @@
                                     <div class="input-group-addon">
                                         <i class="fa fa-calendar"></i>
                                     </div>
-                                    <input type="text" value="{{ old('birthdate') }}" name="birthdate" class="form-control pull-right" id="birthDate" required>
+                                    <input type="text" value="{{ old('birthdate') }}" name="birthdate" class="form-control pull-right datepicker" id="birthDate" required>
                                 </div>
                             </div>
                         </div>
