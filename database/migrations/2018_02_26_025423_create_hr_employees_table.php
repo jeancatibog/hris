@@ -13,25 +13,23 @@ class CreateHrEmployeesTable extends Migration
      */
     public function up()
     {
-        Schema::create('hr_employees', function (Blueprint $table) {
+        Schema::create('employees', function (Blueprint $table) {
             $table->increments('id', true);
-            $table->integer('employee_number');
+            $table->integer('employee_number')->unique();
             $table->string('lastname', 60);
             $table->string('firstname', 60);
-            $table->string('middlename', 60);
-            $table->string('address', 120);
-            $table->integer('city_id')->unsigned();
+            $table->string('middlename', 60)->nullable();
+            $table->string('address', 255)->nullable();
+            $table->integer('city_id')->nullable()->unsigned();
             $table->integer('province_id')->unsigned();
-            $table->integer('country_id')->unsigned();
-            $table->foreign('city_id')->references('id')->on('hr_city');
-            $table->foreign('province_id')->references('id')->on('hr_province');
-            $table->foreign('country_id')->references('id')->on('hr_country');
-            $table->char('zip', 10);
-            $table->integer('age')->unsigned();
+            $table->integer('country_id')->nullable()->unsigned();
+            $table->foreign('city_id')->references('id')->on('city');
+            $table->foreign('province_id')->references('id')->on('province');
+            $table->foreign('country_id')->references('id')->on('country');
+            $table->integer('zip')->nullable()->unsigned();
+            $table->integer('age')->nullable()->unsigned();
             $table->date('birthdate');
-            // $table->integer('company_id')->unsigned();
-            // $table->foreign('company_id')->references('id')->on('company');
-            $table->string('picture', 60);
+            $table->string('picture', 60)->nullable();
             $table->timestamps();
             $table->softDeletes();
         });
@@ -44,6 +42,6 @@ class CreateHrEmployeesTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('hr_employees');
+        Schema::dropIfExists('employees');
     }
 }

@@ -54,10 +54,8 @@ class EmployeeManagementController extends Controller
      */
     public function create()
     {
-        // $cities = City::all();
-        // $states = State::all();
         $countries = Country::all();
-        return view('employees-mgmt/create', ['countries' => $countries]);//, 'departments' => $departments, 'divisions' => $divisions*/]);
+        return view('employees-mgmt/create', ['countries' => $countries]);
     }
 
     /**
@@ -72,7 +70,7 @@ class EmployeeManagementController extends Controller
         // Upload image
         $path = $request->file('picture')->store('avatars');
         $keys = ['employee_number','lastname', 'firstname', 'middlename', 'address', 'city_id', 'province_id', 'country_id', 'zip',
-        'age', 'birthdate'];//, 'date_hired', 'department_id', 'division_id'];
+        'age', 'birthdate'];
         $input = $this->createQueryInput($keys, $request);
         $input['picture'] = $path;
 
@@ -83,9 +81,13 @@ class EmployeeManagementController extends Controller
         $divisions = Division::all();
         $roles = Role::all();
         $shifts = Shift::all();
-        $approvers = Employee::all();
-        return view('employee-setup-mgmt/create', ['employee' => $employee, 'departments' => $departments, 'divisions' => $divisions,
-            'roles' => $roles, 'shifts' => $shifts, 'approvers' => $approvers]);
+        $approvers = Employee::all();/*DB::table('employees AS emp')
+                    ->leftJoin('employee_setup as empset', 'emp.id', '=', 'emp_set.employee_id')
+                    ->leftJoin('roles', 'role.id', '=', 'emp_set.role_id')
+                    // ->where('role.name', '=', 'Supervisor')
+                    ->select('emp.*')->get();*/
+        $reports_to = Employee::all();
+        return view('employee-setup-mgmt/create', ['employee' => $employee, 'departments' => $departments, 'divisions' => $divisions, 'roles' => $roles, 'shifts' => $shifts, 'approvers' => $approvers, 'reports_to' => $reports_to]);
         // return redirect()->intended('/employee-management');
     }
 
@@ -132,7 +134,7 @@ class EmployeeManagementController extends Controller
         $this->validateInput($request);
         // Upload image
         $keys = ['lastname', 'firstname', 'middlename', 'address', 'city_id', 'province_id', 'country_id', 'zip',
-        'age', 'birthdate'];//, 'date_hired', 'department_id', 'department_id', 'division_id'];
+        'age', 'birthdate'];
         $input = $this->createQueryInput($keys, $request);
         if ($request->file('picture')) {
             $path = $request->file('picture')->store('avatars');
@@ -209,15 +211,8 @@ class EmployeeManagementController extends Controller
         $this->validate($request, [
             'lastname' => 'required|max:60',
             'firstname' => 'required|max:60',
-            'middlename' => 'required|max:60',
-            'address' => 'required|max:120',
-            'country_id' => 'required',
-            'zip' => 'required|max:10',
-            'age' => 'required',
-            'birthdate' => 'required'//,
-            // 'date_hired' => 'required',
-            // 'department_id' => 'required',
-            // 'division_id' => 'required'
+            // 'country_id' => 'required',
+            'birthdate' => 'required'
         ]);
     }
 

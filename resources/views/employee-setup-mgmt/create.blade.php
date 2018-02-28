@@ -24,7 +24,7 @@
                                     <div class="input-group-addon">
                                         <i class="fa fa-calendar"></i>
                                     </div>
-                                    <input type="text" value="{{ old('date_hired') }}" name="date_hired" class="form-control pull-right datepicker" id="dateHired">
+                                    <input type="text" value="{{ old('date_hired') }}" name="date_hired" class="form-control pull-right datepicker" id="dateHired" required>
                                 </div>
                             </div>
                         </div>
@@ -62,6 +62,28 @@
                             </div>
                         </div>
                         <div class="form-group">
+                            <label class="col-md-4 control-label">Approver</label>
+                            <div class="col-md-6">
+                                <select class="form-control" name="approver_id">
+                                    <option value="">Please select approver</option>
+                                    @foreach ($approvers as $approver)
+                                        <option value="{{$approver->id}}">{{$approver->lastname . ", " . $approver->firstname}}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-md-4 control-label">Reports To</label>
+                            <div class="col-md-6">
+                                <select class="form-control" name="reports_to_id">
+                                    <option value="">Please select supervisor</option>
+                                    @foreach ($reports_to as $reports)
+                                        <option value="{{$reports->id}}">{{$reports->lastname . ", " . $reports->firstname}}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group">
                             <label class="col-md-4 control-label">Default Shift</label>
                             <div class="col-md-6">
                                 <select class="form-control" name="shift_id">
@@ -70,6 +92,72 @@
                                         <option value="{{$shift->id}}">{{date('h:i A',strtotime($shift->start)) . "-" . date('h:i A',strtotime($shift->end))}}</option>
                                     @endforeach
                                 </select>
+                            </div>
+                        </div>
+                        <div class="form-group{{ $errors->has('position') ? ' has-error' : '' }}">
+                            <label class="col-md-4 control-label">Position</label>
+                            <div class="col-md-6">
+                                <input type="text" name="position" class="form-control" value="{{ old('position') }}">
+                                @if ($errors->has('position'))
+                                    <span class="help-block">
+                                        <strong>{{ $errors->first('position') }}</strong>
+                                    </span>
+                                @endif
+                            </div>
+                        </div>
+                        <div class="form-group{{ $errors->has('job_title') ? ' has-error' : '' }}">
+                            <label class="col-md-4 control-label">Job Title</label>
+                            <div class="col-md-6">
+                                <input type="text" name="job_title" class="form-control" value="{{ old('job_title') }}">
+                                @if ($errors->has('job_tile'))
+                                    <span class="help-block">
+                                        <strong>{{ $errors->first('job_tile') }}</strong>
+                                    </span>
+                                @endif
+                            </div>
+                        </div>
+                        <div class="form-group{{ $errors->has('vl_credits') ? ' has-error' : '' }}">
+                            <label class="col-md-4 control-label">Vacation Leave Credits</label>
+                            <div class="col-md-6">
+                                <input type="text" name="vl_credits" class="form-control" value="{{ old('vl_credits') }}">
+                                @if ($errors->has('vl_credits'))
+                                    <span class="help-block">
+                                        <strong>{{ $errors->first('vl_credits') }}</strong>
+                                    </span>
+                                @endif
+                            </div>
+                        </div>
+                        <div class="form-group{{ $errors->has('sl_credits') ? ' has-error' : '' }}">
+                            <label class="col-md-4 control-label">Sick Leave Credits</label>
+                            <div class="col-md-6">
+                                <input type="text" name="sl_credits" class="form-control" value="{{ old('sl_credits') }}">
+                                @if ($errors->has('sl_credits'))
+                                    <span class="help-block">
+                                        <strong>{{ $errors->first('sl_credits') }}</strong>
+                                    </span>
+                                @endif
+                            </div>
+                        </div>
+                        <div class="form-group{{ $errors->has('bil_credits') ? ' has-error' : '' }}">
+                            <label class="col-md-4 control-label">Bday Leave Credits</label>
+                            <div class="col-md-6">
+                                <input type="text" name="bil_credits" class="form-control" value="{{ old('bil_credits') }}">
+                                @if ($errors->has('bil_credits'))
+                                    <span class="help-block">
+                                        <strong>{{ $errors->first('bil_credits') }}</strong>
+                                    </span>
+                                @endif
+                            </div>
+                        </div>
+                        <div class="form-group{{ $errors->has('el_credits') ? ' has-error' : '' }}">
+                            <label class="col-md-4 control-label">Emergency Leave Credits</label>
+                            <div class="col-md-6">
+                                <input type="text" name="el_credits" class="form-control" value="{{ old('el_credits') }}">
+                                @if ($errors->has('el_credits'))
+                                    <span class="help-block">
+                                        <strong>{{ $errors->first('el_credits') }}</strong>
+                                    </span>
+                                @endif
                             </div>
                         </div>
                         @include('layouts.default-buttons')

@@ -31,7 +31,7 @@
       <!-- Sidebar Menu -->
       <ul class="sidebar-menu">
         <!-- Optionally, you can add icons to the links -->
-        <li class="active"><a href="/"><i class="fa fa-link"></i> <span>Dashboard</span></a></li>
+        <li class="active"><a href="/"><i class="fa fa-home"></i> <span>Dashboard</span></a></li>
         <li><a href="{{ url('employee-management') }}"><i class="fa fa-users"></i> <span>Employee Management</span></a></li>
         <li class="treeview">
           <a href="#"><i class="fa fa-cogs"></i> <span>System Management</span>
@@ -40,7 +40,7 @@
             </span>
           </a>
           <ul class="treeview-menu">
-            <li><a href="{{ url('system-management/shift') }}">Shifts</a></li>
+            <li><a href="{{ url('system-management/shift') }}"><i class="fa fa-clock-o"></i><span>Shifts</span></a></li>
             <li><a href="{{ url('system-management/department') }}">Department</a></li>
             <li><a href="{{ url('system-management/division') }}">Division</a></li>
             <li><a href="{{ url('system-management/country') }}">Country</a></li>

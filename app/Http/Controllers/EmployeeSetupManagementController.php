@@ -6,10 +6,11 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Response;
 use App\Employee;
+use App\EmployeeSetup;
 use App\Department;
 use App\Division;
 use App\Shift;
-use App\Role
+use App\Role;
 
 class EmployeeSetupManagementController extends Controller
 {
@@ -24,34 +25,6 @@ class EmployeeSetupManagementController extends Controller
     }
 
     /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    /*public function index()
-    {
-        // DB::enableQueryLog();
-        $employees = DB::table('employees AS emp')
-        ->leftJoin('employee_setup AS empset', 'emp.id', '=', 'empset.employee_id')
-        ->leftJoin('department AS dept', 'empset.department_id', '=', 'dept.id')
-        ->leftJoin('division AS div', 'empset.division_id', '=', 'div.id')
-        ->select('emp.*', 'dept.id as department_id', 'div.id as division_id')
-        ->paginate(5);
-        // echo "<pre>"; print_r(DB::getQueryLog());die("ere");
-        return view('employee-setup-mgmt/index', ['employees' => $employees]);
-    }*/
-
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    /*public function create()
-    {
-        return view('employee-setup-mgmt/create', ['employees' => $countries]);
-    }*/
-
-    /**
      * Store a newly created resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
@@ -60,7 +33,7 @@ class EmployeeSetupManagementController extends Controller
     public function store(Request $request)
     {
         $this->validateInput($request);
-        $keys = ['date_hired','department_id', 'division_id', 'shift_id', 'report_to', 'approver_id'];
+        $keys = ['employee_id', 'date_hired', 'department_id', 'division_id', 'shift_id', 'role_id', 'position', 'job_title', 'reports_to_id', 'approver_id'];
         $input = $this->createQueryInput($keys, $request);
 
         EmployeeSetup::create($input);
@@ -94,7 +67,7 @@ class EmployeeSetupManagementController extends Controller
             return redirect()->intended('/employee-management');
         }
 
-        return view('employees-setup-mgmt/edit', ['employee' => $employee);$divisions]);
+        return view('employees-setup-mgmt/edit', ['employee' => $employee]);
     }
 
     /**
@@ -125,17 +98,11 @@ class EmployeeSetupManagementController extends Controller
 
     private function validateInput($request) {
         $this->validate($request, [
-            'lastname' => 'required|max:60',
-            'firstname' => 'required|max:60',
-            'middlename' => 'required|max:60',
-            'address' => 'required|max:120',
-            'country_id' => 'required',
-            'zip' => 'required|max:10',
-            'age' => 'required',
-            'birthdate' => 'required'//,
-            // 'date_hired' => 'required',
-            // 'department_id' => 'required',
-            // 'division_id' => 'required'
+            'date_hired' => 'required',
+            'department_id' => 'required',
+            'role_id'   => 'required',
+            'approver_id'   =>  'required',
+            'reports_to_id' =>  'required'
         ]);
     }
 
