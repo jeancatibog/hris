@@ -18,6 +18,8 @@ Route::get('/', function () {
 Auth::routes();
 
 Route::get('/dashboard', 'DashboardController@index');
+
+Route::resource('dashboard', 'DashboardController');
 // Route::get('/system-management/{option}', 'SystemMgmtController@index');
 Route::get('/profile', 'ProfileController@index');
 
@@ -53,3 +55,4 @@ Route::resource('system-management/shift', 'ShiftController');
 Route::post('system-management/shift/search', 'ShiftController@search')->name('shift.search');
 
 Route::resource('employee-setup-management', 'EmployeeSetupManagementController');
+// Route::resource('dashboard/dashboard-bundy', 'EmployeeSetupManagementController@log');

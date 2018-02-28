@@ -56,3 +56,20 @@ function init() {
 }
 
 init();
+
+$('.btn-in').on('click', function(){
+  $('.ctype').val('In');
+});
+
+$('.btn-in').on('click', function(){
+  $('.ctype').val('In');
+});
+
+$('.btn-log').on('click', function(){
+  var dt = new Date();
+  alert(dt.format('Y-m-d'));
+  var date = dt.getFullYear() + "-" + (dt.getMonth()+1) + "-" + dt.getDate();
+  var time = dt.getHours() + ":" + dt.getMinutes() + ":" + dt.getSeconds();
+  $('.checkdate').val(date);
+  $('.checktime').val(time);
+});

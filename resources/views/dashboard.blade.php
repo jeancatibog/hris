@@ -75,14 +75,14 @@ desired effect
 
     <!-- Main content -->
     <section class="content">
-
       <!-- Your Page Content Here -->
-
+      <!-- extend bundy clock -->
+      @include('dashboard.dashboard-bundy')
     </section>
     <!-- /.content -->
   </div>
   <!-- /.content-wrapper -->
-
+  
   <!-- Footer -->
   @include('layouts.footer')
   

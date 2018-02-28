@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Auth;
 
 class DashboardController extends Controller
 {
@@ -11,7 +12,7 @@ class DashboardController extends Controller
      *
      * @return void
      */
-    public function __construct()
+    public function __construct() {
     
         $this->middleware('auth');
     }
@@ -23,9 +24,6 @@ class DashboardController extends Controller
      */
     public function index()
     {
-        die(Auth::user());
-        $employee = Employee::find($id);
-
-        return view('dashboard', ['employees' => $employees]);
+        return view('dashboard.index');
     }
 }

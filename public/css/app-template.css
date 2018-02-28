@@ -21,3 +21,8 @@
 .bootstrap-timepicker-widget.dropdown-menu {
   width: 53%
 }
+
+.btn-log {
+  padding: 30px 50px;
+  border-radius: 20px;
+}
