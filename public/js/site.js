@@ -7,21 +7,21 @@ function loadItems(element, path, selectInputClass) {
   }
 
   $.ajax({
-  type: 'GET',
-  url: path + selectedVal,
-  success: function (datas) {
-    if (!datas || datas.length === 0) {
-       return;
+    type: 'GET',
+    url: path + selectedVal,
+    success: function (datas) {
+      if (!datas || datas.length === 0) {
+         return;
+      }
+      for (var  i = 0; i < datas.length; i++) {
+        $(selectInputClass).append($('<option>', {
+          value: datas[i].id,
+          text: datas[i].name
+      }));
+      }
+    },
+    error: function (ex) {
     }
-    for (var  i = 0; i < datas.length; i++) {
-      $(selectInputClass).append($('<option>', {
-        value: datas[i].id,
-        text: datas[i].name
-    }));
-    }
-  },
-  error: function (ex) {
-  }
   });
 }
 
@@ -59,17 +59,29 @@ init();
 
 $('.btn-in').on('click', function(){
   $('.ctype').val('In');
+  // $(this).attr('disabled', 'disabled');
 });
 
-$('.btn-in').on('click', function(){
-  $('.ctype').val('In');
+$('.btn-out').on('click', function(){
+  $('.ctype').val('Out');
+  // $('.btn-in').removeAttr('disabled');
 });
 
 $('.btn-log').on('click', function(){
-  var dt = new Date();
-  alert(dt.format('Y-m-d'));
-  var date = dt.getFullYear() + "-" + (dt.getMonth()+1) + "-" + dt.getDate();
-  var time = dt.getHours() + ":" + dt.getMinutes() + ":" + dt.getSeconds();
+  var dt = new Date(),
+      date = getToday(),
+      time = dt.getHours() + ":" + dt.getMinutes() + ":" + dt.getSeconds();
   $('.checkdate').val(date);
   $('.checktime').val(time);
 });
+
+function getToday() {
+  var d = new Date(),
+      month = '' + (d.getMonth() + 1),
+      day = '' + d.getDate(),
+      year = d.getFullYear();
+
+  if (month.length < 2) month = '0' + month;
+  if (day.length < 2) day = '0' + day;
+  return [year, month, day].join('-');
+}

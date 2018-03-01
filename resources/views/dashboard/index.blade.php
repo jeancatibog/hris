@@ -6,6 +6,7 @@
     </div>
     <!-- /.box-header -->
     <div class="box-body">
+        @include('layouts.flash-message')
         @include('dashboard.dashboard-bundy')
     </div>
   <!-- /.box-body -->

@@ -12,7 +12,7 @@
 */
 
 Route::get('/', function () {
-    return view('dashboard');
+    return view('dashboard/index');
 })->middleware('auth');
 
 Auth::routes();
@@ -55,4 +55,5 @@ Route::resource('system-management/shift', 'ShiftController');
 Route::post('system-management/shift/search', 'ShiftController@search')->name('shift.search');
 
 Route::resource('employee-setup-management', 'EmployeeSetupManagementController');
-// Route::resource('dashboard/dashboard-bundy', 'EmployeeSetupManagementController@log');
+
+Route::post('timekeeping/log', 'TimekeepingController@log')->name('timekeeping.log');

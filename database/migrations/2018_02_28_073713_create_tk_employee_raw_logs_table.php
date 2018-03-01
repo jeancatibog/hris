@@ -19,7 +19,7 @@ class CreateTkEmployeeRawLogsTable extends Migration
             $table->date('date');
             $table->time('checktime');
             $table->string('checktype');
-            $table->integer('processed');
+            $table->integer('processed')->default(0);
             $table->foreign('employee_id')->references('id')->on('employees');
             $table->timestamps();
             $table->softDeletes();
