@@ -22,10 +22,24 @@
   width: 53%
 }
 
+#time-log {
+  margin-left: 40px;
+}
+
+#time-log .form-group {
+  margin-bottom: 0px !important;
+}
+
 .btn-log {
-  padding: 25px 35px;
-  border-radius: 20px;
-  margin-top: 47px !important;
+  border-radius: 50%;
+  margin-top: 31px !important;
+  height: 100px;
+  width: 100px;
+}
+
+.btn-log span {
+  font-weight: bold;
+  font-size: 18px;
 }
 
 .alert {
@@ -43,7 +57,7 @@
 }
 
 #clock {
-  margin: 5px auto 30px !important;
+  margin: 10px auto 0px !important;
   width: 400px !important;
   padding: 20px !important;
 }

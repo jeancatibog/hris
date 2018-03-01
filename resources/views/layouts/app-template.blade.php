@@ -90,8 +90,6 @@
     <script src="{{ asset ("/bower_components/AdminLTE/dist/js/app.min.js") }}" type="text/javascript"></script>
     <script src="{{ asset ("/bower_components/AdminLTE/dist/js/demo.js") }}" type="text/javascript"></script>
     <!-- DIGITAL CLOCK -->
-    <script src="http://cdnjs.cloudflare.com/ajax/libs/jquery/1.10.1/jquery.min.js"></script>
-    <script src="http://cdnjs.cloudflare.com/ajax/libs/moment.js/2.0.0/moment.min.js"></script>
     <script src="{{ asset ("/js/digiclock.js") }}" type="text/javascript"></script>
 
     <!-- Optionally, you can add Slimscroll and FastClick plugins.
