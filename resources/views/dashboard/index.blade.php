@@ -1,4 +1,4 @@
-@extends('dashboard.base')
+@extends('layouts.base', ['module' => 'Dashboard'])
 @section('action-content')
     <!-- Main content -->
 <section class="content">

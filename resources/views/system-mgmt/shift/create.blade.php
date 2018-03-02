@@ -1,4 +1,4 @@
-@extends('system-mgmt.shift.base')
+@extends('layouts.base', ['module' => 'Shift Manage'])
 
 @section('action-content')
 <div class="container">

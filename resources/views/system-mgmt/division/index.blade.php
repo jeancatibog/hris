@@ -1,4 +1,4 @@
-@extends('system-mgmt.division.base')
+@extends('layouts.base', ['module' => 'Manage Division'])
 @section('action-content')
     <!-- Main content -->
     <section class="content">

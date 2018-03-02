@@ -23,6 +23,7 @@ class EmployeeManagementController extends Controller
      */
     public function __construct()
     {
+        parent::__construct();
         $this->middleware('auth');
     }
 
@@ -33,7 +34,6 @@ class EmployeeManagementController extends Controller
      */
     public function index()
     {
-        // DB::enableQueryLog();
         $employees = DB::table('employees AS emp')
         ->leftJoin('employee_setup AS empset', 'emp.id', '=', 'empset.employee_id')
         ->leftJoin('city AS city', 'emp.city_id', '=', 'city.id')
@@ -43,7 +43,7 @@ class EmployeeManagementController extends Controller
         // ->leftJoin('division AS div', 'empset.division_id', '=', 'div.id')
         ->select('emp.*', 'country.id as country_id', 'province.id as province_id', 'city.id as city_id')
         ->paginate(5);
-        // echo "<pre>"; print_r(DB::getQueryLog());die("ere");
+        
         return view('employees-mgmt/index', ['employees' => $employees]);
     }
 

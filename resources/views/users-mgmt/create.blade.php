@@ -1,4 +1,4 @@
-@extends('users-mgmt.base')
+@extends('layouts.base', ['module' => 'User Manage'])
 
 @section('action-content')
 <div class="container">

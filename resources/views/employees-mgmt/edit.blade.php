@@ -1,4 +1,4 @@
-@extends('employees-mgmt.base')
+@extends('layouts.base', ['module' => 'Employee Manage'])
 
 @section('action-content')
 <div class="container">

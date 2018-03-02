@@ -9,6 +9,11 @@ use App\RawLogs;
 
 class TimekeepingController extends Controller
 {
+    public function __construct()
+    {
+        parent::__construct();
+        $this->middleware('auth');
+    }
     /*
 	* Logs all in and  out of employee tru bundy clock on dashboard
     */

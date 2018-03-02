@@ -65,3 +65,13 @@
 #clock .display {
   padding: 40px 20px 70px !important;
 }
+
+/* Employee Logo */
+.user-panel>.image>img {
+  width: 45px !important;
+  height: 45px !important;
+}
+
+.content-header h1 {
+  font-weight: bold !important;
+}

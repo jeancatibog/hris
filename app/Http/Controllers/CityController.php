@@ -16,6 +16,7 @@ class CityController extends Controller
      */
     public function __construct()
     {
+        parent::__construct();
         $this->middleware('auth')->only(["index", "create", "store", "edit", "update", "search", "destroy"]);
     }
 

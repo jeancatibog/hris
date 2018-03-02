@@ -1,4 +1,4 @@
-@extends('system-mgmt.city.base')
+@extends('layouts.base', ['module' => 'City Manage'])
 @section('action-content')
     <!-- Main content -->
     <section class="content">

@@ -1,4 +1,4 @@
-@extends('system-mgmt.country.base')
+@extends('layouts.base', ['module' => 'Country Manage'])
 @section('action-content')
     <!-- Main content -->
     <section class="content">

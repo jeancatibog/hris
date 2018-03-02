@@ -1,4 +1,4 @@
-@extends('system-mgmt.province.base')
+@extends('layouts.base', ['module' => 'Province Manage'])
 @section('action-content')
     <!-- Main content -->
     <section class="content">
