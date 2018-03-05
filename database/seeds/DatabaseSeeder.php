@@ -11,7 +11,7 @@ class DatabaseSeeder extends Seeder
      */
     public function run()
     {
-        $employee = DB::table('hr_employees')->insert(
+        $employee = DB::table('employees')->insert(
             array(
                 'employee_number' => '2180002',
                 'firstname' =>  'Jean',
@@ -38,6 +38,7 @@ class DatabaseSeeder extends Seeder
             ['name' => 'Supervisor'],
             ['name' => 'Employee']
         ];
+        
         DB::table('roles')->insert($roles);
 
         $form_status = [
