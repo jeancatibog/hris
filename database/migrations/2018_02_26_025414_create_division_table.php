@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateHrDepartmentTable extends Migration
+class CreateDivisionTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,10 +13,10 @@ class CreateHrDepartmentTable extends Migration
      */
     public function up()
     {
-        Schema::create('hr_department', function (Blueprint $table) {
+        Schema::create('division', function (Blueprint $table) {
             $table->increments('id', true);
             $table->string('name', 60);
-            $table->text('description');
+            $table->text('description')->nullable();
             $table->timestamps();
             $table->softDeletes();
         });
@@ -29,6 +29,6 @@ class CreateHrDepartmentTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('hr_department');
+        Schema::dropIfExists('division');
     }
 }

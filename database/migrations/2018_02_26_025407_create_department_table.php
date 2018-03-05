@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateHrCityTable extends Migration
+class CreateDepartmentTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,11 +13,10 @@ class CreateHrCityTable extends Migration
      */
     public function up()
     {
-        Schema::create('hr_city', function (Blueprint $table) {
+        Schema::create('department', function (Blueprint $table) {
             $table->increments('id', true);
-            $table->integer('province_id')->unsigned();
-            $table->foreign('province_id')->references('id')->on('hr_province');
             $table->string('name', 60);
+            $table->text('description')->nullable();
             $table->timestamps();
             $table->softDeletes();
         });
@@ -30,6 +29,6 @@ class CreateHrCityTable extends Migration
      */
     public function down()
     {
-        //
+        Schema::dropIfExists('department');
     }
 }

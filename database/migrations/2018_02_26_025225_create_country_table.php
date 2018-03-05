@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateHrDivisionTable extends Migration
+class CreateCountryTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,10 +13,10 @@ class CreateHrDivisionTable extends Migration
      */
     public function up()
     {
-        Schema::create('hr_division', function (Blueprint $table) {
+        Schema::create('country', function (Blueprint $table) {
             $table->increments('id', true);
             $table->string('name', 60);
-            $table->text('description');
+            $table->string('country_code')->nullable();
             $table->timestamps();
             $table->softDeletes();
         });
@@ -29,6 +29,6 @@ class CreateHrDivisionTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('hr_division');
+        Schema::dropIfExists('country');
     }
 }

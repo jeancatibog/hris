@@ -16,7 +16,7 @@ class CreateEmployeeSetupTable extends Migration
         Schema::create('employee_setup', function (Blueprint $table) {
             $table->increments('id', true);
             $table->integer('employee_id')->unsigned();
-            $table->decimal('salary', 16, 2)->nullable();
+            // $table->decimal('salary', 16, 2)->nullable();
             $table->date('date_hired');
             $table->integer('department_id')->nullable()->unsigned();
             $table->integer('division_id')->nullable()->unsigned();
