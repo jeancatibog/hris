@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateFileFormTable extends Migration
+class CreateEmployeeLeaveDatesTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,14 +13,13 @@ class CreateFileFormTable extends Migration
      */
     public function up()
     {
-        Schema::create('form_type', function(Blueprint $table) {
+        Schema::create('employee_leave_dates', function(Blueprint $table) {
             $table->increments('id',true);
-            $table->string('code')->unique();
-            $table->string('form');
-            $table->integer('is_leave')->unsigned()->default(0);
-            $table->text('description')->nullable();
-            $table->integer('for_women')->unsigned()->default(1);
-            $table->integer('for_men')->unsigned()->default(1);
+            $table->integer('employee_leave_id')->unsigned();
+            $table->date('date');
+            // $table->dateTime('starttime');
+            $table->float('leave_credit')->unsigned();
+            $table->foreign('employee_leave_id')->references('id')->on('employee_leaves');
             $table->timestamps();
             $table->softDeletes();
         });
@@ -33,6 +32,6 @@ class CreateFileFormTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('form_type');
+        //
     }
 }

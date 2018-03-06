@@ -41,6 +41,7 @@ class DatabaseSeeder extends Seeder
         
         DB::table('roles')->insert($roles);
 
+        // Data insertion for Form status
         $form_status = [
             ['status' => 'Draft', 'description' =>  'Save as draft'],
             ['status' => 'For Approval', 'description' => 'Waiting for approvers approval'],
@@ -49,5 +50,20 @@ class DatabaseSeeder extends Seeder
             ['status' => 'Cancel', 'description' => 'Cancelled by approver/employee']
         ];
         DB::table('form_status')->insert($form_status);
+
+        // Data insertion for Form Types
+        $form_type = [
+            ['code' => 'OT', 'form' => 'Overtime', 'is_leave' => 0, 'for_women' => 1, 'for_men' => 1],
+            ['code' => 'OBT', 'form' => 'Official Business Trip', 'is_leave' => 0, 'for_women' => 1, 'for_men' => 1],
+            ['code' => 'VL', 'form' => 'Vacation Leave', 'is_leave' => 1, 'for_women' => 1, 'for_men' => 1],
+            ['code' => 'SL', 'form' => 'Sick Leave', 'is_leave' => 1, 'for_women' => 1, 'for_men' => 1],
+            ['code' => 'EL', 'form' => 'Emergency Leave', 'is_leave' => 1, 'for_women' => 1, 'for_men' => 1],
+            ['code' => 'BiL', 'form' => 'Birthday Leave', 'is_leave' => 1, 'for_women' => 1, 'for_men' => 1],
+            ['code' => 'SPL', 'form' => 'Single Parent Leave', 'is_leave' => 1, 'for_women' => 1, 'for_men' => 1],
+            ['code' => 'PL', 'form' => 'Paternity Leave', 'is_leave' => 1, 'for_women' => 0, 'for_men' => 1],
+            ['code' => 'ML', 'form' => 'Maternity Leave', 'is_leave' => 1, 'for_women' => 1, 'for_men' => 0]
+        ];
+
+        DB::table('form_type')->insert($form_type);
     }
 }

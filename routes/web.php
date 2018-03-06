@@ -56,7 +56,8 @@ Route::post('system-management/shift/search', 'ShiftController@search')->name('s
 
 Route::resource('employee-setup-management', 'EmployeeSetupManagementController');
 
-Route::resource('form', 'FormController');
-Route::post('form/search', 'FormController@search')->name('form.search');
+Route::resource('forms', 'FormsController');
+Route::post('forms/search', 'FormsController@search')->name('forms.search');
+Route::post('/forms/{id}', 'FormsController@store');
 
 Route::post('timekeeping/log', 'TimekeepingController@log')->name('timekeeping.log');

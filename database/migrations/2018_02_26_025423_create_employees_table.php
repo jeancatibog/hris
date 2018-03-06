@@ -24,6 +24,7 @@ class CreateEmployeesTable extends Migration
             $table->integer('province_id')->nullable()->unsigned();
             $table->integer('country_id')->nullable()->unsigned();
             $table->integer('zip')->nullable()->unsigned();
+            $table->integer('gender')->unsigned()->default(1);
             $table->integer('age')->nullable()->unsigned();
             $table->date('birthdate')->nullable();
             $table->string('picture', 60)->nullable();
