@@ -1,9 +1,3 @@
-init();
-
-function init() {
-  registerEvents();
-}
-
 function loadItems(element, path, selectInputClass) {
   var selectedVal = $(element).val();
 
@@ -15,7 +9,7 @@ function loadItems(element, path, selectInputClass) {
   $.ajax({
     type: 'GET',
     url: path + selectedVal,
-    success: function (datas) {
+    success: function (datas) {console.log(datas);
       if (!datas || datas.length === 0) {
          return;
       }
@@ -31,7 +25,7 @@ function loadItems(element, path, selectInputClass) {
   });
 }
 
-function loadProvinces(element) {
+function loadProvinces(element) {alert("sdad");
   $('.js-provinces').empty().append('<option value="">Please select your province</option>');
   $('.js-cities').empty().append('<option value="">Please select your city</option>');
   loadItems(element, '../api/province/', '.js-provinces');
@@ -99,6 +93,14 @@ function registerEvents() {
     }
   });
 }
+
+init();
+
+function init() {
+  registerEvents();
+}
+
+
 
 function getToday() {
   var d = new Date(),

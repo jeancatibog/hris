@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\DB;
 use Auth;
 use App\FormType;
 use App\Employee;
+use App\EmployeeLeaves;
 
 class FormsController extends Controller
 {
@@ -28,7 +29,7 @@ class FormsController extends Controller
         ->leftJoin('form_type AS ft', 'el.form_type_id', '=', 'ft.id')
         ->leftJoin('form_status AS fs', 'el.form_status_id', '=', 'fs.id')
         ->where('emp.id','=',Auth::user()->employee_id)
-        ->select('el.id','CONCAT(emp.firstname," ", emp.lastname) AS emp_name', 'ft.form', 'el.status', 'el.date_from', 'el.date_to')
+        ->select('el.id','CONCAT(emp.firstname," ", emp.lastname) AS emp_name', 'ft.form', 'fs.status', 'el.date_from', 'el.date_to')
         ->paginate(5);
 
         $forms['leaves'] = $leave_forms;
@@ -67,23 +68,46 @@ class FormsController extends Controller
     public function store(Request $request, $id)
     {
     	$status = $id == 0 ? 1 : 2;
-    	echo "<pre>";print_r($request['form_type_id'] . " = " . $request['employee_id'] . " = " . $request['date_from'] . " = " . $request['date_to'] . " = " . $request['reason'] . " = " . $request['is_halfday']);die("here");
-    	Shift::create([
-            'name'	=> 	$request['name'],
-            'start' => 	date("H:i",strtotime($request['start'])),
-            'end'	=>	date("H:i",strtotime($request['end'])),
-            'first_halfday_end' => 	date("H:i",strtotime($request['first_halfday_end'])),
-            'second_halfday_start'	=>	date("H:i",strtotime($request['second_halfday_start']))
+    	echo "<pre>";print_r($request['form_type_id'] . " = " . $request['employee_id'] . " = " . $request['date_from'] . " = " . $request['date_to'] . " = " . $request['reason'] . " = " . $request['is_halfday']);die(" === here");
+    	/* Insert data for leave forms and dates */
+    	$leaves = EmployeeLeaves::create([
+            'employee_id'	=> 	$request['employee_id'],
+            'form_type_id'	=> 	$request['form_type_id'],
+            'date_from' => 	date('Y-m-d', strtotime($request['date_from'])),
+            'date_to' => 	date('Y-m-d', strtotime($request['date_to'])),
+            'reason' => 	$request['reason'],
+            'form_status_id'	=>	$status
         ]);
-        /*$this->validateInput($request);
-         Shift::create([
-            'name'	=> 	$request['name'],
-            'start' => 	date("H:i",strtotime($request['start'])),
-            'end'	=>	date("H:i",strtotime($request['end'])),
-            'first_halfday_end' => 	date("H:i",strtotime($request['first_halfday_end'])),
-            'second_halfday_start'	=>	date("H:i",strtotime($request['second_halfday_start']))
-        ]);
+        
+        $insertId = $leaves->id;
+        $dates = getDatesFromRange($request['date_from'], $request['date_to']);
+        $credit = $request['is_halfday'] ? '0.5' : '1';
+        foreach ($dates as $date) {
+    		EmployeeLeaveDates::create([
+    			'employee_leave_id'	=>	$insertId,
+    			'date'				=>	$date,
+    			'leave_credit'		=>	$credit
 
-        return redirect()->intended('system-management/shift');*/
+    		]);
+    	}	
+    	/* End insertion for leave and dates */
+
+        return redirect()->intended('forms');
     }
+
+    public function getDatesFromRange($start, $end) {
+	    $array = array();
+	    $interval = new DateInterval('P1D');
+
+	    $realEnd = new DateTime($end);
+	    $realEnd->add($interval);
+
+	    $period = new DatePeriod(new DateTime($start), $interval, $realEnd);
+
+	    foreach($period as $date) { 
+	        $array[] = $date->format('Y-m-d'); 
+	    }
+
+	    return $array;
+	}
 }

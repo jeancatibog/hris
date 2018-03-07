@@ -52,7 +52,7 @@
                         <div class="form-group">
                             <label class="col-md-4 control-label">Country</label>
                             <div class="col-md-6">
-                                <select class="form-control" name="country_id">
+                                <select class="form-control js-country" name="country_id">
                                     @foreach ($countries as $country)
                                         <option {{$employee->country_id == $country->id ? 'selected' : ''}} value="{{$country->id}}">{{$country->name}}</option>
                                     @endforeach

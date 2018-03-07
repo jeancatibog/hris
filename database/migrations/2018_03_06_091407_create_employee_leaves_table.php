@@ -21,8 +21,8 @@ class CreateEmployeeLeavesTable extends Migration
             $table->date('date_from');
             $table->date('date_to');
             $table->integer('form_status_id')->unsigned();
-            $table->text('approvers_remarks');
-            $table->date('date_approved');
+            $table->text('approvers_remarks')->nullable();
+            $table->date('date_approved')->nullable();
             $table->foreign('employee_id')->references('id')->on('employees');
             $table->foreign('form_type_id')->references('id')->on('form_type');
             $table->foreign('form_status_id')->references('id')->on('form_status');
