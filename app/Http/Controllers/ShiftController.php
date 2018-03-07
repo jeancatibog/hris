@@ -151,9 +151,10 @@ class ShiftController extends Controller
         }
         return $query->paginate(5);
     }
+
     private function validateInput($request) {
         $this->validate($request, [
-            'name'	=>	'required',
+            'name'	=>	'required|unique:name',
             'start'	=>	'required',
             'end'	=>	'required'
         ]);

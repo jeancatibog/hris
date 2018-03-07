@@ -8,6 +8,11 @@ use Auth;
 use App\FormType;
 use App\Employee;
 use App\EmployeeLeaves;
+use App\EmployeeLeaveDates;
+use App\EmployeeOvertime;
+use DateTime;
+use DatePeriod;
+use DateInterval;
 
 class FormsController extends Controller
 {
@@ -24,15 +29,20 @@ class FormsController extends Controller
      */
     public function index()
     {
+    	// DB::enableQueryLog();
         $leave_forms = DB::table('employee_leaves AS el')
         ->leftJoin('employees AS emp', 'el.employee_id', '=', 'emp.id')
         ->leftJoin('form_type AS ft', 'el.form_type_id', '=', 'ft.id')
         ->leftJoin('form_status AS fs', 'el.form_status_id', '=', 'fs.id')
         ->where('emp.id','=',Auth::user()->employee_id)
-        ->select('el.id','CONCAT(emp.firstname," ", emp.lastname) AS emp_name', 'ft.form', 'fs.status', 'el.date_from', 'el.date_to')
+        ->select('el.id', 'emp.firstname' , 'emp.lastname', 'ft.form', 'fs.status', 'el.date_from', 'el.date_to', 'el.reason')
         ->paginate(5);
 
+        $ot_forms = DB::table('employee_overtime')
+        ->where('employee_id', '=', Auth::user()->employee_id)->paginate(5); //EmployeeOvertime::where('employee_id', '=', Auth::user()->employee_id)->take(5)->get();
+    	// dd(DB::getQueryLog());
         $forms['leaves'] = $leave_forms;
+        $forms['ot'] = $ot_forms;
         return view('forms/index', ['forms' => $forms]);
     }
 
@@ -67,32 +77,46 @@ class FormsController extends Controller
      */
     public function store(Request $request, $id)
     {
+    	$this->validateInput($request, $request['ftype']);
+
     	$status = $id == 0 ? 1 : 2;
-    	echo "<pre>";print_r($request['form_type_id'] . " = " . $request['employee_id'] . " = " . $request['date_from'] . " = " . $request['date_to'] . " = " . $request['reason'] . " = " . $request['is_halfday']);die(" === here");
-    	/* Insert data for leave forms and dates */
-    	$leaves = EmployeeLeaves::create([
-            'employee_id'	=> 	$request['employee_id'],
-            'form_type_id'	=> 	$request['form_type_id'],
-            'date_from' => 	date('Y-m-d', strtotime($request['date_from'])),
-            'date_to' => 	date('Y-m-d', strtotime($request['date_to'])),
-            'reason' => 	$request['reason'],
-            'form_status_id'	=>	$status
-        ]);
-        
-        $insertId = $leaves->id;
-        $dates = getDatesFromRange($request['date_from'], $request['date_to']);
-        $credit = $request['is_halfday'] ? '0.5' : '1';
-        foreach ($dates as $date) {
-    		EmployeeLeaveDates::create([
-    			'employee_leave_id'	=>	$insertId,
-    			'date'				=>	$date,
-    			'leave_credit'		=>	$credit
+    	if ($request['ftype'] == 'leave') {
+	    	/* Insert data for leave forms and dates */
+	    	$leaves = EmployeeLeaves::create([
+	            'employee_id'	=> 	$request['employee_id'],
+	            'form_type_id'	=> 	$request['form_type_id'],
+	            'date_from'		=> 	date('Y-m-d', strtotime($request['date_from'])),
+	            'date_to'		=> 	date('Y-m-d', strtotime($request['date_to'])),
+	            'reason'		=> 	$request['reason'],
+	    		'is_halfday'	=>	$request['is_halfday'],
+	    		'halfday_type'	=>	$request['halfday_type'],
+	            'form_status_id'=>	$status
+	        ]);
+	        
+	        $insertId = $leaves->id;
+	        $dates = $this->getDatesFromRange($request['date_from'], $request['date_to']);
+	        $credit = $request['is_halfday'] ? '0.5' : '1';
+	        foreach ($dates as $date) {
+	    		EmployeeLeaveDates::create([
+	    			'employee_leave_id'	=>	$insertId,
+	    			'date'				=>	$date,
+	    			'leave_credit'		=>	$credit
 
-    		]);
-    	}	
-    	/* End insertion for leave and dates */
+	    		]);
+	    	}	
+	    	/* End insertion for leave and dates */
+	    } elseif ($request['ftype'] == 'ot') {
+	    	EmployeeOvertime::create([
+	    		'employee_id'	=>	$request['employee_id'],
+	    		'date'			=>	date('Y-m-d', strtotime($request['date'])),
+	    		'datetime_from'	=>	date('Y-m-d H:i:s', strtotime($request['datetime_from'])),
+	    		'datetime_to'	=>	date('Y-m-d H:i:s', strtotime($request['datetime_to'])),
+	    		'reason'		=>	$request['reason'],
+	            'form_status_id'=>	$status
+	    	]);
+	    }
 
-        return redirect()->intended('forms');
+        // return redirect()->intended('forms');
     }
 
     public function getDatesFromRange($start, $end) {
@@ -110,4 +134,22 @@ class FormsController extends Controller
 
 	    return $array;
 	}
+
+    private function validateInput($request, $type) {
+    	if($type == 'leave') {
+    		$this->validate($request, [
+	        	'form_type_id'	=>	'required',
+	        	'date_from'		=>	'required|date',
+	            'date_to'		=>	'required|date|after_or_equal:date_from',
+	            'reason'		=>	'required'
+	        ]);
+    	} elseif($type == 'ot') {
+    		$this->validate($request, [
+	        	'date'	=>	'date',
+	        	'datetime_from'		=>	'required|date|before:datetime_to',
+	            'datetime_to'		=>	'required|date|after_or_equal:date_from',
+	            'reason'		=>	'required'
+	        ]);
+    	}
+    }
 }

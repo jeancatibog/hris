@@ -17,7 +17,6 @@ class CreateEmployeeLeaveDatesTable extends Migration
             $table->increments('id',true);
             $table->integer('employee_leave_id')->unsigned();
             $table->date('date');
-            // $table->dateTime('starttime');
             $table->float('leave_credit')->unsigned();
             $table->foreign('employee_leave_id')->references('id')->on('employee_leaves');
             $table->timestamps();

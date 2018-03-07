@@ -1,44 +1,7 @@
-function loadItems(element, path, selectInputClass) {
-  var selectedVal = $(element).val();
+init();
 
-  // select all
-  if (selectedVal == -1) {
-    return;
-  }
-
-  $.ajax({
-    type: 'GET',
-    url: path + selectedVal,
-    success: function (datas) {console.log(datas);
-      if (!datas || datas.length === 0) {
-         return;
-      }
-      for (var  i = 0; i < datas.length; i++) {
-        $(selectInputClass).append($('<option>', {
-          value: datas[i].id,
-          text: datas[i].name
-      }));
-      }
-    },
-    error: function (ex) {
-    }
-  });
-}
-
-function loadProvinces(element) {alert("sdad");
-  $('.js-provinces').empty().append('<option value="">Please select your province</option>');
-  $('.js-cities').empty().append('<option value="">Please select your city</option>');
-  loadItems(element, '../api/province/', '.js-provinces');
-}
-
-function loadCities(element) {
-  $('.js-cities').empty().append('<option value="">Please select your city</option>');;
-  loadItems(element, '../api/city/', '.js-cities');
-}
-
-function loadEmployees(element) {
-  $('.js-employees').empty().append('<option value="">Please select your employee</option>');;
-  loadItems(element, '../api/employees/', '.js-employees');
+function init() {
+  registerEvents();
 }
 
 function registerEvents() {
@@ -70,7 +33,7 @@ function registerEvents() {
 
   $('#formsTab a').on('shown.bs.tab', function(event) {
     var form = $(event.target).attr('id');
-    $('#file_form').attr('href','{{ route(forms.create_'+form+') }}');
+    $('#file_form').text('File new '+form+' form').attr('href','/forms/create?form='+form);
   });
 
   /* On file form submittion*/
@@ -83,24 +46,58 @@ function registerEvents() {
 
   });
 
+  /* Leave Forms */
   $('#is-halfday').on('change', function() {
     if($(this).is(':checked')) {
-      $('input[name="is_halfday"]').val('1');
       $('.halfday').show().removeAttr('disabled');
     } else {
       $('.halfday').hide().attr('disabled','disabled');
-      $('input[name="is_halfday"]').val('0');
     }
   });
 }
 
-init();
+function loadItems(element, path, selectInputClass) {
+  var selectedVal = $(element).val();
 
-function init() {
-  registerEvents();
+  // select all
+  if (selectedVal == -1) {
+    return;
+  }
+
+  $.ajax({
+    type: 'GET',
+    url: path + selectedVal,
+    success: function (datas) {console.log(datas);
+      if (!datas || datas.length === 0) {
+         return;
+      }
+      for (var  i = 0; i < datas.length; i++) {
+        $(selectInputClass).append($('<option>', {
+          value: datas[i].id,
+          text: datas[i].name
+      }));
+      }
+    },
+    error: function (ex) {
+    }
+  });
 }
 
+function loadProvinces(element) {
+  $('.js-provinces').empty().append('<option value="">Please select your province</option>');
+  $('.js-cities').empty().append('<option value="">Please select your city</option>');
+  loadItems(element, '../api/province/', '.js-provinces');
+}
 
+function loadCities(element) {
+  $('.js-cities').empty().append('<option value="">Please select your city</option>');;
+  loadItems(element, '../api/city/', '.js-cities');
+}
+
+function loadEmployees(element) {
+  $('.js-employees').empty().append('<option value="">Please select your employee</option>');;
+  loadItems(element, '../api/employees/', '.js-employees');
+}
 
 function getToday() {
   var d = new Date(),

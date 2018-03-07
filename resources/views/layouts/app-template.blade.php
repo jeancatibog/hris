@@ -106,6 +106,13 @@
         $('.timepicker').timepicker({
           format: 'HH:mm:ss'
         });
+        $('.datetimepicker').daterangepicker({
+            timePicker: true,
+            singleDatePicker: true, //<==HERE
+            locale: {
+                format: 'YYYY/MM/DD hh:mm A'
+            }
+        });
     });
 </script>
 <script src="{{ asset('js/site.js') }}"></script>

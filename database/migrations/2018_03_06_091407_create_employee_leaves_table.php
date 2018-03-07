@@ -20,6 +20,8 @@ class CreateEmployeeLeavesTable extends Migration
             $table->text('reason')->nullable();
             $table->date('date_from');
             $table->date('date_to');
+            $table->integer('is_halfday')->unsigned()->default(0);
+            $table->integer('halfday_type')->unsigned()->default(0);
             $table->integer('form_status_id')->unsigned();
             $table->text('approvers_remarks')->nullable();
             $table->date('date_approved')->nullable();
