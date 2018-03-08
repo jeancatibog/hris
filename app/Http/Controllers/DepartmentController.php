@@ -147,14 +147,14 @@ class DepartmentController extends Controller
         }
         return $query->paginate(5);
     }
-    private function validateInput($request, $id) {
+    private function validateInput($request, $id = NULL) {
         $this->validate($request, [
             'name' => 'required|max:60'
         ]);
         // check if unique name for department
         $department = Department::where('name', $request['name'])->first();
-        echo isset($id);die("here");
-        if(isset($id) && $department->id != $id) {
+        // echo isset($id);die("here");
+        if(isset($id) && $deapartment->id != $id) {
             $this->validate($request, [
                 'name' => 'unique:department'
             ]);

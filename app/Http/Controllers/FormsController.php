@@ -5,14 +5,15 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Auth;
+use DateTime;
+use DatePeriod;
+use DateInterval;
 use App\FormType;
 use App\Employee;
 use App\EmployeeLeaves;
 use App\EmployeeLeaveDates;
 use App\EmployeeOvertime;
-use DateTime;
-use DatePeriod;
-use DateInterval;
+use App\CompanyPolicy;
 
 class FormsController extends Controller
 {
@@ -38,8 +39,10 @@ class FormsController extends Controller
         ->select('el.id', 'emp.firstname' , 'emp.lastname', 'ft.form', 'fs.status', 'el.date_from', 'el.date_to', 'el.reason')
         ->paginate(5);
 
-        $ot_forms = DB::table('employee_overtime')
-        ->where('employee_id', '=', Auth::user()->employee_id)->paginate(5); //EmployeeOvertime::where('employee_id', '=', Auth::user()->employee_id)->take(5)->get();
+        $ot_forms = DB::table('employee_overtime AS eo')
+        ->leftJoin('form_status AS fs', 'eo.form_status_id', '=', 'fs.id')
+        ->where('employee_id', '=', Auth::user()->employee_id)
+        ->select('eo.*', 'fs.status')->paginate(5); 
     	// dd(DB::getQueryLog());
         $forms['leaves'] = $leave_forms;
         $forms['ot'] = $ot_forms;
@@ -116,7 +119,41 @@ class FormsController extends Controller
 	    	]);
 	    }
 
-        // return redirect()->intended('forms');
+        return redirect()->intended('forms');
+    }
+
+    /**
+     * Show the form for editing the specified resource.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function edit($form="")
+    {
+    	$id = $_GET['id'];
+    	if($form == 'leave') {
+    		$leave = EmployeeLeaves::find($id);
+    		
+    		$employee_detail = Employee::find(Auth::user()->employee_id);
+	        
+	        $query = FormType::where('is_leave', 1);
+			if($employee_detail['gender'] == 1) {
+				$query->where('for_men', 1);
+			} else {
+				$query->where('for_women', 1);
+			}
+			$types = $query->get();
+			$file_form['leave'] = $leave;
+			$params = ['form' => $file_form[$form], 'types' => $types];
+    	} elseif($form == 'ot') {
+    		$ot = EmployeeOvertime::find($id);
+
+    		$file_form['ot'] = $ot;
+
+    		$params = ['form' => $file_form[$form]];
+    	}
+
+        return view('forms/'.$form.'/edit', $params);
     }
 
     public function getDatesFromRange($start, $end) {
@@ -136,6 +173,12 @@ class FormsController extends Controller
 	}
 
     private function validateInput($request, $type) {
+    	$policy = CompanyPolicy::find(1); // This is now static to 1 policy
+    	$empSetup = DB::table('employee_setup AS es')
+                        ->leftJoin('shift AS s', 'es.shift_id', '=', 's.id')
+                        ->where('es.employee_id', '=', Auth::user()->employee_id)
+                        ->select('s.end')->first();
+    	
     	if($type == 'leave') {
     		$this->validate($request, [
 	        	'form_type_id'	=>	'required',
@@ -144,12 +187,16 @@ class FormsController extends Controller
 	            'reason'		=>	'required'
 	        ]);
     	} elseif($type == 'ot') {
+    		$message = [
+    			'min_ot' => 'The minimum overtime hours must be greater than ' . $policy['min_ot'],
+    			'after_shift' => 'Overtime filing must be after shift'
+    		];
     		$this->validate($request, [
-	        	'date'	=>	'date',
-	        	'datetime_from'		=>	'required|date|before:datetime_to',
-	            'datetime_to'		=>	'required|date|after_or_equal:date_from',
+	        	'date'			=>	'date',
+	        	'datetime_from'	=>	'required|date|before:datetime_to|after_shift:'.$empSetup->end,
+	            'datetime_to'	=>	'required|date|after_or_equal:date_from|min_ot:'.$request['datetime_from'] .','.$policy['min_ot'],
 	            'reason'		=>	'required'
-	        ]);
+	        ], $message);
     	}
     }
 }

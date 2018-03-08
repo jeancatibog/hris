@@ -59,5 +59,6 @@ Route::resource('employee-setup-management', 'EmployeeSetupManagementController'
 Route::resource('forms', 'FormsController');
 Route::post('forms/search', 'FormsController@search')->name('forms.search');
 Route::post('/forms/{id}', 'FormsController@store');
+Route::get('forms/{id}/edit/{form?}', 'FormsController@edit')->name('form');
 
 Route::post('timekeeping/log', 'TimekeepingController@log')->name('timekeeping.log');

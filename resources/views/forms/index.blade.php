@@ -39,23 +39,15 @@
       <div class="tab-content responsive">
         <div class="tab-pane active" id="leaves-tab">
           @include ('forms.leave.index', [ 'leaves' => $forms['leaves'] ])
+          @include ('layouts.pagination', ['data' => $forms['leaves']])
         </div>
         <div class="tab-pane" id="ot-tab">
           @include ('forms.overtime.index', [ 'overtime' => $forms['ot'] ])
+          @include ('layouts.pagination', ['data' => $forms['ot']])
         </div>
         <div class="tab-pane" id="obt-tab">Official Business Trip</div>
       </div>
       <!-- </div> -->
-      <div class="row">
-        <div class="col-sm-5">
-          <div class="dataTables_info" id="example2_info" role="status" aria-live="polite">Showing 1 to {{count($forms)}} of {{count($forms)}} entries</div>
-        </div>
-        <div class="col-sm-7">
-          <div class="dataTables_paginate paging_simple_numbers" id="example2_paginate">
-            
-          </div>
-        </div>
-      </div>
     </div>
   </div>
   <!-- /.box-body -->

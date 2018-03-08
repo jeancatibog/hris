@@ -38,6 +38,9 @@ function registerEvents() {
 
   /* On file form submittion*/
   $('form.file-form :submit').on('click', function(event){
+    // event.preventDefault();
+    event.stopPropagation();
+
     var param = $(this).attr('id'),
         form = $('form.file-form');
     var id = (param == 'draft' ? 0 : 1);
@@ -46,7 +49,14 @@ function registerEvents() {
 
   });
 
-  /* Leave Forms */
+  /*** Leave Forms ***/
+  // Leave form edit on load
+  if ($('#is-halfday').is(':checked')) {
+    $('.halfday').show().removeAttr('disabled');
+  } else {
+    $('.halfday').hide().attr('disabled','disabled');
+  }
+  // If halfday is selected
   $('#is-halfday').on('change', function() {
     if($(this).is(':checked')) {
       $('.halfday').show().removeAttr('disabled');
@@ -54,6 +64,7 @@ function registerEvents() {
       $('.halfday').hide().attr('disabled','disabled');
     }
   });
+  /*** End Leave Forms ***/
 }
 
 function loadItems(element, path, selectInputClass) {

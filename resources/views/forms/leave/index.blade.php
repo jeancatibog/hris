@@ -22,9 +22,11 @@
           <form class="row" method="POST" action="{{ route('forms.destroy', ['id' => $leave->id]) }}" onsubmit = "return confirm('Are you sure?')">
               <input type="hidden" name="_method" value="DELETE">
               <input type="hidden" name="_token" value="{{ csrf_token() }}">
-              <a href="{{ route('forms.edit', ['id' => $leave->id]) }}" class="btn btn-warning col-sm-3 col-xs-5 btn-margin">
-              Update
-              </a>
+              @if($leave->status == 'Draft')  
+                <a href="{{ route('forms.edit', ['id'=>$leave->id, 'form'=>'leave']) }}" class="btn btn-warning col-sm-3 col-xs-5 btn-margin">
+                Update
+                </a>
+              @endif  
               <button type="submit" class="btn btn-danger col-sm-3 col-xs-5 btn-margin">
                 Delete
               </button>
@@ -33,14 +35,4 @@
     </tr>
   @endforeach
   </tbody>
-  <tfoot>
-    <tr>
-      <th width="15%" class="sorting" tabindex="0" aria-controls="example2" rowspan="1" colspan="1" aria-label="leave type: activate to sort column ascending">Leave Type</th>
-      <th width="10%" class="sorting" tabindex="0" aria-controls="example2" rowspan="1" colspan="1" aria-label="date from: activate to sort column ascending">Date From</th>
-      <th width="10%" class="sorting" tabindex="0" aria-controls="example2" rowspan="1" colspan="1" aria-label="date to: activate to sort column ascending">Date To</th>
-      <th width="20%" class="sorting" tabindex="0" aria-controls="example2" rowspan="1" colspan="1" aria-label="reason: activate to sort column ascending">Reason</th>
-      <th width="15%" class="sorting" tabindex="0" aria-controls="example2" rowspan="1" colspan="1" aria-label="status: activate to sort column ascending">Status</th>
-      <th tabindex="0" aria-controls="example2" rowspan="1" colspan="2" aria-label="Action: activate to sort column ascending">Action</th>
-    </tr>
-  </tfoot>
 </table>
