@@ -45,7 +45,10 @@
           @include ('forms.overtime.index', [ 'overtime' => $forms['ot'] ])
           @include ('layouts.pagination', ['data' => $forms['ot']])
         </div>
-        <div class="tab-pane" id="obt-tab">Official Business Trip</div>
+        <div class="tab-pane" id="obt-tab">
+          @include ('forms.obt.index', [ 'obt' => $forms['obt'] ])
+          @include ('layouts.pagination', ['data' => $forms['obt']])
+        </div>
       </div>
       <!-- </div> -->
     </div>

@@ -7,7 +7,7 @@
             <div class="panel panel-default">
                 <div class="panel-heading">Update leave form</div>
                 <div class="panel-body">
-                    <form class="form-horizontal" role="form" method="POST" action="{{ route('forms.update', ['id' => $form->id]) }}">
+                    <form class="form-horizontal edit-form" role="form" method="POST" action="{{ route('forms.update', ['form_id' => $form->id, 'action_id']) }}">
                         <input type="hidden" name="_method" value="PATCH">
                         <input type="hidden" name="_token" value="{{ csrf_token() }}">
                         <input type="hidden" name="employee_id" value="{{ $form->employee_id }}">
@@ -84,6 +84,7 @@
                                 </select>
                             </div>
                         </div>
+                        <!-- Buttons -->
                         @include ('layouts.file-form-buttons')
                     </form>
                 </div>

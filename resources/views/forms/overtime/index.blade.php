@@ -23,13 +23,17 @@
               <input type="hidden" name="_method" value="DELETE">
               <input type="hidden" name="_token" value="{{ csrf_token() }}">
               @if($ot->status == 'Draft')
-                <a href="{{ route('forms.edit', ['id' => $ot->id]) }}" class="btn btn-warning col-sm-3 col-xs-5 btn-margin">
+                <a href="{{ route('forms.edit', ['id' => $ot->id, 'form'=>'overtime']) }}" class="btn btn-warning col-sm-3 col-xs-5 btn-margin">
                 Update
                 </a>
+                <button type="submit" class="btn btn-danger col-sm-3 col-xs-5 btn-margin delete">
+                  Delete
+                </button>
+              @elseif($ot->status == 'For Approval')
+                <button type="submit" class="btn btn-danger col-sm-3 col-xs-5 btn-margin cancel">
+                  Cancel
+                </button>
               @endif  
-              <button type="submit" class="btn btn-danger col-sm-3 col-xs-5 btn-margin">
-                Delete
-              </button>
           </form>
         </td>
     </tr>

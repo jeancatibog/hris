@@ -101,7 +101,7 @@
         //Date picker
         $('.datepicker').datepicker({
           autoclose: true,
-          format: 'yyyy/mm/dd'
+          format: 'yyyy-mm-dd'
         });
         $('.timepicker').timepicker({
           format: 'HH:mm:ss'
@@ -110,7 +110,7 @@
             timePicker: true,
             singleDatePicker: true, //<==HERE
             locale: {
-                format: 'YYYY/MM/DD hh:mm A'
+                format: 'YYYY-MM-DD hh:mm A'
             }
         });
     });

@@ -70,6 +70,16 @@
 .user-panel>.image>img {
   width: 45px !important;
   height: 45px !important;
+  border: 3px solid;
+  border-color: rgba(255,255,255,0.2);
+}
+
+.navbar-nav>.user-menu .user-image {
+  width: 35px !important;
+  height: 35px !important;
+  margin-top: -7px !important;
+  border: 3px solid;
+  border-color: rgba(255,255,255,0.2);
 }
 
 .content-header h1 {

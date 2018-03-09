@@ -38,15 +38,20 @@ function registerEvents() {
 
   /* On file form submittion*/
   $('form.file-form :submit').on('click', function(event){
-    // event.preventDefault();
     event.stopPropagation();
-
     var param = $(this).attr('id'),
         form = $('form.file-form');
     var id = (param == 'draft' ? 0 : 1);
-
     form.attr('action', form.attr('action') + '/' + id);
+  });
 
+
+  $('form.edit-form :submit').on('click', function(event){
+    event.stopPropagation();
+    var param = $(this).attr('id'),
+        form = $('form.edit-form');
+    var id = (param == 'draft' ? 0 : 1);
+    form.attr('action', form.attr('action') + '=' + id);
   });
 
   /*** Leave Forms ***/

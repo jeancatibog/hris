@@ -16,7 +16,6 @@ class CreateEmployeeObtTable extends Migration
         Schema::create('employee_obt', function(Blueprint $table) {
             $table->increments('id',true);
             $table->integer('employee_id')->unsigned();
-            $table->integer('form_type_id')->unsigned();
             $table->text('reason')->nullable();
             $table->date('date_from');
             $table->date('date_to');
@@ -31,7 +30,6 @@ class CreateEmployeeObtTable extends Migration
             $table->text('approvers_remarks');
             $table->date('date_approved');
             $table->foreign('employee_id')->references('id')->on('employees');
-            $table->foreign('form_type_id')->references('id')->on('form_type');
             $table->foreign('form_status_id')->references('id')->on('form_status');
             $table->timestamps();
             $table->softDeletes();

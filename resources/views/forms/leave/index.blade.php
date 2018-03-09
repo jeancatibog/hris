@@ -26,10 +26,14 @@
                 <a href="{{ route('forms.edit', ['id'=>$leave->id, 'form'=>'leave']) }}" class="btn btn-warning col-sm-3 col-xs-5 btn-margin">
                 Update
                 </a>
+                <button type="submit" class="btn btn-danger col-sm-3 col-xs-5 btn-margin delete">
+                  Delete
+                </button>
+              @elseif($leave->status == 'For Approval')
+                <button type="submit" class="btn btn-danger col-sm-3 col-xs-5 btn-margin cancel">
+                  Cancel
+                </button>
               @endif  
-              <button type="submit" class="btn btn-danger col-sm-3 col-xs-5 btn-margin">
-                Delete
-              </button>
           </form>
         </td>
     </tr>
