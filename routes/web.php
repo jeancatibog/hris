@@ -60,11 +60,13 @@ Route::resource('forms', 'FormsController');
 Route::post('forms/search', 'FormsController@search')->name('forms.search');
 Route::post('/forms/{id}', 'FormsController@store');
 
-Route::post('timekeeping/log', 'TimekeepingController@log')->name('timekeeping.log');
 
 Route::resource('timekeeping/period', 'TimekeepingController');
-Route::get('timekeeping/period', 'TimekeepingController');
-Route::get('timekeeping/period', 'TimekeepingController@period')->name('timekeeping.period');
-Route::get('timekeeping/period/create', 'TimekeepingController@create')->name('timekeeping.create');
-Route::post('timekeeping/period/store', 'TimekeepingController@store')->name('timekeeping.store');
-Route::post('timekeeping/period/destroy', 'TimekeepingController@destroy')->name('timekeeping.destroy');
+// Route::post('timekeeping/period', 'TimekeepingController@index')->name('timekeeping.index');
+
+Route::post('timekeeping/log', 'TimekeepingController@log')->name('timekeeping.log');
+// Route::get('timekeeping/period/create', 'TimekeepingController@create')->name('timekeeping.create');
+// Route::post('timekeeping/period/store', 'TimekeepingController@store')->name('timekeeping.store');
+// Route::post('timekeeping/period/{id}/edit', 'TimekeepingController@edit')->name('timekeeping.edit');
+// Route::post('timekeeping/period/destroy', 'TimekeepingController@destroy')->name('timekeeping.destroy');
+// Route::post('timekeeping/period/update', 'TimekeepingController@update')->name('timekeeping.update');

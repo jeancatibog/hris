@@ -38,10 +38,11 @@
                     <form class="row" method="POST" action="{{ route('timekeeping.destroy', ['id' => $period->id]) }}" onsubmit = "return confirm('Are you sure?')">
                         <input type="hidden" name="_method" value="DELETE">
                         <input type="hidden" name="_token" value="{{ csrf_token() }}">
-                        $
+                      @if ($period->status == 'Open')
                         <a href="{{ route('timekeeping.edit', ['id' => $period->id]) }}" class="btn btn-warning col-sm-3 col-xs-5 btn-margin">
                         Update
                         </a>
+                      @endif
                         <button type="submit" class="btn btn-danger col-sm-3 col-xs-5 btn-margin">
                           Delete
                         </button>
@@ -50,13 +51,6 @@
               </tr>
             @endforeach
             </tbody>
-            <tfoot>
-              <tr>
-                <th width="20%" rowspan="1" colspan="1">Start Date</th>
-                <th width="20%" class="sorting" tabindex="0" aria-controls="example2" rowspan="1" colspan="1" aria-label="end date period: activate to sort column ascending">End Date</th>
-                <th rowspan="1" colspan="2">Action</th>
-              </tr>
-            </tfoot>
           </table>
         </div>
       </div>

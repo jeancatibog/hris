@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Database\QueryException;
 use App\RawLogs;
 use App\TimekeepingPeriod;
 
@@ -14,7 +13,23 @@ class TimekeepingController extends Controller
     {
         parent::__construct();
         $this->middleware('auth');
+        // $this->middleware('auth')->only(["index", "create", "store", "edit", "update", "search", "destroy"]);
     }
+
+    /*
+    * Creation of timekeeping period coverage
+    */
+    public function index()
+    {//DB::enableQueryLog();
+        
+        $periods = DB::table('tk_period AS tkp')
+                ->leftJoin('tk_period_status AS tkps', 'tkp.status_id', '=', 'tkps.id')
+                ->select('tkp.*', 'tkps.status')
+                ->paginate(5);
+        //dd(DB::getQueryLog());
+        return view('timekeeping/period/index', ['periods' => $periods]);
+    }
+
     /*
 	* Logs all in and  out of employee tru bundy clock on dashboard
     */
@@ -43,19 +58,16 @@ class TimekeepingController extends Controller
         }
     }
 
-    /*
-    * Creation of timekeeping period coverage
-    */
-    public function period()
-    {//DB::enableQueryLog();
-        $periods = DB::table('tk_period AS tkp')
-                ->leftJoin('tk_period_status AS tkps', 'tkp.status_id', '=', 'tkps.id')
-                ->select('tkp.*', 'tkps.status')
-                ->paginate(5);
-        //dd(DB::getQueryLog());
-        return view('timekeeping/period/index', ['periods' => $periods]);
+     /**
+     * Display the specified resource.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function show($id)
+    {
+        //
     }
-
 
     public function create()
     {
@@ -105,13 +117,15 @@ class TimekeepingController extends Controller
          /*$this->validate($request, [
         'name' => 'required|max:60'
         ]);*/
+        echo "<pre>";print_r($id);die("nwo");
         $input = [
             'start_date' =>  date("Y-m-d",strtotime($request['start_date'])),
             'end_date'   =>  date("Y-m-d",strtotime($request['end_date']))
         ];
-        Shift::where('id', $id)
+        DB::enableQueryLog();
+        TimekeepingPeriod::where('id', $id)
             ->update($input);
-        
+        dd(DB::getQueryLog());die("here");
         return redirect()->intended('timekeeping/period');
     }
 
