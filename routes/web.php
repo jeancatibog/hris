@@ -12,7 +12,7 @@
 */
 
 Route::get('/', function () {
-    return view('dashboard/index');
+    return redirect('/dashboard');
 })->middleware('auth');
 
 Auth::routes();
@@ -61,3 +61,7 @@ Route::post('forms/search', 'FormsController@search')->name('forms.search');
 Route::post('/forms/{id}', 'FormsController@store');
 
 Route::post('timekeeping/log', 'TimekeepingController@log')->name('timekeeping.log');
+
+Route::resource('timekeeping/period', 'TimekeepingController');
+Route::get('timekeeping/period', 'TimekeepingController@period_cover')->name('timekeeping.period_cover');
+

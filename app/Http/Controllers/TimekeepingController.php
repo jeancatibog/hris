@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Database\QueryException;
 use App\RawLogs;
+use App\TimkeepingPeriod;
 
 class TimekeepingController extends Controller
 {
@@ -40,5 +41,20 @@ class TimekeepingController extends Controller
         		'message'	=>	"Something went wrong!"
         	]);
         }
+    }
+
+    /*
+    * Creation of timekeeping period coverage
+    */
+    public function period_cover()
+    {
+        $periods = TimkeepingPeriod::all();
+        return view('timekeeping/period/index', ['periods' => $periods]);
+    }
+
+
+    public function create_period()
+    {
+        return view('timekeeping/period/create');
     }
 }
