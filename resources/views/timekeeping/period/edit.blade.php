@@ -5,10 +5,11 @@
     <div class="row">
         <div class="col-md-8 col-md-offset-2">
             <div class="panel panel-default">
-                <div class="panel-heading">Add new period cover</div>
+                <div class="panel-heading">Update period coverage</div>
                 <div class="panel-body">
-                    <form class="form-horizontal" role="form" method="POST" action="{{ route('timekeeping.store') }}">
-                        {{ csrf_field() }}
+                    <form class="form-horizontal" role="form" method="POST" action="{{ route('timekeeping.update', ['id' => $period->id]) }}">
+                        <input type="hidden" name="_method" value="PATCH">
+                        <input type="hidden" name="_token" value="{{ csrf_token() }}">
                         <div class="form-group{{ $errors->has('start_date') ? ' has-error' : '' }}">
                             <label class="col-md-4 control-label">Period Start</label>
                             <div class="col-md-6">
@@ -16,7 +17,7 @@
                                     <div class="input-group-addon">
                                         <i class="fa fa-calendar"></i>
                                     </div>
-                                    <input type="text" value="{{ old('start_date') }}" name="start_date" class="form-control pull-right datepicker" id="startDate" required>
+                                    <input type="text" value="{{ $period->start_date }}" name="start_date" class="form-control pull-right datepicker" id="startDate" required>
                                 </div>
                             @if ($errors->has('start_date'))
                                 <span class="help-block">
@@ -32,7 +33,7 @@
                                     <div class="input-group-addon">
                                         <i class="fa fa-calendar"></i>
                                     </div>
-                                    <input type="text" value="{{ old('end_date') }}" name="end_date" class="form-control pull-right datepicker" id="endDate" required>
+                                    <input type="text" value="{{ $period->end_date }}" name="end_date" class="form-control pull-right datepicker" id="endDate" required>
                                 </div>
                             @if ($errors->has('end_date'))
                                 <span class="help-block">
@@ -41,7 +42,7 @@
                             @endif
                             </div>
                         </div>
-                        @include('layouts.default-buttons')
+                        @include('layouts.update-buttons')
                     </form>
                 </div>
             </div>

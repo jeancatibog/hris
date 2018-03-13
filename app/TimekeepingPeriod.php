@@ -4,13 +4,19 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 
-class TimkeepingPeriod extends Model
+class TimekeepingPeriod extends Model
 {
-   	/**
+    /**
+     * The table associated with the model.
+     *
+     * @var string
+     */
+    protected $table = 'tk_period';
+
+    /**
     * The attributes that aren't mass assignable.
     *
     * @var array
     */
-    protected $table = 'tk_period';
     protected $guarded = [];
 }

@@ -58,7 +58,7 @@
             </span>
           </a>
           <ul class="treeview-menu">
-            <li><a href="{{ route('timekeeping.period_cover') }}"><i class="fa fa-file"></i><span>Period Cover</span></a></li>
+            <li><a href="{{ route('timekeeping.period') }}"><i class="fa fa-file"></i><span>Period Cover</span></a></li>
           </ul>
         </li>
       </ul>

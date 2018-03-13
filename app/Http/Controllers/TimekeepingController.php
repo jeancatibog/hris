@@ -6,7 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Database\QueryException;
 use App\RawLogs;
-use App\TimkeepingPeriod;
+use App\TimekeepingPeriod;
 
 class TimekeepingController extends Controller
 {
@@ -46,15 +46,91 @@ class TimekeepingController extends Controller
     /*
     * Creation of timekeeping period coverage
     */
-    public function period_cover()
-    {
-        $periods = TimkeepingPeriod::all();
+    public function period()
+    {//DB::enableQueryLog();
+        $periods = DB::table('tk_period AS tkp')
+                ->leftJoin('tk_period_status AS tkps', 'tkp.status_id', '=', 'tkps.id')
+                ->select('tkp.*', 'tkps.status')
+                ->paginate(5);
+        //dd(DB::getQueryLog());
         return view('timekeeping/period/index', ['periods' => $periods]);
     }
 
 
-    public function create_period()
+    public function create()
     {
         return view('timekeeping/period/create');
+    }
+
+
+    /**
+     * Store a newly created resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function store(Request $request)
+    {
+        $this->validateInput($request);
+         TimekeepingPeriod::create([
+            'start_date' =>  date("Y-m-d",strtotime($request['start_date'])),
+            'end_date'   =>  date("Y-m-d",strtotime($request['end_date'])),
+            'status_id'  =>  1
+        ]);
+
+        return redirect()->intended('timekeeping/period');
+    }
+
+    /**
+     * Show the form for editing the specified resource.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function edit($id)
+    {
+        $period = TimekeepingPeriod::find($id);
+        return view('timekeeping/period/edit', ['period' => $period]);
+    }
+
+    /**
+     * Update the specified resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function update(Request $request, $id)
+    {
+         /*$this->validate($request, [
+        'name' => 'required|max:60'
+        ]);*/
+        $input = [
+            'start_date' =>  date("Y-m-d",strtotime($request['start_date'])),
+            'end_date'   =>  date("Y-m-d",strtotime($request['end_date']))
+        ];
+        Shift::where('id', $id)
+            ->update($input);
+        
+        return redirect()->intended('timekeeping/period');
+    }
+
+    /**
+     * Remove the specified resource from storage.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function destroy($id)
+    {
+        Shift::where('id', $id)->delete();
+         return redirect()->intended('system-management/shift');
+    }
+
+    private function validateInput($request) {
+        $this->validate($request, [
+            'start_date' =>  'required',
+            'end_date'   =>  'required|date|after_or_equal:start_date'
+        ]);
     }
 }

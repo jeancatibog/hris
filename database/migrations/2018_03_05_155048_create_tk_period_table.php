@@ -17,7 +17,8 @@ class CreateTkPeriodTable extends Migration
             $table->increments('id', true);
             $table->date('start_date');
             $table->date('end_date');
-            $table->integer('is_processed')->unsigned()->default(0);
+            $table->integer('status_id')->unsigned()->default(0);
+            $table->foreign('status_id')->references('id')->on('tk_period_status');
             $table->timestamps();
             $table->softDeletes();
         });    

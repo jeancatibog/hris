@@ -65,5 +65,12 @@ class DatabaseSeeder extends Seeder
         ];
 
         DB::table('form_type')->insert($form_type);
+
+        // Data insertion for Period status
+        $period_status = [
+            ['status' => 'Processed', 'description' =>  'Period cover already processed'],
+            ['status' => 'Closed', 'description' => 'Period cover transaction closed']
+        ];
+        DB::table('tk_period_status')->insert($period_status);
     }
 }
