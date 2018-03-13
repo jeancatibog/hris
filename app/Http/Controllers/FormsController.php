@@ -13,6 +13,7 @@ use App\Employee;
 use App\EmployeeLeaves;
 use App\EmployeeLeaveDates;
 use App\EmployeeOvertime;
+use App\EmployeeObt;
 use App\CompanyPolicy;
 
 class FormsController extends Controller
@@ -114,7 +115,23 @@ class FormsController extends Controller
 	    		'reason'		=>	$request['reason'],
 	            'form_status_id'=>	$status
 	    	]);
-	    }
+	    } elseif ($request['ftype'] == 'obt') {
+            EmployeeObt::create([
+                'employee_id'       =>  $request['employee_id'],
+                'date_from'         =>  date('Y-m-d', strtotime($request['date_from'])),
+                'date_to'           =>  date('Y-m-d', strtotime($request['date_to'])),
+                'starttime'         =>  date('H:i:s', strtotime($request['starttime'])),
+                'endtime'           =>  date('H:i:s', strtotime($request['endtime'])),
+                'reason'            =>  $request['reason'],
+                'form_status_id'    =>  $status,
+                'contact_name'      =>  $request['contact_name'],
+                'contact_info'      =>  $request['contact_info'],
+                'contact_position'  =>  $request['contact_position'],
+                'company_to_visit'  =>  $request['company_to_visit'],
+                'company_location'  =>  $request['company_location']
+            ]);
+
+        }
 
         return redirect()->intended('forms');
     }
@@ -143,12 +160,20 @@ class FormsController extends Controller
 			$file_form['leave'] = $leave;
 			$params = ['form' => $file_form[$form], 'types' => $types];
     	} elseif($form == 'overtime') {
-    		$ot = EmployeeOvertime::find($id);
+            $ot = EmployeeOvertime::find($id);
 
-    		$file_form['overtime'] = $ot;
+            $file_form['overtime'] = $ot;
 
-    		$params = ['form' => $file_form[$form]];
-    	}
+            $params = ['form' => $file_form[$form]];
+        } elseif($form == 'obt') {
+            $obt = EmployeeObt::find($id);
+            $obt['starttime'] = date('h:i A', strtotime($obt['starttime']));
+            $obt['endtime'] = date('h:i A', strtotime($obt['endtime']));
+
+            $file_form['obt'] = $obt;
+
+            $params = ['form' => $file_form[$form]];
+        }
 
         return view('forms/'.$form.'/edit', $params);
     }
@@ -194,7 +219,24 @@ class FormsController extends Controller
 	        ];
 	        EmployeeOvertime::where('id', $id)
 	            ->update($input);
-	    }
+	    } elseif ($request['ftype'] == 'obt') {
+            $input = [
+                'employee_id'       =>  $request['employee_id'],
+                'date_from'         =>  date('Y-m-d', strtotime($request['date_from'])),
+                'date_to'           =>  date('Y-m-d', strtotime($request['date_to'])),
+                'starttime'         =>  date('H:i:s', strtotime($request['starttime'])),
+                'endtime'           =>  date('H:i:s', strtotime($request['endtime'])),
+                'reason'            =>  $request['reason'],
+                'form_status_id'    =>  $status,
+                'contact_name'      =>  $request['contact_name'],
+                'contact_info'      =>  $request['contact_info'],
+                'contact_position'  =>  $request['contact_position'],
+                'company_to_visit'  =>  $request['company_to_visit'],
+                'company_location'  =>  $request['company_location']
+            ];
+            EmployeeObt::where('id', $id)
+                ->update($input);
+        }
         
         return redirect()->intended('forms');
     }

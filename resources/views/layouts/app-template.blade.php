@@ -104,7 +104,7 @@
           format: 'yyyy-mm-dd'
         });
         $('.timepicker').timepicker({
-          format: 'HH:mm:ss'
+          format: 'hh:mm A'
         });
         $('.datetimepicker').daterangepicker({
             timePicker: true,

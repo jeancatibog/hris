@@ -3,10 +3,10 @@
         <button type="button" class="btn btn-default btn-back" onclick="history.back(1)">
 		    Cancel
 		</button>
-		<button type="submit" class="btn btn-success" id="draft">
+		<button type="submit" class="btn btn-primary" id="draft">
 		    Save as Draft
 		</button>
-		<button type="submit" class="btn btn-primary" id="save">
+		<button type="submit" class="btn btn-success" id="save">
 		    Submit
 		</button>
     </div>
