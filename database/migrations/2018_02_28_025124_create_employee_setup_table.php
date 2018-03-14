@@ -17,6 +17,7 @@ class CreateEmployeeSetupTable extends Migration
             $table->increments('id', true);
             $table->integer('employee_id')->unsigned();
             // $table->decimal('salary', 16, 2)->nullable();
+            $table->integer('status_id')->unsigned();
             $table->date('date_hired');
             $table->integer('department_id')->nullable()->unsigned();
             $table->integer('division_id')->nullable()->unsigned();
@@ -37,6 +38,7 @@ class CreateEmployeeSetupTable extends Migration
             $table->foreign('employee_id')->references('id')->on('employees');
             $table->foreign('approver_id')->references('id')->on('employees');
             $table->foreign('reports_to_id')->references('id')->on('employees');
+            $table->foreign('status_id')->references('id')->on('employment_status');
             $table->timestamps();
             $table->softDeletes();
         });

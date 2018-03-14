@@ -68,3 +68,7 @@ Route::post('timekeeping/period/store', 'TimekeepingController@store')->name('ti
 Route::post('timekeeping/period/{id}/edit', 'TimekeepingController@edit')->name('timekeeping.edit');
 Route::post('timekeeping/period/destroy', 'TimekeepingController@destroy')->name('timekeeping.destroy');
 Route::post('timekeeping/period/update', 'TimekeepingController@update')->name('timekeeping.update');
+
+// Route::resource('timekeeping/process', 'TimekeepingController@process');
+Route::get('timekeeping/process', 'TimekeepingController@process')->name('timekeeping.process');
+Route::post('timekeeping/processing', 'TimekeepingController@processing')->name('timekeeping.processing');

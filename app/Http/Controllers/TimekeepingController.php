@@ -6,6 +6,9 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\RawLogs;
 use App\TimekeepingPeriod;
+use App\EmployeeOvertime;
+use App\Employee;
+use App\Http\Controllers\FormsController;
 
 class TimekeepingController extends Controller
 {
@@ -82,7 +85,7 @@ class TimekeepingController extends Controller
     public function store(Request $request)
     {
         $this->validateInput($request);
-         TimekeepingPeriod::create([
+        TimekeepingPeriod::create([
             'start_date' =>  date("Y-m-d",strtotime($request['start_date'])),
             'end_date'   =>  date("Y-m-d",strtotime($request['end_date'])),
             'status_id'  =>  1
@@ -112,9 +115,6 @@ class TimekeepingController extends Controller
      */
     public function update(Request $request)
     {
-         /*$this->validate($request, [
-        'name' => 'required|max:60'
-        ]);*/
         $id = $_GET['id'];
         $input = [
             'start_date' =>  date("Y-m-d",strtotime($request['start_date'])),
@@ -137,10 +137,99 @@ class TimekeepingController extends Controller
          return redirect()->intended('system-management/shift');
     }
 
-    private function validateInput($request) {
+    private function validateInput($request)
+    {
         $this->validate($request, [
             'start_date' =>  'required',
             'end_date'   =>  'required|date|after_or_equal:start_date'
         ]);
+    }
+
+    public function process()
+    {
+        $periods = TimekeepingPeriod::where('status_id', 1)->orderBy('start_date', 'ASC')->get();
+        return view('timekeeping/process/processing', ['periods' => $periods]);
+    }
+
+    public function processing(Request $request)
+    {
+        $formController = new FormsController;
+        $periodId = $request['period_id'];
+
+        $period = TimekeepingPeriod::find($periodId);
+        $periodCover = $formController->getDatesFromRange($period['start_date'], $period['end_date']);
+        $employees = DB::table('employees AS e')
+                        ->leftJoin('employee_setup AS es', 'e.id', '=', 'es.employee_id')
+                        ->leftJoin('employment_status AS est', 'es.status_id', '=', 'est.id')
+                        ->leftJoin('shift AS s', 'es.shift_id', '=', 's.id')
+                        ->where('est.is_active', 1)
+                        ->select('e.id AS employee_id', 'es.shift_id', 's.start', 's.end')->get(); /* GET ALL ACTIVE EMPLOYEES */
+                        
+        /*GET ALL RAW LOGS*/
+        $rawLogs = RawLogs::whereBetween('date', [$period['start_date'], $period['end_date']])->get();
+        $logs = array();
+
+        foreach($employees as $employee) {
+           foreach ($periodCover as $date) {
+                $rawLogs = RawLogs::where('date', $date)
+                        ->where('employee_id', $employee[''])->get();
+            }
+        }
+        // foreach ($periodCover as $date) {
+        //     foreach ($rawLogs as $raw) {
+        //         /* GET EMPLOYEE SHIFT*/
+        //         $shift = DB::table('employee_setup AS es')
+        //                 ->leftJoin('shift AS s', 'es.shift_id', '=', 's.id')
+        //                 ->where('es.employee_id', $raw['employee_id'])
+        //                 ->select('es.shift_id', 's.start', 's.end')->get()->first();
+
+        //         /* CHECK IF EMPLOYEE HAS LEAVE */
+        //     }
+        // }
+        die("jere");
+        foreach ($rawLogs as $raw) {
+            // DB::enableQueryLog();
+            /* GET EMPLOYEE SHIFT*/
+            $shift = DB::table('employee_setup AS es')
+                        ->leftJoin('shift AS s', 'es.shift_id', '=', 's.id')
+                        ->where('es.employee_id', $raw['employee_id'])
+                        ->select('es.shift_id', 's.start', 's.end')->get()->first();
+            // dd($shift['end']);
+            $in = '';
+            $out = '';
+            if($raw['checktype'] == 'In') {
+                $in = $raw['checktime'];
+            } else {
+                $out = $raw['checktime'];
+            }
+
+            /*GET LEAVES FROM FILED FORMS*/
+            // $onLeave = $this->getLeaveDates('')
+
+            $data = [
+                'employee_id'   =>  $raw['employee_id'],
+                'date'          =>  $raw['date'],
+                'shift_id'      =>  $shift->shift_id,
+                'time_id'       =>  $in,
+                'time_out'      =>  $out
+            ];
+
+            /*GET OT HOURS FROM FILED FORMS*/
+            $otHrs = $this->getOtHrs($raw['employee_id'], $raw['date']);
+
+            $data = array_prepend($data, $otHrs, 'ot_hours');
+        }
+        echo "<pre>";print_r($data);die("here");
+    }
+
+    /* OVERTIME COMPUTATION FROM FILED FORMS */
+    public function getOtHrs($empId, $date)
+    {
+        $overtime = EmployeeOvertime::where('employee_id', $empId)
+                        ->where('date', $date)
+                        ->where('form_status_id', 3)->get()->first();
+        
+        $otHrs = (strtotime($overtime['datetime_to']) - strtotime($overtime['datetime_from']))/(60*60);
+        return $otHrs;
     }
 }
