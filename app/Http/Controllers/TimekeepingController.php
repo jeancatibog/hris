@@ -20,13 +20,11 @@ class TimekeepingController extends Controller
     * Creation of timekeeping period coverage
     */
     public function index()
-    {//DB::enableQueryLog();
-        
+    {
         $periods = DB::table('tk_period AS tkp')
                 ->leftJoin('tk_period_status AS tkps', 'tkp.status_id', '=', 'tkps.id')
                 ->select('tkp.*', 'tkps.status')
                 ->paginate(5);
-        //dd(DB::getQueryLog());
         return view('timekeeping/period/index', ['periods' => $periods]);
     }
 
@@ -112,20 +110,18 @@ class TimekeepingController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(Request $request)
     {
          /*$this->validate($request, [
         'name' => 'required|max:60'
         ]);*/
-        echo "<pre>";print_r($id);die("nwo");
+        $id = $_GET['id'];
         $input = [
             'start_date' =>  date("Y-m-d",strtotime($request['start_date'])),
             'end_date'   =>  date("Y-m-d",strtotime($request['end_date']))
         ];
-        DB::enableQueryLog();
         TimekeepingPeriod::where('id', $id)
             ->update($input);
-        dd(DB::getQueryLog());die("here");
         return redirect()->intended('timekeeping/period');
     }
 
