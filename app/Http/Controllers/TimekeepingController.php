@@ -49,7 +49,7 @@ class TimekeepingController extends Controller
 
         	return redirect('/dashboard')->with([
         		'status'	=>	'success', 
-        		'message'	=>	"You have succesfuly Time " . $request['ctype'] ." at ". date('h:i A', strtotime($request['checktime'])) ]);
+        		'message'	=>	"You have succesfuly " . str_replace("_", " ", $request['ctype']) ." at ". date('h:i A', strtotime($request['checktime'])) ]);
 
         } catch (\Exception $e) {
         	return redirect('/dashboard')->with([
@@ -163,73 +163,123 @@ class TimekeepingController extends Controller
                         ->leftJoin('employment_status AS est', 'es.status_id', '=', 'est.id')
                         ->leftJoin('shift AS s', 'es.shift_id', '=', 's.id')
                         ->where('est.is_active', 1)
-                        ->select('e.id AS employee_id', 'es.shift_id', 's.start', 's.end')->get(); /* GET ALL ACTIVE EMPLOYEES */
-                        
+                        ->select('e.id AS employee_id', 'es.shift_id', 's.start', 's.end')->get()->toArray(); /* GET ALL ACTIVE EMPLOYEES */
+        
         /*GET ALL RAW LOGS*/
-        $rawLogs = RawLogs::whereBetween('date', [$period['start_date'], $period['end_date']])->get();
-        $logs = array();
+        // $rawLogs = RawLogs::whereBetween('date', [$period['start_date'], $period['end_date']])->get();
+        $data = array();
 
-        foreach($employees as $employee) {
-           foreach ($periodCover as $date) {
-                $rawLogs = RawLogs::where('date', $date)
-                        ->where('employee_id', $employee[''])->get();
-            }
-        }
-        // foreach ($periodCover as $date) {
-        //     foreach ($rawLogs as $raw) {
-        //         /* GET EMPLOYEE SHIFT*/
-        //         $shift = DB::table('employee_setup AS es')
-        //                 ->leftJoin('shift AS s', 'es.shift_id', '=', 's.id')
-        //                 ->where('es.employee_id', $raw['employee_id'])
-        //                 ->select('es.shift_id', 's.start', 's.end')->get()->first();
+        foreach ($employees as $employee) {
+            $empId = $employee->employee_id;
+            $start = $employee->start;
+            $end = $employee->end;
+            foreach ($periodCover as $workdate) {
+                echo "<pre>";print_r($workdate);
+                if (strtotime($start) < strtotime($end)) { // DAY SHIFT EMPLOYEES
+                    $oTime = $workdate . " " .$employee->end;
 
-        //         /* CHECK IF EMPLOYEE HAS LEAVE */
-        //     }
-        // }
-        die("jere");
-        foreach ($rawLogs as $raw) {
-            // DB::enableQueryLog();
-            /* GET EMPLOYEE SHIFT*/
-            $shift = DB::table('employee_setup AS es')
-                        ->leftJoin('shift AS s', 'es.shift_id', '=', 's.id')
-                        ->where('es.employee_id', $raw['employee_id'])
-                        ->select('es.shift_id', 's.start', 's.end')->get()->first();
-            // dd($shift['end']);
-            $in = '';
-            $out = '';
-            if($raw['checktype'] == 'In') {
-                $in = $raw['checktime'];
-            } else {
-                $out = $raw['checktime'];
-            }
+                    $rawLogs = RawLogs::where('date', $workdate)
+                        ->where('employee_id', $empId)->get()->toArray();
+                } else { // NIGHT SHIFT EMPLOYEES
+                    $dtOut = date("Y-m-d" , date(strtotime("+1 day", strtotime($workdate))));
+                    $oTime = $dtOut . " " .$employee->end;
+                    
+                    $rawLogs = RawLogs::whereIn('date', [$workdate, $dtOut])
+                        ->where('employee_id', $empId)->get()->toArray();
+                    echo "<pre>";print_r($rawLogs);
+                }
+            }  die("ere");
 
-            /*GET LEAVES FROM FILED FORMS*/
-            // $onLeave = $this->getLeaveDates('')
+            /* 1st Logic */
+            // foreach ($periodCover as $date) {
+            //     $rawLogs = RawLogs::where('date', $date)
+            //             ->where('employee_id', $empId)->get()->toArray();
+            //     $oTime = $date . " " .$employee->end;
+            //     if (is_array($rawLogs) && count($rawLogs) > 0) {
+            //         foreach ($rawLogs as $log) {
+            //             $cType = $log['checktype'];
+            //             $cTime = $log['date'] . " " . $log['checktime'];
+            //             if (strtotime($start) < strtotime($end)) { // DAY SHIFT EMPLOYEES
+            //                 $startShift = $date." ".$start;
+            //                 $endShift = $date." ".$end;
+            //                 /* GET THE EARLIEST TIME IN AND LATEST TIME OUT*/
+            //                 if($cType == 'time_in') {
+            //                     $in = strtotime($cTime) < strtotime($oTime) ? date("Y-m-d H:i", strtotime($cTime)) : date("Y-m-d H:i", strtotime($oTime));
+            //                     $data[$cType] = $in;
+            //                 } else {
+            //                     $out = strtotime($cTime) > strtotime($oTime) ? date("Y-m-d H:i", strtotime($cTime)) : date("Y-m-d H:i", strtotime($oTime));
+            //                     $data[$cType] = $out;
+            //                 }
+            //                 $oTime = $data[$cType];
+            //             } else { // NIGHT SHIFT EMPLOYEES
+            //                 $startShift = $date." ".$start;
+            //                 $endShift = date("Y-m-d" , date(strtotime("+1 day", strtotime($date))))." ".$end;
+            //                 /* GET THE EARLIEST TIME IN AND LATEST TIME OUT*/
+            //                 if($cType == 'time_in') {
+            //                     $in = strtotime($cTime) < strtotime($oTime) ? date("Y-m-d H:i", strtotime($cTime)) : date("Y-m-d H:i", strtotime($oTime));
+            //                     $data[$cType] = $in;
+            //                 } else {
+            //                      $out = '06:00';//strtotime($cTime) > strtotime($oTime) ? date("Y-m-d H:i", strtotime($cTime)) : date("Y-m-d H:i", strtotime($oTime));
+            //                     $data[$cType] = $out;
+            //                 }
+            //             }
+            //         }
+            //         /* GET LATES HOURS */
+            //         if(strtotime($startShift) < strtotime($in)) {
+            //             $data['late'] = $this->getTardinessHrs($startShift, $in);
+            //         }
 
-            $data = [
-                'employee_id'   =>  $raw['employee_id'],
-                'date'          =>  $raw['date'],
-                'shift_id'      =>  $shift->shift_id,
-                'time_id'       =>  $in,
-                'time_out'      =>  $out
-            ];
+            //         /* GET UNDERTIME HOURS */
+            //         if(strtotime($endShift) > strtotime($out)) {
+            //             $data['undertime'] = $this->getTardinessHrs($out, $endShift);
+            //         }
 
-            /*GET OT HOURS FROM FILED FORMS*/
-            $otHrs = $this->getOtHrs($raw['employee_id'], $raw['date']);
+            //         /* GET HOURS WORKED */
+            //         $data['hours_work'] = $this->getWorkHrs($in, $out);
 
-            $data = array_prepend($data, $otHrs, 'ot_hours');
-        }
+            //         /*GET OT HOURS FROM FILED FORMS*/
+            //         $data['ot_hours'] = $this->getOtHrs($empId, $date, $out, $endShift);
+
+            //     } else { // IF THERE IS NO RAW LOGS
+            //         /* CHECK IF HOLIDAY */
+
+            //         /* CHECK IF THERE ARE LEAVES FILED */
+
+            //         /* CHECK IF THERE IS OBT FILED */
+            //     }
+            // }
+        }echo "<pre>";print_r($data);die("testing");
+        
         echo "<pre>";print_r($data);die("here");
     }
 
     /* OVERTIME COMPUTATION FROM FILED FORMS */
-    public function getOtHrs($empId, $date)
+    public function getOtHrs($empId, $date, $out, $endShift)
     {
         $overtime = EmployeeOvertime::where('employee_id', $empId)
                         ->where('date', $date)
                         ->where('form_status_id', 3)->get()->first();
+        $otEnd = strtotime($overtime['datetime_to']) <= strtotime($out) ? $overtime['datetime_to'] : $out;
+        if (strtotime($endShift) < $otEnd) {
+            $otHrs = (strtotime($otEnd) - strtotime($overtime['datetime_from']))/(60*60);
+            return round($otHrs, 2);
+        } else {
+            return false;
+        }
         
-        $otHrs = (strtotime($overtime['datetime_to']) - strtotime($overtime['datetime_from']))/(60*60);
-        return $otHrs;
+    }
+
+    /* WORK HOURS COMPUTATION */
+    public function getWorkHrs($in, $out)
+    {
+        $workHrs = (strtotime($out) - strtotime($in))/(60*60) - 1;
+        return round($workHrs, 2);
+    }
+
+    /* TARDINESS LATE/UNDERTIME COMPUTATION */
+    public function getTardinessHrs($start, $end)
+    {
+        $tardy = (strtotime($end) - strtotime($start))/(60*60);
+        return $tardy > 0 ? $tardy : false;
     }
 }

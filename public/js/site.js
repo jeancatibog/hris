@@ -14,12 +14,12 @@ function registerEvents() {
   });
 
   $('.btn-in').on('click', function(){
-    $('.ctype').val('In');
+    $('.ctype').val('time_in');
     // $(this).attr('disabled', 'disabled');
   });
 
   $('.btn-out').on('click', function(){
-    $('.ctype').val('Out');
+    $('.ctype').val('time_out');
     // $('.btn-in').removeAttr('disabled');
   });
 

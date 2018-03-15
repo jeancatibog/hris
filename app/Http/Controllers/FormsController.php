@@ -257,12 +257,16 @@ class FormsController extends Controller
 
     public function getDatesFromRange($start, $end)
     {
+        $start = new DateTime($start);
+        $end = new DateTime($end);
+        $oneDay = new DateInterval('P1D');
 	    $period = new DatePeriod(
-                new DateTime($start),
-                new DateInterval('P1D'),
-                new DateTime($end)
+                $start,
+                $oneDay,
+                $end->add($oneDay)
         );
         $all_days = array();$i = 0;
+        
         foreach($period as $date) {
             if ($this->isWeekend($date->format('Y-m-d'))){
                 $all_days[$i] = $date->format('Y-m-d');
