@@ -49,12 +49,12 @@ class ShiftController extends Controller
     public function store(Request $request)
     {
         $this->validateInput($request);
-         Shift::create([
-            'name'	=> 	$request['name'],
-            'start' => 	date("H:i",strtotime($request['start'])),
-            'end'	=>	date("H:i",strtotime($request['end'])),
-            'first_halfday_end' => 	date("H:i",strtotime($request['first_halfday_end'])),
-            'second_halfday_start'	=>	date("H:i",strtotime($request['second_halfday_start']))
+        Shift::create([
+            'name'  =>  $request['name'],
+            'start' =>  date("H:i",strtotime($request['start'])),
+            'end'   =>  date("H:i",strtotime($request['end'])),
+            'first_halfday_end' =>  date("H:i",strtotime($request['first_halfday_end'])),
+            'second_halfday_start'  =>  date("H:i",strtotime($request['second_halfday_start']))
         ]);
 
         return redirect()->intended('system-management/shift');
@@ -95,15 +95,13 @@ class ShiftController extends Controller
      */
     public function update(Request $request, $id)
     {
-         $this->validate($request, [
-        'name' => 'required|max:60'
-        ]);
+        $this->validateInput($request, $id);
         $input = [
             'name' => $request['name'],
-            'start' => 	date("H:i",strtotime($request['start'])),
-            'end'	=>	date("H:i",strtotime($request['end'])),
-            'first_halfday_end' => 	date("H:i",strtotime($request['first_halfday_end'])),
-            'second_halfday_start'	=>	date("H:i",strtotime($request['second_halfday_start']))
+            'start' =>  date("H:i",strtotime($request['start'])),
+            'end'   =>  date("H:i",strtotime($request['end'])),
+            'first_halfday_end' =>  date("H:i",strtotime($request['first_halfday_end'])),
+            'second_halfday_start'  =>  date("H:i",strtotime($request['second_halfday_start']))
         ];
         Shift::where('id', $id)
             ->update($input);
@@ -152,11 +150,19 @@ class ShiftController extends Controller
         return $query->paginate(5);
     }
 
-    private function validateInput($request) {
+    private function validateInput($request, $id = NULL) {
         $this->validate($request, [
-            'name'	=>	'required|unique:name',
-            'start'	=>	'required',
-            'end'	=>	'required'
+            'name'  =>  'required',
+            'start' =>  'required',
+            'end'   =>  'required'
         ]);
+        
+        // check if unique name for department
+        $shift = Shift::where('name', $request['name'])->first();
+        if(isset($id) && $shift->id != $id) {
+            $this->validate($request, [
+                'name' => 'unique:shift'
+            ]);
+        }  
     }
 }
