@@ -30,9 +30,17 @@
                         </div>
                         <div class="form-group">
                           <div class="col-md-8 col-md-offset-6">
-                            <button type="submit" class="btn btn-primary">
+                            <button type="submit" class="btn btn-primary process-btn">
                                 Process
                             </button>
+                          </div>
+                          <div class="col-md-6 col-md-offset-4">
+                            <div class="progress" style="display: none;">
+                              <div class="progress-bar progress-bar-success progress-bar-striped active" role="progressbar"
+                              aria-valuenow="40" aria-valuemin="0" aria-valuemax="100" style="width:40%">
+                                % Complete
+                              </div>
+                            </div>
                           </div>
                       </div>
                     </form>

@@ -45,7 +45,6 @@ function registerEvents() {
     form.attr('action', form.attr('action') + '/' + id);
   });
 
-
   $('form.edit-form :submit').on('click', function(event){
     event.stopPropagation();
     var param = $(this).attr('id'),
@@ -70,6 +69,12 @@ function registerEvents() {
     }
   });
   /*** End Leave Forms ***/
+
+  /*** PROCESSING ***/
+  $('.process-btn').on('click', function(){
+    $(this).hide();
+    $('.progress').show();
+  });
 }
 
 function loadItems(element, path, selectInputClass) {
