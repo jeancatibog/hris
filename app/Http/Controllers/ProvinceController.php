@@ -126,7 +126,7 @@ class ProvinceController extends Controller
          return redirect()->intended('system-management/province');
     }
 
-    public function loadProvinces($countryId) {die("sdasa");
+    public function loadProvinces($countryId) {
         $provinces = Province::where('country_id', '=', $countryId)->get(['id', 'name']);
 
         return response()->json($provinces);

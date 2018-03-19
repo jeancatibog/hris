@@ -125,3 +125,17 @@ function getToday() {
   if (day.length < 2) day = '0' + day;
   return [year, month, day].join('-');
 }
+
+/* Daily Time Records */
+$('.dtr-period').on('change', function(){
+  var period = $(this).val();
+
+  $.ajax({
+    type: 'POST',
+    url: '/dtr-list/',
+    data: {id: period},
+    success: function(response){
+      alert("test");
+    }
+  });
+});
