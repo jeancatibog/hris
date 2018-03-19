@@ -6,7 +6,7 @@
   <div class="box-header">
     <div class="row">
         <div class="col-sm-8">
-          <h3 class="box-title">List of Users {{$user->employee_id}}</h3>
+          <h3 class="box-title">List of Users</h3>
         </div>
         <div class="col-sm-4">
           <a class="btn btn-primary" href="{{ route('user-management.create') }}">Add new user</a>

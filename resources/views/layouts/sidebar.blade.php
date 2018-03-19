@@ -51,15 +51,18 @@
             <li><a href="{{ url('system-management/report') }}">Report</a></li>
           </ul>
         </li>
-        <li><a href="{{ route('user-management.index') }}"><i class="fa fa-user"></i> <span>User management</span></a></li>
+        <li><a href="{{ url('user-management') }}"><i class="fa fa-user"></i> <span>User management</span></a></li>
         <li class="treeview">
-          <a href="#"><i class="fa fa-clock-o"></i> <span>Timekeeping</span>
+          <a href="#"><i class="fa fa-cogs"></i> <span>Timekeeping</span>
             <span class="pull-right-container">
               <i class="fa fa-angle-left pull-right"></i>
             </span>
           </a>
           <ul class="treeview-menu">
-            <li><a href="{{ url('timekeeping/period') }}"><i class="fa fa-file"></i><span>Period Cover</span></a></li>
+            <li><a href="{{ url('timekeeping/period') }}"><i class="fa fa-file-text"></i><span>Period Cover</span></a></li>
+          </ul>
+          <ul class="treeview-menu">
+            <li><a href="{{ url('timekeeping/process') }}"><i class="fa fa-cog fa-spinner"></i><span>Processing</span></a></li>
           </ul>
         </li>
       </ul>
