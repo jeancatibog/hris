@@ -180,83 +180,88 @@ class TimekeepingController extends Controller
                 $data[$workdate]['shift_id'] = $shiftId;
                 $startShift = $workdate." ".$start;
                 $actualIn = $actualOut = '';
-                if (strtotime($start) < strtotime($end)) { // DAY SHIFT EMPLOYEES
-                    $endShift = $oTime = $workdate . " " .$end;
-                    /* GET TIME IN/OUT FROM RAW LOGS */
-                    $rawLogs = RawLogs::where('date', $workdate)
-                        ->where('employee_id', $empId)->get()->toArray();
-                    if (is_array($rawLogs) && count($rawLogs) > 0) { 
-                        foreach ($rawLogs as $log) {
-                            $cType = $log['checktype'];
-                            $cTime = $log['date'] . " " . $log['checktime'];
-                            /* GET THE EARLIEST TIME IN AND LATEST TIME OUT*/
-                            if($cType == 'time_in') {
-                                $actualIn = strtotime($cTime) < strtotime($oTime) ? date("Y-m-d H:i", strtotime($cTime)) : date("Y-m-d H:i", strtotime($oTime));
-                                $data[$workdate][$cType] = $actualIn;
-                            } else {
-                                $actualOut = strtotime($cTime) > strtotime($oTime) ? date("Y-m-d H:i", strtotime($cTime)) : date("Y-m-d H:i", strtotime($oTime));
-                                $data[$workdate][$cType] = $actualOut;
-                            }
-                            $oTime = $data[$workdate][$cType];
-                        }
-                    } else { // NO CAPTURED RAW LOGS
-
-                    }
-                } else { // NIGHT SHIFT EMPLOYEES
-                    $dtOut = date("Y-m-d" , date(strtotime("+1 day", strtotime($workdate))));
-                    $endShift = $oTime = $dtOut . " " .$end;
-                    /* GET TIME IN FROM RAW LOGS */
-                    $rawIn = RawLogs::where('date', $workdate)
-                        ->where('employee_id', $empId)
-                        ->where('checktype', 'time_in')
-                        ->get()->toArray();
-                    /* GET TIME IN FROM RAW LOGS */
-                    foreach ($rawIn as $login) {
-                        /* GET THE EARLIEST TIME IN*/
-                        $cType = $login['checktype'];
-                        $cTime = $login['date'] . " " . $login['checktime'];
-                        $actualIn = strtotime($cTime) < strtotime($oTime) ? date("Y-m-d H:i", strtotime($cTime)) : date("Y-m-d H:i", strtotime($oTime));
-                        $oTime = $data[$workdate][$cType] = $actualIn;
-                    }
-                    /* GET TIME OUT FROM RAW LOGS */
-                    $rawOut = RawLogs::where('date', $dtOut)
-                        ->where('employee_id', $empId)
-                        ->where('checktype', 'time_out')
-                        ->get()->toArray();
-                    
-                    foreach ($rawOut as $logout) {
-                        /* GET THE LATEST TIME OUT*/
-                        $cType = $logout['checktype'];
-                        $cTime = $logout['date'] . " " . $logout['checktime'];
-                        $actualOut = strtotime($cTime) > strtotime($oTime) ? date("Y-m-d H:i", strtotime($cTime)) : date("Y-m-d H:i", strtotime($oTime));
-                        $oTime = $data[$workdate][$cType] = $actualOut;
-                    }
-                }
+                $absent = 0;
+                
                 /* CHECK LEAVE FORMS FILED */
                 $leave = $this->getLeaves($empId, $workdate);
                 if (!empty($leave)) {
                     $data[$workdate]['leave'] = true;
                     $data[$workdate]['leave_type'] = $leave->form;
+
+                    if (strtotime($start) < strtotime($end)) { // DAY SHIFT EMPLOYEES
+                        $endShift = $oTime = $workdate . " " .$end;
+                        /* GET TIME IN/OUT FROM RAW LOGS */
+                        $rawLogs = RawLogs::where('date', $workdate)
+                            ->where('employee_id', $empId)->get()->toArray();
+                        if (is_array($rawLogs) && count($rawLogs) > 0) { 
+                            foreach ($rawLogs as $log) {
+                                $cType = $log['checktype'];
+                                $cTime = $log['date'] . " " . $log['checktime'];
+                                /* GET THE EARLIEST TIME IN AND LATEST TIME OUT*/
+                                if($cType == 'time_in') {
+                                    $actualIn = strtotime($cTime) < strtotime($oTime) ? date("Y-m-d H:i", strtotime($cTime)) : date("Y-m-d H:i", strtotime($oTime));
+                                    $oTime = $data[$workdate][$cType] = $actualIn;
+                                } else {
+                                    $actualOut = strtotime($cTime) > strtotime($oTime) ? date("Y-m-d H:i", strtotime($cTime)) : date("Y-m-d H:i", strtotime($oTime));
+                                    $oTime = $data[$workdate][$cType] = $actualOut;
+                                }
+                            }
+                        } else { // NO CAPTURED RAW LOGS
+                            $absent = $data[$workdate]['absent'] = true;
+                        }
+                    } else { // NIGHT SHIFT EMPLOYEES
+                        $dtOut = date("Y-m-d" , date(strtotime("+1 day", strtotime($workdate))));
+                        $endShift = $oTime = $dtOut . " " .$end;
+                        /* GET TIME IN FROM RAW LOGS */
+                        $rawIn = RawLogs::where('date', $workdate)
+                            ->where('employee_id', $empId)
+                            ->where('checktype', 'time_in')
+                            ->get()->toArray();
+                        /* GET TIME IN FROM RAW LOGS */
+                        foreach ($rawIn as $login) {
+                            /* GET THE EARLIEST TIME IN*/
+                            $cType = $login['checktype'];
+                            $cTime = $login['date'] . " " . $login['checktime'];
+                            $actualIn = strtotime($cTime) < strtotime($oTime) ? date("Y-m-d H:i", strtotime($cTime)) : date("Y-m-d H:i", strtotime($oTime));
+                            $oTime = $data[$workdate][$cType] = $actualIn;
+                        }
+                        /* GET TIME OUT FROM RAW LOGS */
+                        $rawOut = RawLogs::where('date', $dtOut)
+                            ->where('employee_id', $empId)
+                            ->where('checktype', 'time_out')
+                            ->get()->toArray();
+                        
+                        foreach ($rawOut as $logout) {
+                            /* GET THE LATEST TIME OUT*/
+                            $cType = $logout['checktype'];
+                            $cTime = $logout['date'] . " " . $logout['checktime'];
+                            $actualOut = strtotime($cTime) > strtotime($oTime) ? date("Y-m-d H:i", strtotime($cTime)) : date("Y-m-d H:i", strtotime($oTime));
+                            $oTime = $data[$workdate][$cType] = $actualOut;
+                        }
+                    }
                 } else {
                     $data[$workdate]['leave'] = false;
                     $data[$workdate]['leave_type'] = "";
+                    $absent = $data[$workdate]['absent'] = true;
                 }
 
+                if (!$absent) {
                 /* GET LATES HOURS */
-                if (strtotime($startShift) < strtotime($actualIn)) {
-                   $data[$workdate]['late'] = $this->getTardinessHrs($startShift, $actualIn);
+                    if (strtotime($startShift) < strtotime($actualIn)) {
+                       $data[$workdate]['late'] = $this->getTardinessHrs($startShift, $actualIn);
+                    }
+
+                    /* GET UNDERTIME HOURS */
+                    if (strtotime($endShift) > strtotime($actualOut)) {
+                        $data[$workdate]['undertime'] = $this->getTardinessHrs($actualOut, $endShift);
+                    }
+
+                    /* GET HOURS WORKED */
+                    $data[$workdate]['hours_work'] = $this->getWorkHrs($actualIn, $actualOut);
+
+                    /*GET OT HOURS FROM FILED FORMS*/
+                    $data[$workdate]['ot_hours'] = $this->getOtHrs($empId, $workdate, $actualOut, $endShift);
                 }
-
-                /* GET UNDERTIME HOURS */
-                if (strtotime($endShift) > strtotime($actualOut)) {
-                    $data[$workdate]['undertime'] = $this->getTardinessHrs($actualOut, $endShift);
-                }
-
-                /* GET HOURS WORKED */
-                $data[$workdate]['hours_work'] = $this->getWorkHrs($actualIn, $actualOut);
-
-                /*GET OT HOURS FROM FILED FORMS*/
-                $data[$workdate]['ot_hours'] = $this->getOtHrs($empId, $workdate, $actualOut, $endShift);
             } 
             /* SAVE DTR SUMMARY */
             foreach ($data as $dtr) {
