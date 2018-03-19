@@ -32,6 +32,7 @@
       <ul class="sidebar-menu">
         <!-- Optionally, you can add icons to the links -->
         <li class="active"><a href="{{ url('dashboard') }}"><i class="fa fa-home"></i> <span>Dashboard</span></a></li>
+        <li><a href="{{ url('dtr') }}"><i class="fa fa-calendar"></i> <span>My DTR</span></a></li>
         <li><a href="{{ url('forms') }}"><i class="fa fa-pencil-square-o"></i> <span>File Form</span></a></li>
         <li><a href="{{ url('employee-management') }}"><i class="fa fa-users"></i> <span>Employee Management</span></a></li>
         <li class="treeview">

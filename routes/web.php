@@ -62,7 +62,6 @@ Route::resource('forms', 'FormsController');
 Route::post('forms/search', 'FormsController@search')->name('forms.search');
 Route::post('/forms/{id}', 'FormsController@store');
 
-
 Route::resource('timekeeping/period', 'TimekeepingController');
 Route::post('timekeeping/log', 'TimekeepingController@log')->name('timekeeping.log');
 Route::get('timekeeping/period/create', 'TimekeepingController@create')->name('timekeeping.create');
@@ -70,3 +69,6 @@ Route::post('timekeeping/period/store', 'TimekeepingController@store')->name('ti
 Route::post('timekeeping/period/{id}/edit', 'TimekeepingController@edit')->name('timekeeping.edit');
 Route::post('timekeeping/period/destroy', 'TimekeepingController@destroy')->name('timekeeping.destroy');
 Route::post('timekeeping/period/update', 'TimekeepingController@update')->name('timekeeping.update');
+
+Route::resource('dtr', 'DtrController');
+Route::post('dtr', 'DtrController@dailyLog')->name('dtr.dailyLog');

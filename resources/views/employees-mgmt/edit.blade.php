@@ -53,6 +53,7 @@
                             <label class="col-md-4 control-label">Country</label>
                             <div class="col-md-6">
                                 <select class="form-control js-country" name="country_id">
+                                    <option value="-1">Please select your country</option>
                                     @foreach ($countries as $country)
                                         <option {{$employee->country_id == $country->id ? 'selected' : ''}} value="{{$country->id}}">{{$country->name}}</option>
                                     @endforeach
@@ -63,6 +64,7 @@
                             <label class="col-md-4 control-label">Province</label>
                             <div class="col-md-6">
                                 <select class="form-control js-provinces" name="province_id">
+                                    <option value="-1">Please select your province</option>
                                     @foreach ($provinces as $province)
                                         <option {{$employee->province_id == $province->id ? 'selected' : ''}} value="{{$province->id}}">{{$province->name}}</option>
                                     @endforeach
@@ -73,6 +75,7 @@
                             <label class="col-md-4 control-label">City</label>
                             <div class="col-md-6">
                                 <select class="form-control js-cities" name="city_id">
+                                    <option value="-1">Please select your city</option>
                                     @foreach ($cities as $city)
                                         <option {{$employee->city_id == $city->id ? 'selected' : ''}} value="{{$city->id}}">{{$city->name}}</option>
                                     @endforeach
