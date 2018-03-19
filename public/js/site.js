@@ -102,18 +102,18 @@ function loadItems(element, path, selectInputClass) {
 function loadProvinces(element) {
   $('.js-provinces').empty().append('<option value="">Please select your province</option>');
   $('.js-cities').empty().append('<option value="">Please select your city</option>');
-  loadItems(element, '../api/province/', '.js-provinces');
+  loadItems(element, '/get-province-list/', '.js-provinces');
 }
 
 function loadCities(element) {
   $('.js-cities').empty().append('<option value="">Please select your city</option>');;
-  loadItems(element, '../api/city/', '.js-cities');
+  loadItems(element, '/get-city-list/', '.js-cities');
 }
 
-function loadEmployees(element) {
+/*function loadEmployees(element) {
   $('.js-employees').empty().append('<option value="">Please select your employee</option>');;
   loadItems(element, '../api/employees/', '.js-employees');
-}
+}*/
 
 function getToday() {
   var d = new Date(),

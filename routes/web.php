@@ -40,9 +40,11 @@ Route::post('system-management/country/search', 'CountryController@search')->nam
 
 Route::resource('system-management/province', 'ProvinceController');
 Route::post('system-management/province/search', 'ProvinceController@search')->name('province.search');
+Route::get('get-province-list/{countryId}', 'ProvinceController@loadProvinces');
 
 Route::resource('system-management/city', 'CityController');
 Route::post('system-management/city/search', 'CityController@search')->name('city.search');
+Route::get('get-city-list/{provinceId}', 'CityController@loadCities');
 
 Route::get('system-management/report', 'ReportController@index');
 Route::post('system-management/report/search', 'ReportController@search')->name('report.search');
