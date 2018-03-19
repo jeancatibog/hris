@@ -72,5 +72,14 @@ class DatabaseSeeder extends Seeder
             ['status' => 'Closed', 'description' => 'Period cover transaction closed']
         ];
         DB::table('tk_period_status')->insert($period_status);
+
+        $emp_status = [
+            ['status' => 'Probationary', 'is_active' => 1 ],
+            ['status' => 'Contractual/Project-based', 'is_active' => 1 ],
+            ['status' => 'Regular', 'is_active' => 1 ],
+            ['status' => 'Resigned', 'is_active' => 0 ],
+            ['status' => 'Terminated', 'is_active' => 0 ]
+        ];
+        DB::table('employment_status')->insert($emp_status);
     }
 }

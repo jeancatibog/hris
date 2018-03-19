@@ -14,12 +14,12 @@ function registerEvents() {
   });
 
   $('.btn-in').on('click', function(){
-    $('.ctype').val('In');
+    $('.ctype').val('time_in');
     // $(this).attr('disabled', 'disabled');
   });
 
   $('.btn-out').on('click', function(){
-    $('.ctype').val('Out');
+    $('.ctype').val('time_out');
     // $('.btn-in').removeAttr('disabled');
   });
 
@@ -45,7 +45,6 @@ function registerEvents() {
     form.attr('action', form.attr('action') + '/' + id);
   });
 
-
   $('form.edit-form :submit').on('click', function(event){
     event.stopPropagation();
     var param = $(this).attr('id'),
@@ -70,6 +69,12 @@ function registerEvents() {
     }
   });
   /*** End Leave Forms ***/
+
+  /*** PROCESSING ***/
+  $('.process-btn').on('click', function(){
+    $(this).hide();
+    $('.progress').show();
+  });
 }
 
 function loadItems(element, path, selectInputClass) {
