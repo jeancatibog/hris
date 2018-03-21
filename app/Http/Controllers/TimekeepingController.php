@@ -172,9 +172,10 @@ class TimekeepingController extends Controller
                         ->select('e.id AS employee_id', 'es.shift_id', 's.start', 's.end')->get()->toArray(); /* GET ALL ACTIVE EMPLOYEES */
         
         foreach ($employees as $employee) {
-            $data = array();
+            $summary = array();
             $empId = $employee->employee_id;
             foreach ($periodCover as $workdate) {
+                $data = array();
                 $day_type = '';
                 $leave_type = '';
                 $actualIn = $actualOut = 0;
@@ -183,11 +184,13 @@ class TimekeepingController extends Controller
                 $undertime = 0;
                 $leave = 0;
                 $work_hrs = 0;
-                $ot_hrs = 0;
-                $ot_excess = 0;
+                $otHrs = 0;
+                $ot = 0;
+                $otEx = 0;
                 $ndiff = 0;
                 $ndot_excess = 0;
                 $holiday = 0;
+                $brk = 1;
                 
                 /* check if date is restday */
                 $isWeekday = $formController->isWeekend($workdate);
@@ -223,15 +226,16 @@ class TimekeepingController extends Controller
                     $shiftOut = $employee->end; // shift time end
                 }
 
+                $nextDayIn = date("Y-m-d" , date(strtotime("+1 day", strtotime($workdate)))) . " " . $shiftIn;
                 $dtOut = strtotime($shiftIn) > strtotime($shiftOut) ? date("Y-m-d" , date(strtotime("+1 day", strtotime($workdate)))) : $workdate;
                 $endShift = $oiTime = $dtOut . " " .$shiftOut;
                 $startShift = $ooTime = $workdate . " " . $shiftIn;
-                echo "<pre>";print_r($empId."==".$workdate . " = " . $shiftIn."-".$shiftOut." == ".$dtOut);
+                // echo "<pre>";print_r($empId."==".$workdate . " = " . $shiftIn."-".$shiftOut." == ".$dtOut);
 
                 /* check if there is filed leave */
                 $leaves = $this->getLeaves($empId, $workdate);
 
-                $rawLogs = $this->getRawLogs($empId, $workdate, $dtOut, $leaves);
+                $rawLogs = $this->getRawLogs($empId, $workdate, $dtOut, $nextDayIn, $leaves);
                 // echo "<pre>";print_r($workdate);
                 if (is_array($rawLogs) && count($rawLogs) > 0) {
                     // echo "<pre>";print_r($rawLogs);
@@ -239,30 +243,37 @@ class TimekeepingController extends Controller
                         $cType = $log['checktype'];
                         $cTime = $log['date']. " " . $log['checktime'];
                         if (strtotime($shiftIn) > strtotime($shiftOut)) { // NIGHT SHIFT EMPLOYEE
-                            //time in
-                            if ($cType == 'time_in') {
+                            if ($cType == 'time_in') { //time in
                                 $actualIn = strtotime($cTime) < strtotime($oiTime) ? strtotime($cTime) > strtotime($workdate . " " . $shiftOut ) ? date("Y-m-d H:i", strtotime($cTime)) : 0 : date("Y-m-d H:i", strtotime($oiTime));
                                 $oiTime = $actualIn;
                             }
-                            //time out
-                            if ($cType == 'time_out') {
+                            if ($cType == 'time_out') { //time out
                                 $actualOut = strtotime($cTime) > strtotime($ooTime) ? date("Y-m-d H:i", strtotime($cTime)) : date("Y-m-d H:i", strtotime($ooTime));
                                 $ooTime = $actualOut;
                             }
                         } else { // DAY SHIFT EMPLOYEE
+                            /* GET THE EARLIEST TIME IN AND LATEST TIME OUT*/
+                            if($cType == 'time_in') {
+                                $actualIn = strtotime($cTime) < strtotime($oiTime) ? date("Y-m-d H:i", strtotime($cTime)) : date("Y-m-d H:i", strtotime($oiTime));
+                                $oiTime = $actualIn;
+                            } else {
+                                $actualOut = strtotime($cTime) > strtotime($ooTime) ? date("Y-m-d H:i", strtotime($cTime)) : date("Y-m-d H:i", strtotime($ooTime));
+                                $ooTime =  $actualOut;
+                            }
                         }
                     }
                     // night differential for night shifts
                     $ndiff = strtotime($shiftIn) > strtotime($shiftOut) ? $this->getNdiff($workdate, $actualIn, $actualOut) : 0;
                 } else { //no logs from dtr
                     /* check if date is restday */
-                    if ($isWeekday) {
+                    if ($isWeekday && !$holiday) {
                         $absent = 1;
                     }
                 }
 
                 // if no computed in and out
-                if (empty($actualIn) && empty($actualOut)) {
+                if (empty($actualIn) && empty($actualOut) && !$holiday) {
+                    /* check if there is dtrp apporoved */
                     $absent = 1;
                 }
 
@@ -274,18 +285,32 @@ class TimekeepingController extends Controller
                     }
                     $leave = 1;
                     $leave_type = $leaves->form;
+
+                    $halfday = $leaves->is_halfday;
+                    $halfday_type = $leaves->halfday_type;
+                    $shift = Shift::find($shiftId);
+                    if ($halfday) {
+                        if($halfday_type == 1){
+                            $dt = strtotime($shiftIn) > strtotime($shiftOut) ? $dtOut : $workdate;
+                            $startShift = $dt . " " . $shift->second_halfday_start;
+                            $brk = 0;
+                        } else {
+                            $dt = strtotime($shiftIn) > strtotime($shiftOut) ? $dtOut : $workdate;
+                            $endShift = $dt . " " . $shift->first_halfday_end;
+                        }
+                    }
                 }
 
                 if(!$absent) {
-                    if(!$holiday || $isWeekday) { // compute lates only if not holiday and not restday
+                    if(!$holiday && $isWeekday) { // compute lates only if not holiday and not restday
                         /* GET LATES HOURS */
                         if (strtotime($startShift) < strtotime($actualIn)) {
-                           $late = $this->getTardinessHrs($startShift, $actualIn, $leaves, $shiftId);
+                           $late = $this->getTardinessHrs($startShift, $actualIn);
                         }
 
                         /* GET UNDERTIME HOURS */
                         if (strtotime($endShift) > strtotime($actualOut)) {
-                            $undertime = $this->getTardinessHrs($actualOut, $endShift, $leaves, $shiftId);
+                            $undertime = $this->getTardinessHrs($actualOut, $endShift);
                         }
                     }    
 
@@ -293,7 +318,9 @@ class TimekeepingController extends Controller
                     $work_hrs = $this->getWorkHrs($actualIn, $actualOut);
 
                     /*GET OT HOURS FROM FILED FORMS*/
-                    $ot_hrs = $this->getOtHrs($empId, $workdate, $actualOut, $endShift);
+                    $otHrs = $this->getOtHrs($empId, $workdate, $actualOut, $endShift);
+                    $ot = $otHrs > 8 ? 8 - 1 : round($otHrs, 2); // deduct 1 hr for break if ot more than 8 hrs
+                    $otEx = $otHrs > 8 ? round(($otHrs - 8), 2) : 0;
                 }
                 $data = [
                     'period_id'     =>  $periodId,
@@ -307,127 +334,34 @@ class TimekeepingController extends Controller
                     'absent'        =>  $absent,
                     'late'          =>  $late,
                     'undertime'     =>  $undertime,
-                    'ot_hrs'        =>  $ot_hrs,
+                    'ot_hours'        =>  $ot,
+                    'ot_excess'     =>  $otEx,
                     'ndiff'         =>  $ndiff,
                     'leave'         =>  $leave,
                     'leave_type'    =>  $leave_type
                 ];
-
-                echo "<pre>";print_r($data);
-
-                // $data[$workdate]['period_id'] = $periodId;
-                // $data[$workdate]['employee_id'] = $empId;
-                // $data[$workdate]['date'] = $workdate; 
-                // $data[$workdate]['shift_id'] = $shiftId;
-                // $startShift = $workdate." ".$start;
-                // $actualIn = $actualOut = '';
-                // $absent = 0;
-                
-                // /* CHECK LEAVE FORMS FILED */
-                // $leave = $this->getLeaves($empId, $workdate);
-                // if (!empty($leave)) {
-                //     $data[$workdate]['leave'] = true;
-                //     $data[$workdate]['leave_type'] = $leave->form;
-                // } else {
-                //     if (strtotime($start) < strtotime($end)) { // DAY SHIFT EMPLOYEES
-                //         $endShift = $oTime = $workdate . " " .$end;
-                //         /* GET TIME IN/OUT FROM RAW LOGS */
-                //         $rawLogs = RawLogs::where('date', $workdate)
-                //             ->where('employee_id', $empId)->get()->toArray();
-                //         if (is_array($rawLogs) && count($rawLogs) > 0) { 
-                //             foreach ($rawLogs as $log) {
-                //                 $cType = $log['checktype'];
-                //                 $cTime = $log['date'] . " " . $log['checktime'];
-                //                 /* GET THE EARLIEST TIME IN AND LATEST TIME OUT*/
-                //                 if($cType == 'time_in') {
-                //                     $actualIn = strtotime($cTime) < strtotime($oTime) ? date("Y-m-d H:i", strtotime($cTime)) : date("Y-m-d H:i", strtotime($oTime));
-                //                     $oTime = $data[$workdate][$cType] = $actualIn;
-                //                 } else {
-                //                     $actualOut = strtotime($cTime) > strtotime($oTime) ? date("Y-m-d H:i", strtotime($cTime)) : date("Y-m-d H:i", strtotime($oTime));
-                //                     $oTime = $data[$workdate][$cType] = $actualOut;
-                //                 }
-                //             }
-                //         } else { // NO CAPTURED RAW LOGS
-                //             $absent = $data[$workdate]['absent'] = true;
-                //         }
-                //     } else { // NIGHT SHIFT EMPLOYEES
-                //         $dtOut = date("Y-m-d" , date(strtotime("+1 day", strtotime($workdate))));
-                //         $endShift = $oTime = $dtOut . " " .$end;
-                //         /* GET TIME IN FROM RAW LOGS */
-                //         $rawIn = RawLogs::where('date', $workdate)
-                //             ->where('employee_id', $empId)
-                //             ->where('checktype', 'time_in')
-                //             ->get()->toArray();
-                //         /* GET TIME IN FROM RAW LOGS */
-                //         foreach ($rawIn as $login) {
-                //             /* GET THE EARLIEST TIME IN*/
-                //             $cType = $login['checktype'];
-                //             $cTime = $login['date'] . " " . $login['checktime'];
-                //             $actualIn = strtotime($cTime) < strtotime($oTime) ? date("Y-m-d H:i", strtotime($cTime)) : date("Y-m-d H:i", strtotime($oTime));
-                //             $oTime = $data[$workdate][$cType] = $actualIn;
-                //         }
-                //         /* GET TIME OUT FROM RAW LOGS */
-                //         $rawOut = RawLogs::where('date', $dtOut)
-                //             ->where('employee_id', $empId)
-                //             ->where('checktype', 'time_out')
-                //             ->get()->toArray();
-                        
-                //         foreach ($rawOut as $logout) {
-                //             /* GET THE LATEST TIME OUT*/
-                //             $cType = $logout['checktype'];
-                //             $cTime = $logout['date'] . " " . $logout['checktime'];
-                //             $actualOut = strtotime($cTime) > strtotime($oTime) ? date("Y-m-d H:i", strtotime($cTime)) : date("Y-m-d H:i", strtotime($oTime));
-                //             $oTime = $data[$workdate][$cType] = $actualOut;
-                //         }
-                //     }
-                //     $data[$workdate]['leave'] = false;
-                //     $data[$workdate]['leave_type'] = "";
-                //     if ($actualIn || $actualOut) {
-                //         $absent = $data[$workdate]['absent'] = true;
-                //     }
-                // }
-
-                // if (!$absent && !$leave) {
-                // /* GET LATES HOURS */
-                //     if (strtotime($startShift) < strtotime($actualIn)) {
-                //        $data[$workdate]['late'] = $this->getTardinessHrs($startShift, $actualIn);
-                //     }
-
-                //     /* GET UNDERTIME HOURS */
-                //     if (strtotime($endShift) > strtotime($actualOut)) {
-                //         $data[$workdate]['undertime'] = $this->getTardinessHrs($actualOut, $endShift);
-                //     }
-
-                //     /* GET HOURS WORKED */
-                //     $data[$workdate]['hours_work'] = $this->getWorkHrs($actualIn, $actualOut);
-
-                //     /*GET OT HOURS FROM FILED FORMS*/
-                //     $data[$workdate]['ot_hours'] = $this->getOtHrs($empId, $workdate, $actualOut, $endShift);
-                // }
-
+                $summary[] = $data;
             } //end period days loop 
-            
-
 
             /* SAVE DTR SUMMARY */
-            // foreach ($data as $dtr) {
-            //     /* CHECK IF RECORDS EXISTS (REPROCESSING) */
-            //     $dtrExists = DB::table('tk_employee_dtr_summary')
-            //                 ->where('period_id', $periodId)
-            //                 ->where('employee_id', $empId)
-            //                 ->where('date', $dtr['date'])
-            //                 ->select('*')->get()->first();
+            foreach ($summary as $dtr) {
+                /* CHECK IF RECORDS EXISTS (REPROCESSING) */
+                $dtrExists = DB::table('tk_employee_dtr_summary')
+                            ->where('period_id', $periodId)
+                            ->where('employee_id', $empId)
+                            ->where('date', $dtr['date'])
+                            ->select('*')->get()->first();
                 
-            //     if (!empty($dtrExists)) {
-            //         //update
-            //         EmployeeDtrSummary::where('id', $dtrExists->id)
-            //                     ->update($dtr);
-            //     } else {
-            //         //add new record
-            //         EmployeeDtrSummary::create($dtr);
-            //     }
-            // }
-        }die("ere");
+                if (!empty($dtrExists)) {
+                    //update
+                    EmployeeDtrSummary::where('id', $dtrExists->id)
+                                ->update($dtr);
+                } else {
+                    //add new record
+                    EmployeeDtrSummary::create($dtr);
+                }
+            }
+        }
     }
 
     /* GET SHIFT FROM EMPLOYEE WORKSCHEDULE */
@@ -453,7 +387,7 @@ class TimekeepingController extends Controller
     }
 
     /* GET RAW LOGS IN/OUT */
-    public function getRawLogs($empId, $date, $dtOut, $leaves)
+    public function getRawLogs($empId, $date, $dtOut, $nextDayIn, $leaves)
     {
         $qry = RawLogs::where('employee_id', $empId);
 
@@ -470,9 +404,19 @@ class TimekeepingController extends Controller
             }
             $rawLogs = $qry->get()->toArray();
         } else { // day shift
-            $qry->where('date', $date)
-                ->select('*');
+            // DB::enableQueryLog();
+            $qry->where(function($query) use ($date, $nextDayIn) 
+            {
+                $query->where('date', $date)
+                    ->orWhere(function($q) use ($nextDayIn)
+                    {
+                        $q->where('date', date("Y-m-d", strtotime($nextDayIn)))
+                            ->where('checktype', 'time_out')
+                            ->where('checktime', '<', date('H:i:s', strtotime($nextDayIn)));
+                    });
+            })->select('*');
             $rawLogs = $qry->get()->toArray();
+            // echo "<pre>";print_r(DB::getQueryLog());
         }
         return $rawLogs;
     }
@@ -499,17 +443,22 @@ class TimekeepingController extends Controller
     /* OVERTIME COMPUTATION FROM FILED FORMS */
     public function getOtHrs($empId, $date, $actualOut, $endShift)
     {
+        $holiday = $this->getHoliday($date);
         $overtime = EmployeeOvertime::where('employee_id', $empId)
                         ->where('date', $date)
                         ->where('form_status_id', 3)->get()->first();
-        $otEnd = strtotime($overtime['datetime_to']) <= strtotime($actualOut) ? $overtime['datetime_to'] : $actualOut;
-        if (strtotime($endShift) < strtotime($otEnd)) {
-            $otHrs = (strtotime($otEnd) - strtotime($overtime['datetime_from']))/(60*60);
-            return round($otHrs, 2);
+        $ot = array();
+        if(!empty($overtime)) {
+            $otEnd = strtotime($overtime['datetime_to']) <= strtotime($actualOut) ? $overtime['datetime_to'] : $actualOut;
+            if (strtotime($endShift) < strtotime($otEnd) || count($holiday)>0) {
+                $otHrs = (strtotime($otEnd) - strtotime($overtime['datetime_from']))/(60*60);
+                return $otHrs;
+            } else {
+                return false;
+            }
         } else {
             return false;
         }
-        
     }
 
     /* WORK HOURS COMPUTATION */
@@ -520,28 +469,9 @@ class TimekeepingController extends Controller
     }
 
     /* LATE AND UNDERTIME COMPUTATION */
-    public function getTardinessHrs($start, $end, $leaves, $shiftId)
+    public function getTardinessHrs($start, $end)
     {
-        if(!empty($leaves)) {
-            $halfday = $leaves->is_halfday;
-            $halfday_type = $leaves->halfday_type;
-            $shift = Shift::find($shiftId);
-            if ($halfday) {
-                if($halfday == 1){
-                    $halfEnd = date('Y-m-d', strtotime($end)). " " . $shift->second_halfday_start;
-                    $end = strtotime($halfEnd) > strtotime($end) ? $end : $halfEnd;
-                } else {
-                    /*$halfStart = */$start = date('Y-m-d', strtotime($start)). " " . $shift->first_halfday_end;
-                    // $start = ;
-                }
-                // echo "<pre>";print_r("IN :".$start. " = END: ". $end);
-                return !empty($start) && !empty($end) ? round((strtotime($end) - strtotime($start))/(60*60),2) : 0;
-            } else {
-                return false;
-            }
-        } else {
-            return !empty($start) && !empty($end) ? round((strtotime($end) - strtotime($start))/(60*60),2) : 0;
-        }
+        return !empty($start) && !empty($end) ? round((strtotime($end) - strtotime($start))/(60*60),2) : 0;
     }
 
     /* GET LEAVE APPROVED FORMS */
