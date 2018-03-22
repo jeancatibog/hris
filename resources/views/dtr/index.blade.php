@@ -86,7 +86,9 @@
                 @elseif ($dtr->leave)
                   <td colspan="10" >{{$dtr->leave_type}}</td>
                 @elseif (!empty($dtr->holiday))
-                  <td colspan="10" >{{$dtr->holiday}}</td>
+                  <td colspan="10" >
+                    {{$dtr->holiday}}( @if ($dtr->day_type == 'sperd' || $dtr->day_type == 'spe') Special Holiday @elseif ($dtr->day_type == 'legrd' || $dtr->day_type == 'leg')  Legal Holiday @else Double Holiday @endif )
+                  </td>
                 @endif
               </tr>  
             @endforeach
