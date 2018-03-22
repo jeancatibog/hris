@@ -272,7 +272,7 @@ class TimekeepingController extends Controller
                 }
 
                 // if no computed in and out
-                if (empty($actualIn) && empty($actualOut) && !$holiday) {
+                if (empty($actualIn) && empty($actualOut) && (!$holiday && $isWeekday)) {
                     /* check if there is dtrp apporoved */
                     $absent = 1;
                 }
