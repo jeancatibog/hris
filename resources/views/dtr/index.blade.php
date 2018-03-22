@@ -59,7 +59,7 @@
               <tr role="row" class="odd">
                 @if($dtr->day_type == 'rd' || $dtr->day_type == 'sperd' || $dtr->day_type == 'legrd' ) 
                   <td>
-                      <icon class="fa fa-bed" style=""></icon>
+                      <icon class="fa fa-bed" style="color: #dd4b39;"></icon>
                   </td>    
                 @else
                   <td></td>
