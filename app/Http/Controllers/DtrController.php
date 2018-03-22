@@ -22,11 +22,12 @@ class DtrController extends Controller
     			->leftJoin('employee_setup AS es', 'e.id', '=', 'es.employee_id')
     			->leftJoin('shift AS s', 'es.shift_id', '=', 's.id')
     			->leftJoin('tk_employee_dtr_summary AS dtr', 'dtr.employee_id', '=', 'e.id')
+                ->leftJoin('holiday AS h', 'dtr.date', '=', 'h.date_set')
     			->where('e.id', Auth::user()->employee_id)
     			->whereBetween('date',[$first, $last])
-    			->select('dtr.*', 'e.employee_number', DB::raw('CONCAT(e.firstname," ",e.lastname)  AS fullname'), 's.start', 's.end')
+    			->select('dtr.*', 'e.employee_number', DB::raw('CONCAT(e.firstname," ",e.lastname)  AS fullname'), 's.start', 's.end', 'h.holiday')
     			->get()->toArray();
-    	echo "<pre>";print_r($employeeDtr);die("here");
-        return view('dtr/index', ['periods' => $periods]);
+    	// echo "<pre>";print_r($employeeDtr);die("here");
+        return view('dtr/index', ['employeeDtr' => $employeeDtr]);
     }
 }

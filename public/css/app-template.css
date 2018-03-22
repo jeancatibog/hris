@@ -1,3 +1,8 @@
+footer.main-footer {
+  padding: 6px !important;
+  width: 100%;
+  left: 0px;
+}
 .btn-margin {
   margin: 2px 10px;
   font-size: 2vw;
@@ -106,4 +111,15 @@
   border-radius: 4px;
   background-color: #ccc9c9 !important;
   height: 25px !important;
+}
+
+/* DTR Table */
+table#employee-dtr thead tr th, 
+table#employee-dtr tbody tr td {
+  text-align: center !important;
+  vertical-align: middle !important;
+  border: 0.02em solid #e6dfdf;
+}
+table.dataTable thead > tr > th {
+     padding-right: 0px !important; 
 }
