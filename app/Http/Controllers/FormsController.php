@@ -15,6 +15,7 @@ use App\EmployeeLeaveDates;
 use App\EmployeeOvertime;
 use App\EmployeeObt;
 use App\CompanyPolicy;
+use App\EmployeeDtrp;
 
 class FormsController extends Controller
 {
@@ -131,6 +132,14 @@ class FormsController extends Controller
                 'company_location'  =>  $request['company_location']
             ]);
 
+        } else {
+            EmployeeDtrp::create([
+                'employee_id'   =>  $request['employee_id'],
+                'date'          =>  $request['date'],
+                'log_type_id'   =>  $request['log_type'],
+                'timelog'       =>  date('H:i:s', strtotime($request['timelog'])),
+                'reason'        =>  $request['request']    
+            ]);
         }
 
         return redirect()->intended('forms');
@@ -268,7 +277,7 @@ class FormsController extends Controller
         $all_days = array();$i = 0;
         
         foreach($period as $date) {
-            if ($this->isWeekend($date->format('Y-m-d'))){
+            if ($this->isWeekday($date->format('Y-m-d'))){
                 $all_days[$i] = $date->format('Y-m-d');
                 $i++;
             }
@@ -276,7 +285,7 @@ class FormsController extends Controller
         return $all_days;
     }
 
-    public function isWeekend($date) 
+    public function isWeekday($date) 
     {
         $weekDay = date('w', strtotime($date));
         if (($weekDay == 0 || $weekDay == 6)){

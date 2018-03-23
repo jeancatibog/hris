@@ -123,3 +123,28 @@ table#employee-dtr tbody tr td {
 table.dataTable thead > tr > th {
      padding-right: 0px !important; 
 }
+
+.loading {
+  display: none;
+}
+
+#logtimeModal .modal-content {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+#logtimeModal .modal-header {
+  padding: 8px !important;
+  background-color: #d73925;
+}
+
+#logtimeModal .modal-header h4 {
+  font-size: 15px;
+  color: #ffffff;
+}
+
+#logtimModal #msg-log {
+  font-weight: bold;
+}

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Session;
 use DateTime;
 use DatePeriod;
 use DateInterval;
@@ -42,27 +43,114 @@ class TimekeepingController extends Controller
     */
     public function log(Request $request)
     {
+        /*night shift not yet considered*/
+        $date = $request['date'];
+        $cType = $request['ctype'];
+        $empId = $request['employee_id'];
+        if ($cType == 'time_in') {
+            $prevWorkdate = $this->prevWorkdate($date, $empId); 
+            $chkDate = $prevWorkdate;
+            $chkType = 'time_out';
+        } else {
+            $shift = $this->getShiftSchedule($empId, $date);
+            if(count($shift) > 0) {
+                $start = $shift->start;
+                $end = $shift->end;
+            } else {
+                //get default shift set
+                $defShift = DB::table('employee_setup AS es')
+                            ->leftJoin('shift AS s', 'es.shift_id', '=', 's.id')
+                            ->where('es.employee_id', $empId)
+                            ->select('es.shift_id','s.start', 's.end', 's.is_restday')->get()->first();
+                if (count($defShift) > 0) {
+                    $start = $shift->start;
+                    $end = $shift->end;
+                }
+            }
+            if (strtotime($start) > strtotime($end)) { //night shift
+                $prevWorkdate = date("Y-m-d" , date(strtotime("-1 day", strtotime($date))));
+            } else {
+                $prevWorkdate = $date;
+            }
+
+            $chkDate = $prevWorkdate;
+            $chkType = 'time_in';
+        }
         $input = [
-        	'employee_id'	=>	$request['employee_id'],
-        	'date'			=>	$request['date'],
-        	'checktime'		=>	$request['checktime'],
-        	'checktype'		=>	$request['ctype'],
-        	'processed'		=>	0
+            'employee_id'   =>  $request['employee_id'],
+            'date'          =>  $request['date'],
+            'checktime'     =>  $request['checktime'],
+            'checktype'     =>  $request['ctype'],
+            'processed'     =>  0
         ];
 
-        try {
-        	RawLogs::create($input);
+        $checkLog = RawLogs::where('date', $chkDate)
+                        ->where('checktype', $chkType)
+                        ->where('employee_id', $empId)
+                        ->select('date', 'checktime', 'checktype')->get()->toArray();
+        
+        if (empty($checkLog)) {
+            try {
+                RawLogs::create($input);
+                $return = array(
+                    'has_log'   => false, 
+                    'date'      => $prevWorkdate, 
+                    'log_type'  => $chkType,
+                    'message'   => 'You have succesfuly ' . str_replace('_', ' ', $request['ctype']) .' today at '. date('h:i A', strtotime($request['checktime'])),
+                    'status'    => 'success'
+                ); 
+                echo json_encode($return);
+            } catch (\Exception $e) {
+                return redirect('/dashboard')->with([
+                    'status'    =>  'error', 
+                    'message'   =>  "Something went wrong!"
+                ]);
+            }
+        } else {
+            try {
+                RawLogs::create($input);
 
-        	return redirect('/dashboard')->with([
-        		'status'	=>	'success', 
-        		'message'	=>	"You have succesfuly " . str_replace("_", " ", $request['ctype']) ." at ". date('h:i A', strtotime($request['checktime'])) ]);
+                return redirect('/dashboard')->with([
+                    'status'    =>  'success', 
+                    'message'   =>  "You have succesfuly " . str_replace("_", " ", $request['ctype']) ." today at ". date('h:i A', strtotime($request['checktime'])) ]);
 
-        } catch (\Exception $e) {
-        	return redirect('/dashboard')->with([
-        		'status'	=>	'error', 
-        		'message'	=>	"Something went wrong!"
-        	]);
+            } catch (\Exception $e) {
+                return redirect('/dashboard')->with([
+                    'status'    =>  'error', 
+                    'message'   =>  "Something went wrong!"
+                ]);
+            }
         }
+    }
+
+    public function prevWorkdate($date, $empId)
+    {
+        $formController = new FormsController;
+        /* employees with workschedule set */
+        $date = date("Y-m-d" , date(strtotime("-1 day", strtotime($date))));
+        $shift = $this->getShiftSchedule($empId, $date);
+        if (count($shift) > 0) {
+            if ($shift->is_restday) {//check for the other day
+                $prev = date("Y-m-d" , date(strtotime("-1 day", strtotime($date))));
+                $prevShift = $this->getShiftSchedule($empId, $prev);
+                if (count($prevShift) > 0) {
+                    if ($prevShift->is_restday) {
+                        $prevWorkdate = date("Y-m-d" , date(strtotime("-1 day", strtotime($prev))));
+                    } else {
+                        $prevWorkdate = $prev;
+                    }
+                } else {
+                    $prevWorkdate = $prev;
+                }
+            } else {
+                $prevWorkdate = $date;
+            }
+        } else {
+            $weekday = $formController->isWeekday($date); // checking if date is saturday is sunday as weekk off
+            $isRestday = $weekday ? 0 : 1;
+            $prevWorkdate = $isRestday ? date("Y-m-d" , date(strtotime("-2 day", strtotime($date)))) : $date;
+        }
+        return $prevWorkdate;
     }
 
      /**
@@ -191,10 +279,24 @@ class TimekeepingController extends Controller
                 $ndot_excess = 0;
                 $holiday = 0;
                 $brk = 1;
-                
-                /* check if date is restday */
-                $isWeekday = $formController->isWeekend($workdate);
-                
+
+                /* check if there is assigned shift by the supervisor or manager */
+                $shift = $this->getShiftSchedule($empId, $workdate);
+                if (count($shift) > 0) { 
+                    $shiftId = $shift->shift_id;
+                    $shiftIn = $shift->start; //shift time start
+                    $shiftOut = $shift->end; // shift time end
+                    $isWeekday = $shift->is_restday;
+                } else { //if no shift assigned get the default shift
+                    // EMPLOYEES WITH RESTDAY (SATURDAY, SUNDAY)
+                    $shiftId = $employee->shift_id;
+                    $shiftIn = $employee->start; //shift time start
+                    $shiftOut = $employee->end; // shift time end
+
+                    /* check if date is restday */
+                    $isWeekday = $formController->isWeekday($workdate);
+                }
+
                 /* check if date is holiday */
                 $holidays = $this->getHoliday($workdate);
                 if (count($holidays) > 0) {
@@ -212,18 +314,6 @@ class TimekeepingController extends Controller
                     }
                 } else {
                     $day_type = $isWeekday ? 'reg' : 'rd';
-                }
-
-                /* check if there is assigned shift by the supervisor or manager */
-                $shift = $this->getShiftSchedule($empId, $workdate);
-                if (count($shift) > 0) { 
-                    $shiftId = $shift->shift_id;
-                    $shiftIn = $shift->start; //shift time start
-                    $shiftOut = $shift->end; // shift time end
-                } else { //if no shift assigned get the default shift
-                    $shiftId = $employee->shift_id;
-                    $shiftIn = $employee->start; //shift time start
-                    $shiftOut = $employee->end; // shift time end
                 }
 
                 $nextDayIn = date("Y-m-d" , date(strtotime("+1 day", strtotime($workdate)))) . " " . $shiftIn;
@@ -370,9 +460,8 @@ class TimekeepingController extends Controller
         $shift = DB::table('employee_workschedule AS ew')
             ->leftJoin('shift AS s', 'ew.shift_id', '=', 's.id')
             ->where('ew.employee_id', $empId)
-            ->where('ew.date_from', '<=', $date)
-            ->where('ew.date_to', '>=', $date)
-            ->select('ew.shift_id','s.start', 's.end')->get()->first();
+            ->where('ew.date', $date)
+            ->select('ew.shift_id','s.start', 's.end', 's.is_restday')->get()->first();
         return $shift;
 
     }
