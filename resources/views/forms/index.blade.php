@@ -19,14 +19,6 @@
         <div class="col-sm-6"></div>
         <div class="col-sm-6"></div>
       </div>
-      <form method="POST" action="">
-         {{ csrf_field() }}
-         @component('layouts.search', ['title' => 'Search'])
-          @component('layouts.two-cols-search-row', ['items' => ['Form Type'], 
-          'oldVals' => [isset($searchingVals) ? $searchingVals['form'] : '']])
-          @endcomponent
-        @endcomponent
-      </form>
     <div id="example2_wrapper" class="dataTables_wrapper form-inline dt-bootstrap">
       <div class="nav-tabs-custom">
         <ul class="nav nav-tabs" id="formsTab">

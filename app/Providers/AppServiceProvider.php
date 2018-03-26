@@ -19,7 +19,7 @@ class AppServiceProvider extends ServiceProvider
         Schema::defaultStringLength(191);
 
         Validator::extend('min_ot', function($attribute, $value, $parameters, $validator) {
-            $otHrs = round( strtotime($value) - strtotime($parameters[0]) ) / (60 * 60) ;
+            $otHrs = ( ( strtotime($value) - strtotime($parameters[0]) ) / 60 ) ;
 
             $policy = CompanyPolicy::find(1);
             if ($parameters[1] > $otHrs) {
@@ -29,12 +29,14 @@ class AppServiceProvider extends ServiceProvider
             }    
         });
 
-        Validator::extend('after_shift', function($attribute, $value, $parameters, $validator) {
-            if (strtotime($parameters[0]) > strtotime(date("H:i:s",strtotime($value)))) {
-                return false;
-            } else {
+        Validator::extend('pre_post_ot', function($attribute, $value, $parameters, $validator) {
+            if (strtotime(date("Y-m-d H:i:s",strtotime($value))) >= strtotime($parameters[1]) && strtotime($parameters[0]) >= strtotime($parameters[2])) { // post shift ot filing
                 return true;
-            }    
+            } elseif (strtotime(date("Y-m-d H:i:s",strtotime($value))) <= strtotime($parameters[1]) && strtotime($parameters[0]) <= strtotime($parameters[1])) { // pre shift ot filing
+                return true;
+            } else {
+                return false;
+            }   
         });
     }
 
