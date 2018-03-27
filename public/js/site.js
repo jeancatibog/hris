@@ -73,7 +73,33 @@ function registerEvents() {
   /*** PROCESSING ***/
   $('.process-btn').on('click', function(){
     $(this).hide();
-    $('.progress').show();
+    var form = $('#tk-processing');
+    form.submit(function (e) {
+      e.preventDefault();
+      $.ajax({
+        type: form.attr('method'),
+        url: form.attr('action'),
+        data: form.serialize(),
+        success: function(data) {
+          $('.progress').show();
+          var current_progress = 0;
+          var interval = setInterval(function() {
+              current_progress += 1;
+              $("#dynamic")
+              .css("width", current_progress + "%")
+              .attr("aria-valuenow", current_progress)
+              .text(current_progress + "% Complete");
+              if (current_progress >= 100) {
+                  clearInterval(interval);
+
+                  $('.process-btn').show();
+                  $('.progress').hide();
+                  $("#dynamic").attr('aria-valuemax', 0).css('width', '0%').text("");
+              }    
+          }, 500);
+        }
+      });
+    });
   });
 }
 

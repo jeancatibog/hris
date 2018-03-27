@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Session;
 use DateTime;
 use DatePeriod;
 use DateInterval;
@@ -170,7 +171,9 @@ class TimekeepingController extends Controller
                         ->leftJoin('shift AS s', 'es.shift_id', '=', 's.id')
                         ->where('est.is_active', 1)
                         ->select('e.id AS employee_id', 'es.shift_id', 's.start', 's.end')->get()->toArray(); /* GET ALL ACTIVE EMPLOYEES */
-        
+        // $total = 0;
+        // $ctr = 0;
+        // $percent = 0;
         foreach ($employees as $employee) {
             $summary = array();
             $empId = $employee->employee_id;
@@ -341,27 +344,34 @@ class TimekeepingController extends Controller
                     'leave_type'    =>  $leave_type
                 ];
                 $summary[] = $data;
-            } //end period days loop 
-
-            /* SAVE DTR SUMMARY */
-            foreach ($summary as $dtr) {
-                /* CHECK IF RECORDS EXISTS (REPROCESSING) */
-                $dtrExists = DB::table('tk_employee_dtr_summary')
-                            ->where('period_id', $periodId)
-                            ->where('employee_id', $empId)
-                            ->where('date', $dtr['date'])
-                            ->select('*')->get()->first();
-                
-                if (!empty($dtrExists)) {
-                    //update
-                    EmployeeDtrSummary::where('id', $dtrExists->id)
-                                ->update($dtr);
-                } else {
-                    //add new record
-                    EmployeeDtrSummary::create($dtr);
+                /* SAVE DTR SUMMARY */
+                // $total = count($summary);
+                foreach ($summary as $dtr) {
+                    // $ctr++;
+                    // $percent = intval($ctr/$total *100);
+                    /* CHECK IF RECORDS EXISTS (REPROCESSING) */
+                    $dtrExists = DB::table('tk_employee_dtr_summary')
+                                ->where('period_id', $periodId)
+                                ->where('employee_id', $empId)
+                                ->where('date', $dtr['date'])
+                                ->select('*')->get()->first();
+                    
+                    if (!empty($dtrExists)) {
+                        //update
+                        EmployeeDtrSummary::where('id', $dtrExists->id)
+                                    ->update($dtr);
+                    } else {
+                        //add new record
+                        EmployeeDtrSummary::create($dtr);
+                    }
+                    // $percentage[] = array('percent' => $percent);
                 }
-            }
+            } //end period days loop 
         }
+
+        // echo json_encode($percentage);
+
+        return response()->json(array('status' => 'success'));
     }
 
     /* GET SHIFT FROM EMPLOYEE WORKSCHEDULE */
@@ -370,8 +380,7 @@ class TimekeepingController extends Controller
         $shift = DB::table('employee_workschedule AS ew')
             ->leftJoin('shift AS s', 'ew.shift_id', '=', 's.id')
             ->where('ew.employee_id', $empId)
-            ->where('ew.date_from', '<=', $date)
-            ->where('ew.date_to', '>=', $date)
+            ->where('ew.date', $date)
             ->select('ew.shift_id','s.start', 's.end')->get()->first();
         return $shift;
 

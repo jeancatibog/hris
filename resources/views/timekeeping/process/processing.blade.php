@@ -7,7 +7,7 @@
             <div class="panel panel-default">
                 <!-- <div class="panel-heading">Add new period cover</div> -->
                 <div class="panel-body">
-                    <form class="form-horizontal" role="form" method="POST" action="{{ route('timekeeping.processing') }}">
+                    <form id="tk-processing" class="form-horizontal" role="form" method="POST" action="{{ route('timekeeping.processing') }}">
                         {{ csrf_field() }}
                         <br>
                         <br>
@@ -36,9 +36,9 @@
                           </div>
                           <div class="col-md-6 col-md-offset-4">
                             <div class="progress" style="display: none;">
-                              <div class="progress-bar progress-bar-success progress-bar-striped active" role="progressbar"
-                              aria-valuenow="40" aria-valuemin="0" aria-valuemax="100" style="width:40%">
-                                % Complete
+                              <div id="dynamic" class="progress-bar progress-bar-success progress-bar-striped active" role="progressbar"
+                              aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width:0%">
+                                <span id="current-progress"></span>
                               </div>
                             </div>
                           </div>
