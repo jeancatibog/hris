@@ -72,7 +72,7 @@ function registerEvents() {
 
   /*** PROCESSING ***/
   $('.process-btn').on('click', function(){
-    /*$(this).hide();
+    $(this).hide();
     var form = $('#tk-processing');
     form.submit(function (e) {
       e.preventDefault();
@@ -99,7 +99,7 @@ function registerEvents() {
           }, 500);
         }
       });
-    });*/
+    });
   });
 }
 

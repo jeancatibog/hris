@@ -268,7 +268,9 @@ class TimekeepingController extends Controller
                                 $actualIn = strtotime($cTime) < strtotime($oiTime) ? date("Y-m-d H:i", strtotime($cTime)) : date("Y-m-d H:i", strtotime($oiTime));
                                 $oiTime = $actualIn;
                             } else {
-                                $actualOut = strtotime($cTime) > strtotime($ooTime) ? date("Y-m-d H:i", strtotime($cTime)) : date("Y-m-d H:i", strtotime($ooTime));
+                                if (strtotime($cTime) > strtotime($ooTime)) {
+                                    $actualOut =  date("Y-m-d H:i", strtotime($cTime));
+                                }
                                 $ooTime =  $actualOut;
                             }
                         }
@@ -328,11 +330,8 @@ class TimekeepingController extends Controller
                     /* GET HOURS WORKED */
                     $work_hrs = $this->getWorkHrs($actualIn, $actualOut);
 
-                    echo "<pre>";print_r($empId." == ".$workdate . " ==> " . $shiftIn." - ".$shiftOut." ===> ". $actualIn . " = ". $actualOut." ==> ". $work_hrs);
                     /*GET OT HOURS FROM FILED FORMS*/
                     $otHrs = $this->getOtHrs($empId, $workdate, $actualOut, $startShift, $endShift);
-                    $ot = $otHrs > 8 ? 8 - 1 : round($otHrs, 2); // deduct 1 hr for break if ot more than 8 hrs
-                    $otEx = $otHrs > 8 ? round(($otHrs - 8), 2) : 0;
                 }
                 $data = [
                     'period_id'     =>  $periodId,
@@ -346,41 +345,43 @@ class TimekeepingController extends Controller
                     'absent'        =>  $absent,
                     'late'          =>  $late,
                     'undertime'     =>  $undertime,
-                    'ot_hours'        =>  $ot,
-                    'ot_excess'     =>  $otEx,
+                    // 'ot_hours'        =>  $ot,
+                    // 'ot_excess'     =>  $otEx,
                     'ndiff'         =>  $ndiff,
                     'leave'         =>  $leave,
                     'leave_type'    =>  $leave_type
                 ];
-                $summary[] = $data;
-                /* SAVE DTR SUMMARY */
-                // $total = count($summary);
-                foreach ($summary as $dtr) {
-                    // $ctr++;
-                    // $percent = intval($ctr/$total *100);
-                    /* CHECK IF RECORDS EXISTS (REPROCESSING) */
-                    $dtrExists = DB::table('tk_employee_dtr_summary')
-                                ->where('period_id', $periodId)
-                                ->where('employee_id', $empId)
-                                ->where('date', $dtr['date'])
-                                ->select('*')->get()->first();
-                    
-                    if (!empty($dtrExists)) {
-                        //update
-                        EmployeeDtrSummary::where('id', $dtrExists->id)
-                                    ->update($dtr);
-                    } else {
-                        //add new record
-                        EmployeeDtrSummary::create($dtr);
-                    }
-                    // $percentage[] = array('percent' => $percent);
-                }
+                $merge = is_array($otHrs) ? array_merge($data, $otHrs) : $data;
+                $summary[] = $merge;
             } //end period days loop 
+            /* SAVE DTR SUMMARY */
+            // $total = count($summary);
+            // echo "<pre>";print_r($summary);
+            foreach ($summary as $dtr) {
+                // $ctr++;
+                // $percent = intval($ctr/$total *100);
+                /* CHECK IF RECORDS EXISTS (REPROCESSING) */
+                $dtrExists = DB::table('tk_employee_dtr_summary')
+                            ->where('period_id', $periodId)
+                            ->where('employee_id', $empId)
+                            ->where('date', $dtr['date'])
+                            ->select('*')->get()->first();
+                
+                if (!empty($dtrExists)) {
+                    //update
+                    EmployeeDtrSummary::where('id', $dtrExists->id)
+                                ->update($dtr);
+                } else {
+                    //add new record
+                    EmployeeDtrSummary::create($dtr);
+                }
+                // $percentage[] = array('percent' => $percent);
+            }
         } // end of employee loop
-        die("here");
+        // die("here");
         // echo json_encode($percentage);
 
-        // return response()->json(array('status' => 'success'));
+        return response()->json(array('status' => 'success'));
     }
 
     /* GET SHIFT FROM EMPLOYEE WORKSCHEDULE */
@@ -461,7 +462,21 @@ class TimekeepingController extends Controller
     /* OVERTIME COMPUTATION FROM FILED FORMS */
     public function getOtHrs($empId, $date, $actualOut, $startShift, $endShift)
     {
-        $holiday = $this->getHoliday($date);
+        $formController = new FormsController;
+        $holidays = $this->getHoliday($date);
+        if (count($holidays) > 0) {
+            $holiday = 1;
+            $legal = $holidays->legal_holiday;
+        } else {
+            $holiday = 0;
+        }
+        $restdays = $this->getShiftSchedule($empId, $date);
+        if (count($restdays) > 0) {
+            $restday = $restdays->is_restday;
+        } else {
+            $isWeekday = $formController->isWeekend($date);
+            $restday = !$isWeekday ? 1 : 0;
+        }
         $overtime = EmployeeOvertime::where('employee_id', $empId)
                         ->where('date', $date)
                         ->where('form_status_id', 3)->get()->first();
@@ -474,100 +489,96 @@ class TimekeepingController extends Controller
 
             $otStart = $overtime['datetime_from'];
 
-            // if (strtotime($overtime['datetime_from']) < strtotime($ndStart) ) { // pre shift OT and OT before night differentil time
-            //     $otStart = $overtime['datetime_from'];
-            //     $otOut = $ndStart;
-            //     $otHrs = round((strtotime($otOut) - strtotime($otStart)) / (60*60), 2);
-            // }
-
-            // if (strtotime($overtime['datetime_to']) > strtotime($ndEnd)) {
-            //     $exStart = $ndEnd;
-            //     $exOut = $overtime['datetime_to'];
-            // } else {
-            //     if (strtotime($overtime['datetime_from']) < strtotime($ndStart)) {
-            //         # code...
-            //     }
-            //     $ndotStart =  ? $overtime['datetime_from'] : $ndStart;
-            //     $ndotOut = $overtime['datetime_to']
-            // }
-
-            // if (strtotime(time)) {
-            //     # code...
-            // }
-
-
-            /* OLD CODES */
-            if ( strtotime($otEnd) >= strtotime($ndStart) ) {
-                // $otStart = strtotime($overtime['datetime_from']) <= strtotime($ndStart) ? $overtime['datetime_from'] : $ndStart;
-                if (strtotime(date('H:i:s', strtotime($startShift))) > strtotime(date('H:i:s', strtotime($endShift)))) {
-                    $otOut = $otEnd;
-                    $ndotStart = $ndStart;
-                    $ndotOut = strtotime($otEnd) <= strtotime($ndEnd) ? $otEnd : $ndEnd;
+            if ( (strtotime($overtime['datetime_to']) <= strtotime($ndStart) || (strtotime($overtime['datetime_from']) >= strtotime($ndEnd)) ) && !$holiday && !$restday) { // preshift ot and post shift
+                $otOut = strtotime($startShift)  >= strtotime($overtime['datetime_to']) ? $overtime['datetime_to'] : $actualOut;
+                $hrs = round((strtotime($otOut) - strtotime($otStart)) / (60*60), 2);
+                if ( $hrs > 8 ) {
+                    $ot['ot_hours'] = 8;
+                    $ot['ot_excess'] = $hrs - $ot['ot_hours'];
                 } else {
-                    $otOut = $ndStart;
-                    $ndotStart = $ndStart;
-                    $ndotOut = strtotime($otEnd) <= strtotime($ndEnd) ? $otEnd : $ndEnd;
-                }
-            } else {
-                $otOut = strtotime($startShift) > strtotime($overtime['datetime_from']) ? $overtime['datetime_to'] : $otEnd; // check if ot is pre or post
-            }
-            $hrs = round((strtotime($otOut) - strtotime($otStart))/(60*60), 2);    
-            $ndHrs = (!empty($ndotStart) && !empty($ndotOut) ) ? round((strtotime($ndotOut) - strtotime($ndotStart))/(60*60), 2) : 0;
-
-            // $hrs = $hrs - $ndHrs;
-
-            echo "<pre>";print_r($date . " == ". "Start = ". $otStart . " End = ". $otOut);
-            echo "<pre>";print_r("OT=> ". $hrs);
-            if ($ndHrs != 0){
-                echo "<pre>";print_r("NDStart = ". $ndotStart . " NDEnd = ". $ndotOut);
-                echo "<pre>";print_r("BDOT=> ". $ndHrs);
-            }
-            if ( count($holiday) == 0 && strtotime($endShift) < strtotime($otOut) || (strtotime($otStart) < strtotime($startShift) && $otOut <= $startShift) ) { // regular day ot after shift and before shift
-                $ot['ndot'] = $ndHrs != 0 ? $ndHrs : 0;
-                if ($hrs > 8) {
-                    $ot['ot_hrs'] = 8 - 1; // deduct 1 hr break if ot more than 8hrs
-                    $ot['ot_excess'] = $hrs - 8;
-                } else {
-                    $ot['ot_hrs'] = $hrs;
+                    $ot['ot_hours'] = $hrs;
                     $ot['ot_excess'] = 0;
                 }
-            } else { // ot for holiday or restday
-                if ( strtotime($otStart) <= strtotime($endShift) ) { // ot on shift (holiday/restday)
-                    if (count($holiday) > 0) {
-                        $legal = $holiday->legal_holiday;
-                        if ($legal) {
-                            $ot['leg_ndot'] = $ndHrs != 0 ? $ndHrs : 0;
-                            if ($hrs > 8) {
-                                $ot['legot'] = 8;
-                                $ot['legot_excess'] = $hrs - $ot['leg_ndot'] - $ot['legot'];
-                            } else {
-                                $ot['legot'] = $hrs;
-                                $ot['legot_excess'] = 0;
-                            }
-                        } else {
-                            $ot['spl_ndot'] = $ndHrs != 0 ? $ndHrs : 0;
-                            if ($hrs > 8) {
-                                $ot['splot'] = 8;
-                                $ot['splot_excess'] = $hrs - 8;
-                            } else {
-                                $ot['splot'] = $hrs;
-                                $ot['splot_excess'] = 0;
-                            }
-                        }
-                    } elseif($isRestday) {
-
+            } else { // holiday and restday overtime
+                if($holiday) {
+                    if ($legal) {
+                        $hol = 'leg';
                     } else {
-                        return false;
+                        $hol = 'spl';
+                    }
+
+                    if (strtotime($overtime['datetime_from']) < strtotime($ndStart) && strtotime($overtime['datetime_to']) < strtotime($ndEnd)) {
+                        $hrs = round((strtotime($ndStart) - strtotime($overtime['datetime_from'])) / (60*60), 2);
+                        if ($hrs > 8) {
+                            $ot[$hol."ot"] = 8;
+                            $ot[$hol."ot_excess"] = $hrs - $ot[$hol."ot"];
+                        } else {
+                            $ot[$hol."ot"] = $hrs;
+                            $ot[$hol."ot_excess"] = 0;
+                        }
+                        $ot[$hol."_ndot"] = round((strtotime($overtime['datetime_to']) - strtotime($ndStart)) / (60*60), 2);
+                    } elseif (strtotime($overtime['datetime_from']) > strtotime($ndStart) && strtotime($overtime['datetime_to']) < strtotime($ndEnd)) {
+                        $ot[$hol."_ndot"] = round((strtotime($overtime['datetime_to']) - strtotime($overtime['datetime_from'])) / (60*60), 2);
+                    } elseif (strtotime($overtime['datetime_from']) > strtotime($ndStart) && strtotime($overtime['datetime_to']) > strtotime($ndEnd)) {
+                        $ot[$hol."_ndot"] = round((strtotime($ndEnd) - strtotime($overtime['datetime_from'])) / (60*60), 2);
+                        $hrs = round((strtotime($overtime['datetime_to']) - strtotime($ndEnd)) / (60*60), 2); // for clarification
+                        if ($hrs > 8) {
+                            $ot[$hol."ot"] = 8;
+                            $ot[$hol."ot_excess"] = $hrs - $ot[$hol."ot"];
+                        } else {
+                            $ot[$hol."ot"] = $hrs;
+                            $ot[$hol."ot_excess"] = 0;
+                        }
+                    } elseif (strtotime($overtime['datetime_from']) < strtotime($ndStart) && strtotime($overtime['datetime_to']) > strtotime($ndEnd)) {
+                        $hrs = round((strtotime($ndStart) - strtotime($overtime['datetime_from'])) / (60*60), 2);
+                        $ot[$hol."_ndot"] = round((strtotime($ndEnd) - strtotime($ndStart)) / (60*60), 2);
+                        if ($hrs > 8) {
+                            $ot[$hol."ot"] = 8;
+                            $ot[$hol."ot_excess"] = $hrs - $ot[$hol."ot"];
+                        } else {
+                            $ot[$hol."ot"] = $hrs;
+                            $ot[$hol."ot_excess"] = 0;
+                        }
+                        $ot[$hol."ot_excess"] = round((strtotime($overtime['datetime_to']) - strtotime($ndEnd)) / (60*60), 2); // for clarification if excess or tag as ot;
+                    }
+                } else { //restday
+                    if (strtotime($overtime['datetime_from']) < strtotime($ndStart) && strtotime($overtime['datetime_to']) < strtotime($ndEnd)) {
+                        $hrs = round((strtotime($ndStart) - strtotime($overtime['datetime_from'])) / (60*60), 2);
+                        if ($hrs > 8) {
+                            $ot['ot_hours'] = 8;
+                            $ot['ot_excess'] = $hrs - $ot['ot_hours'];
+                        } else {
+                            $ot['ot_hours'] = $hrs;
+                            $ot['ot_excess'] = 0;
+                        }
+                        $ot['ndot'] = round((strtotime($overtime['datetime_to']) - strtotime($ndStart)) / (60*60), 2);
+                    } elseif (strtotime($overtime['datetime_from']) > strtotime($ndStart) && strtotime($overtime['datetime_to']) < strtotime($ndEnd)) {
+                        $ot['ndot'] = round((strtotime($overtime['datetime_to']) - strtotime($overtime['datetime_from'])) / (60*60), 2);
+                    } elseif (strtotime($overtime['datetime_from']) > strtotime($ndStart) && strtotime($overtime['datetime_to']) > strtotime($ndEnd)) {
+                        $ot['ndot'] = round((strtotime($ndEnd) - strtotime($overtime['datetime_from'])) / (60*60), 2);
+                        $hrs = round((strtotime($overtime['datetime_to']) - strtotime($ndEnd)) / (60*60), 2); // for clarification
+                        if ($hrs > 8) {
+                            $ot['ot_hours'] = 8;
+                            $ot['ot_excess'] = $hrs - $ot['ot_hours'];
+                        } else {
+                            $ot['ot_hours'] = $hrs;
+                            $ot['ot_excess'] = 0;
+                        }
+                    } elseif (strtotime($overtime['datetime_from']) < strtotime($ndStart) && strtotime($overtime['datetime_to']) > strtotime($ndEnd)) {
+                        $hrs = round((strtotime($ndStart) - strtotime($overtime['datetime_from'])) / (60*60), 2);
+                        $ot['ndot'] = round((strtotime($ndEnd) - strtotime($ndStart)) / (60*60), 2);
+                        if ($hrs > 8) {
+                            $ot['ot_hours'] = 8;
+                            $ot['ot_excess'] = $hrs - $ot['ot_hours'];
+                        } else {
+                            $ot['ot_hours'] = $hrs;
+                            $ot['ot_excess'] = 0;
+                        }
+                        $ot['ot_excess'] = round((strtotime($overtime['datetime_to']) - strtotime($ndEnd)) / (60*60), 2); // for clarification if excess or tag as ot;
                     }
                 }
             }
-            echo "<pre>";print_r($ot);
-            // if (strtotime($endShift) < strtotime($otEnd) || count($holiday)>0) {
-            //     $otHrs = (strtotime($otEnd) - strtotime($overtime['datetime_from']))/(60*60);
-            //     return $otHrs;
-            // } else {
-            //     return false;
-            // }
+            return $ot;
         } else {
             return false;
         }
