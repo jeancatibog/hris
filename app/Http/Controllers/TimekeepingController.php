@@ -43,26 +43,83 @@ class TimekeepingController extends Controller
     */
     public function log(Request $request)
     {
+        /*night shift not yet considered*/
+        $date = $request['date'];
+        $cType = $request['ctype'];
+        $empId = $request['employee_id'];
+        if ($cType == 'time_in') {
+            $prevWorkdate = $this->prevWorkdate($date, $empId); 
+            $chkDate = $prevWorkdate;
+            $chkType = 'time_out';
+        } else {
+            $shift = $this->getShiftSchedule($empId, $date);
+            if(count($shift) > 0) {
+                $start = $shift->start;
+                $end = $shift->end;
+            } else {
+                //get default shift set
+                $defShift = DB::table('employee_setup AS es')
+                            ->leftJoin('shift AS s', 'es.shift_id', '=', 's.id')
+                            ->where('es.employee_id', $empId)
+                            ->select('es.shift_id','s.start', 's.end', 's.is_restday')->get()->first();
+                if (count($defShift) > 0) {
+                    $start = $defShift->start;
+                    $end = $defShift->end;
+                }
+            }
+            if (strtotime($start) > strtotime($end)) { //night shift
+                $prevWorkdate = date("Y-m-d" , date(strtotime("-1 day", strtotime($date))));
+            } else {
+                $prevWorkdate = $date;
+            }
+
+            $chkDate = $prevWorkdate;
+            $chkType = 'time_in';
+        }
         $input = [
-        	'employee_id'	=>	$request['employee_id'],
-        	'date'			=>	$request['date'],
-        	'checktime'		=>	$request['checktime'],
-        	'checktype'		=>	$request['ctype'],
-        	'processed'		=>	0
+            'employee_id'   =>  $request['employee_id'],
+            'date'          =>  $request['date'],
+            'checktime'     =>  $request['checktime'],
+            'checktype'     =>  $request['ctype'],
+            'processed'     =>  0
         ];
 
-        try {
-        	RawLogs::create($input);
+        $checkLog = RawLogs::where('date', $chkDate)
+                        ->where('checktype', $chkType)
+                        ->where('employee_id', $empId)
+                        ->select('date', 'checktime', 'checktype')->get()->toArray();
+        
+        if (empty($checkLog)) {
+            try {
+                RawLogs::create($input);
+                $return = array(
+                    'has_log'   => false, 
+                    'date'      => $prevWorkdate, 
+                    'log_type'  => $chkType,
+                    'message'   => 'You have succesfuly ' . str_replace('_', ' ', $request['ctype']) .' today at '. date('h:i A', strtotime($request['checktime'])),
+                    'status'    => 'success'
+                ); 
+                echo json_encode($return);
+            } catch (\Exception $e) {
+                return redirect('/dashboard')->with([
+                    'status'    =>  'error', 
+                    'message'   =>  "Something went wrong!"
+                ]);
+            }
+        } else {
+            try {
+                RawLogs::create($input);
 
-        	return redirect('/dashboard')->with([
-        		'status'	=>	'success', 
-        		'message'	=>	"You have succesfuly " . str_replace("_", " ", $request['ctype']) ." at ". date('h:i A', strtotime($request['checktime'])) ]);
+                return redirect('/dashboard')->with([
+                    'status'    =>  'success', 
+                    'message'   =>  "You have succesfuly " . str_replace("_", " ", $request['ctype']) ." today at ". date('h:i A', strtotime($request['checktime'])) ]);
 
-        } catch (\Exception $e) {
-        	return redirect('/dashboard')->with([
-        		'status'	=>	'error', 
-        		'message'	=>	"Something went wrong!"
-        	]);
+            } catch (\Exception $e) {
+                return redirect('/dashboard')->with([
+                    'status'    =>  'error', 
+                    'message'   =>  "Something went wrong!"
+                ]);
+            }
         }
     }
 

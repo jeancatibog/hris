@@ -30,6 +30,29 @@ function registerEvents() {
         time = dt.getHours() + ":" + dt.getMinutes() + ":" + dt.getSeconds();
     $('.checkdate').val(date);
     $('.checktime').val(time);
+
+    var data = $('#time-logs').serialize();
+
+    $.ajax({
+      method:$('#time-logs').attr('method'),
+      url: $('#time-logs').attr('action'),
+      data : data,
+      dataType: "json",
+      success: function(data){
+        if(!data['has_log']) {
+          var type = data['log_type'];
+          var msgLog = type.replace("_", " ");
+          var date = data['date'];
+          $('.alert').addClass('alert-'+data['status']).html(data['message']);
+          $('.msg-log').html('You have no log '+ msgLog + " for workdate " + date +". Kindly log your time by clicking the button below.");
+          $('#file_form').text($('#file_form').text()+msgLog);
+          $('#logtimeModal').modal('show');
+        }
+      },
+      error:function(){
+          alert("failure");
+      }
+    });
   });
 
   $('#formsTab a').on('shown.bs.tab', function(event) {

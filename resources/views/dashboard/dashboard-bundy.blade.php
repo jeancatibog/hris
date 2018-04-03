@@ -12,7 +12,7 @@
 				    	<input type="hidden" class="checktime" name="checktime" value="">
                     	<div class="form-group">
                     		<div class="col-md-2">
-						        <button type="submit" class="btn btn-primary btn-in btn-log"><span>TIME IN</span></button>
+						        <button type="button" class="btn btn-primary btn-in btn-log"><span>TIME IN</span></button>
 						    </div>
 							<div class="col-md-8 col-md-offset-0">
 						    	<div id="clock" class="light">
@@ -25,7 +25,7 @@
 								</div>
 							</div>
 						    <div class="col-md-2">
-						        <button type="submit" class="btn btn-primary btn-out btn-log"><span>TIME OUT</span></button>
+						        <button type="button" class="btn btn-primary btn-out btn-log"><span>TIME OUT</span></button>
 						    </div>
 						</div>
                     </form>

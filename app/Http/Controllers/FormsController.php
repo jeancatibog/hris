@@ -15,6 +15,7 @@ use App\EmployeeLeaveDates;
 use App\EmployeeOvertime;
 use App\EmployeeObt;
 use App\CompanyPolicy;
+use App\EmployeeDtrp;
 use App\Http\Controllers\TimekeepingController;
 
 class FormsController extends Controller
@@ -139,6 +140,14 @@ class FormsController extends Controller
                 'company_location'  =>  $request['company_location']
             ]);
 
+        } else {
+            EmployeeDtrp::create([
+                'employee_id'   =>  $request['employee_id'],
+                'date'          =>  $request['date'],
+                'log_type_id'   =>  $request['log_type'],
+                'timelog'       =>  date('H:i:s', strtotime($request['timelog'])),
+                'reason'        =>  $request['request']    
+            ]);
         }
 
         return redirect()->intended('forms');
