@@ -42,6 +42,7 @@
             </span>
           </a>
           <ul class="treeview-menu">
+            <li><a href="{{ url('system-management/accounts') }}"><i class="fa fa-sitemap"></i><span>Accounts Leads</span></a></li>
             <li><a href="{{ url('system-management/shift') }}"><i class="fa fa-clock-o"></i><span>Shifts</span></a></li>
             <li><a href="{{ url('system-management/department') }}">Department</a></li>
             <li><a href="{{ url('system-management/division') }}">Division</a></li>

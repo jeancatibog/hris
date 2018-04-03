@@ -163,7 +163,7 @@ class CityController extends Controller
     }
     private function validateInput($request) {
         $this->validate($request, [
-        'name' => 'required|max:60|unique:city'
-    ]);
+            'name' => 'required|max:60|unique:city'
+        ]);
     }
 }

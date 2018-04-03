@@ -38,6 +38,10 @@ class AppServiceProvider extends ServiceProvider
                 return false;
             }   
         });
+
+        Validator::extend('overlap', function($attribute, $value, $parameters, $validator) {
+            return false;
+        });
     }
 
     /**

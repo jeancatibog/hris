@@ -56,6 +56,10 @@ Route::get('avatars/{name}', 'EmployeeManagementController@load');
 Route::resource('system-management/shift', 'ShiftController');
 Route::post('system-management/shift/search', 'ShiftController@search')->name('shift.search');
 
+Route::resource('system-management/accounts', 'AccountsController');
+// Route::post('system-management/account/search', 'ShiftController@search')->name('shift.search');
+Route::get('get-tl-list/{accountId}', 'AccountsController@loadTeamLead');
+
 Route::resource('employee-setup-management', 'EmployeeSetupManagementController');
 
 Route::resource('forms', 'FormsController');

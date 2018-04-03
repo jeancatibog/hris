@@ -2,7 +2,6 @@ init();
 
 function init() {
   registerEvents();
-  getLogs();
 }
 
 function registerEvents() {
@@ -12,6 +11,10 @@ function registerEvents() {
 
   $('.js-provinces').on('change', function() {
     loadCities(this);
+  });
+
+  $('.js-account').on('change', function() {
+    loadTeamLeads(this);
   });
 
   $('.btn-in').on('click', function(){
@@ -126,6 +129,7 @@ function registerEvents() {
     });
   });
 
+  getLogs();
   /* DTR LOGS */
   $('.datepicker').on('changeDate', function(e) {
     getLogs();
@@ -161,9 +165,9 @@ function getLogs() {
         $('#employee-dtr tbody').html('<tr><td colspan="12"><span>No logs yet</span></td></tr>');
       }
     },
-    error: function() {
+    /*error: function() {
         alert("No Logs for the selected date");
-    }
+    }*/
   });
 }
 
@@ -203,6 +207,11 @@ function loadProvinces(element) {
 function loadCities(element) {
   $('.js-cities').empty().append('<option value="">Please select your city</option>');;
   loadItems(element, '/get-city-list/', '.js-cities');
+}
+
+function loadTeamLeads(element) {
+  $('.js-team-lead').empty().append('<option value="">Please select your team lead</option>');;
+  loadItems(element, '/get-tl-list/', '.js-team-lead');
 }
 
 /*function loadEmployees(element) {
