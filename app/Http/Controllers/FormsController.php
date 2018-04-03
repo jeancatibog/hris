@@ -16,6 +16,7 @@ use App\EmployeeOvertime;
 use App\EmployeeObt;
 use App\CompanyPolicy;
 use App\EmployeeDtrp;
+use App\Http\Controllers\TimekeepingController;
 
 class FormsController extends Controller
 {
@@ -32,7 +33,7 @@ class FormsController extends Controller
      */
     public function index()
     {
-    	// DB::enableQueryLog();
+        // DB::enableQueryLog();
         $leave_forms = DB::table('employee_leaves AS el')
 	        ->leftJoin('employees AS emp', 'el.employee_id', '=', 'emp.id')
 	        ->leftJoin('form_type AS ft', 'el.form_type_id', '=', 'ft.id')
@@ -41,16 +42,23 @@ class FormsController extends Controller
 	        ->select('el.id', 'emp.firstname' , 'emp.lastname', 'ft.form', 'fs.status', 'el.date_from', 'el.date_to', 'el.reason')
 	        ->paginate(5);
 
+        DB::enableQueryLog();
         $ot_forms = DB::table('employee_overtime AS ot')
 	        ->leftJoin('form_status AS fs', 'ot.form_status_id', '=', 'fs.id')
-	        ->where('employee_id', '=', Auth::user()->employee_id)
-	        ->select('ot.*', 'fs.status')->paginate(5); 
+            ->leftJoin('employee_workschedule AS ew', function($join)
+                {
+                    $join->on('ot.date', '=', 'ew.date');
+                    $join->on('ot.employee_id','=','ew.employee_id');
+                })
+            ->leftJoin('shift AS s', 'ew.shift_id', '=', 's.id')
+            ->where('ot.employee_id', '=', Auth::user()->employee_id)
+	        ->select('s.is_restday','ot.*', 'fs.status')->paginate(5); 
 
         $obt_forms = DB::table('employee_obt AS obt')
 	        ->leftJoin('form_status AS fs', 'obt.form_status_id', '=', 'fs.id')
 	        ->where('employee_id', '=', Auth::user()->employee_id)
 	        ->select('obt.*', 'fs.status')->paginate(5); 
-    	// dd(DB::getQueryLog());
+        // dd(DB::getQueryLog());
         $forms['leaves'] = $leave_forms;
         $forms['ot'] = $ot_forms;
         $forms['obt'] = $obt_forms;
@@ -277,15 +285,29 @@ class FormsController extends Controller
         $all_days = array();$i = 0;
         
         foreach($period as $date) {
-            if ($this->isWeekday($date->format('Y-m-d'))){
-                $all_days[$i] = $date->format('Y-m-d');
-                $i++;
+            // check in workschedule setup if restday
+            $empShift = DB::table('employee_workschedule AS ew')
+                ->leftJoin('shift AS s', 'ew.shift_id', '=', 's.id')
+                ->where('ew.employee_id', Auth::user()->employee_id)
+                ->where('ew.date', $date)
+                ->select('s.start', 's.end', 's.is_restday')->first();
+            if (count($empShift) > 0) {
+                $restday = $empShift->is_restday;
+                if(!$restday) {
+                    $all_days[$i] = $date->format('Y-m-d');
+                    $i++;
+                }
+            } else {
+                if ($this->isWeekend($date->format('Y-m-d'))){
+                    $all_days[$i] = $date->format('Y-m-d');
+                    $i++;
+                }
             }
         }
         return $all_days;
     }
 
-    public function isWeekday($date) 
+    public function isWeekend($date) 
     {
         $weekDay = date('w', strtotime($date));
         if (($weekDay == 0 || $weekDay == 6)){
@@ -297,12 +319,33 @@ class FormsController extends Controller
 
     private function validateInput($request, $type) 
     {
+        $tkController = new TimekeepingController;
+        $prepost = '';
     	$policy = CompanyPolicy::find(1); // This is now static to 1 policy
-    	$empSetup = DB::table('employee_setup AS es')
-                        ->leftJoin('shift AS s', 'es.shift_id', '=', 's.id')
-                        ->where('es.employee_id', '=', Auth::user()->employee_id)
-                        ->select('s.end')->first();
-    	
+        $date = $request['date'];
+        $holidays = $tkController->getHoliday($date);
+        $holiday = (count($holidays) > 0) ? 1 : 0;
+        /* check for employee shift */
+        $empShift = DB::table('employee_workschedule AS ew')
+                ->leftJoin('shift AS s', 'ew.shift_id', '=', 's.id')
+                ->where('ew.employee_id', Auth::user()->employee_id)
+                ->where('ew.date', $request['date'])
+                ->select('s.start', 's.end', 's.is_restday')->first();
+        if (count($empShift) == 0 ) {
+            $empShift = DB::table('employee_setup AS es')
+                    ->leftJoin('shift AS s', 'es.shift_id', '=', 's.id')
+                    ->where('es.employee_id', '=', Auth::user()->employee_id)
+                    ->select('s.end','s.start', 's.is_restday')->first();
+        }
+
+        if(strtotime($empShift->start) > strtotime($empShift->end)) {
+            $dateEnd = date("Y-m-d" , date(strtotime("+1 day", strtotime($date))));
+        } else {
+            $dateEnd = $date;
+        }
+        $restday = $empShift->is_restday;
+        $shiftStart = $date . " " . $empShift->start;
+        $shiftEnd = $dateEnd . " " . $empShift->end;
     	if($type == 'leave') {
     		$this->validate($request, [
 	        	'form_type_id'	=>	'required',
@@ -312,13 +355,16 @@ class FormsController extends Controller
 	        ]);
     	} elseif($type == 'ot') {
     		$message = [
-    			'min_ot' => 'The minimum overtime hours must be greater than ' . $policy['min_ot'],
-    			'after_shift' => 'Overtime filing must be after shift'
+    			'min_ot' => 'The overtime filing must be greater than or equal ' . $policy['min_ot'] . ' minutes',
+    			'pre_post_ot' => 'The overtime filing must be before start of shift or after end of shift'
     		];
+            if (!$holiday && !$restday) {
+                $prepost = '|pre_post_ot:'.date("Y-m-d H:i:s",strtotime($request['datetime_from'])).','.$shiftStart.','.$shiftEnd;
+            }
     		$this->validate($request, [
 	        	'date'			=>	'date',
-	        	'datetime_from'	=>	'required|date|before:datetime_to|after_shift:'.$empSetup->end,
-	            'datetime_to'	=>	'required|date|after_or_equal:date_from|min_ot:'.$request['datetime_from'] .','.$policy['min_ot'],
+	        	'datetime_from'	=>	'required|date|before:datetime_to',
+	            'datetime_to'	=>	'required|date|after_or_equal:datetime_from|min_ot:'.$request['datetime_from'] .','.$policy['min_ot']. $prepost,
 	            'reason'		=>	'required'
 	        ], $message);
     	}
