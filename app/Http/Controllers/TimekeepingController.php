@@ -63,8 +63,8 @@ class TimekeepingController extends Controller
                             ->where('es.employee_id', $empId)
                             ->select('es.shift_id','s.start', 's.end', 's.is_restday')->get()->first();
                 if (count($defShift) > 0) {
-                    $start = $shift->start;
-                    $end = $shift->end;
+                    $start = $defShift->start;
+                    $end = $defShift->end;
                 }
             }
             if (strtotime($start) > strtotime($end)) { //night shift
