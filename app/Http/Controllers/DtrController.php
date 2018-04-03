@@ -49,7 +49,7 @@ class DtrController extends Controller
             $last = date("Y-m-d", strtotime("last day of this month"));
         } elseif(empty($request->date_to)) {
             $first = date("Y-m-d", strtotime($request->date_from));
-            $last = date("Y-m-t", strtotime($request->date_from));
+            $last = date("Y-m-d");
         } elseif (empty($request->date_from)) {
             $first = date("Y-m-01", strtotime($request->date_to));
             $last = date("Y-m-d", strtotime($request->date_to));
