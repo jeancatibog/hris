@@ -215,11 +215,11 @@ class TimekeepingController extends Controller
                     if (!$isWeekday && $holidays->legal_holiday) {
                         $day_type = 'legrd';
                     } elseif (!$isWeekday && !$holidays->legal_holiday) {
-                        $day_type = 'sperd';
+                        $day_type = 'splrd';
                     } elseif ($holidays->legal_holiday) {
                         $day_type = 'leg';
                     } else {
-                        $day_type = 'spe';
+                        $day_type = 'spl';
                     }
                 } else {
                     $day_type = $isWeekday ? 'reg' : 'rd';
@@ -276,7 +276,9 @@ class TimekeepingController extends Controller
                         }
                     }
                     // night differential for night shifts
-                    $ndiff = strtotime($shiftIn) > strtotime($shiftOut) ? $this->getNdiff($workdate, $actualIn, $actualOut) : 0;
+                    if ($isWeekday && !$holiday) {
+                        $ndiff = strtotime($shiftIn) > strtotime($shiftOut) ? $this->getNdiff($workdate, $actualIn, $actualOut) : 0;
+                    }
                 } else { //no logs from dtr
                     /* check if date is restday */
                     if ($isWeekday && !$holiday) {

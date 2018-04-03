@@ -101,6 +101,38 @@ function registerEvents() {
       });
     });
   });
+
+  /* DTR LOGS */
+  $('.datepicker').on('changeDate', function(e) {
+    $_token = $('meta[name=_token]').attr('content');
+     $.ajaxSetup({
+        headers: {
+            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+        }
+    });
+    $.ajax({
+      type: 'POST',
+      url: $('input[name="dtrlog"]').val(),
+      dataType: "json",
+      data : {
+        'date_from': $("#dtrFrom").val(),
+        'date_to': $("#dtrTo").val(),
+        '_token': $_token
+      },
+      success: function(response) {
+        //success
+        if(response.success) {
+          $('#employee-dtr tbody').html(response.html);
+        } else {
+          $('#employee-dtr tbody').html('<tr><td colspan="12"><span>No logs yet</span></td></tr>');
+        }
+      },
+      error: function() {
+          alert("No Logs for the selected date");
+      }
+    });
+  });
+
 }
 
 function loadItems(element, path, selectInputClass) {

@@ -71,7 +71,8 @@ Route::post('timekeeping/period/destroy', 'TimekeepingController@destroy')->name
 Route::post('timekeeping/period/update', 'TimekeepingController@update')->name('timekeeping.update');
 
 Route::resource('dtr', 'DtrController');
-Route::post('dtr', 'DtrController@dailyLog')->name('dtr.dailyLog');
+// Route::post('dtr', 'DtrController@dailyLog')->name('dtr.dailyLog');
+Route::post('dtr/dailyLog', 'DtrController@dailyLog')->name('dtr.dailyLog');
 
 // Route::resource('timekeeping/process', 'TimekeepingController@process');
 Route::get('timekeeping/process', 'TimekeepingController@process')->name('timekeeping.process');
