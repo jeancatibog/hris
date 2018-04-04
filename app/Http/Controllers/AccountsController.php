@@ -31,7 +31,7 @@ class AccountsController extends Controller
         $accounts = DB::table('accounts_team_lead AS tl')
         		->leftJoin('account AS a', 'tl.account_id', '=', 'a.id')
         		->leftJoin('employees AS e', 'tl.team_lead_id', '=', 'e.id')
-        		->select('a.name', 'tl.date_from', 'tl.date_to', 'e.id', DB::raw('CONCAT(e.firstname," ",e.lastname)  AS team_lead'))
+        		->select('tl.id','a.name', 'tl.date_from', 'tl.date_to', 'tl.team_lead_id', DB::raw('CONCAT(e.firstname," ",e.lastname)  AS team_lead'))
         		->get()->toArray();
         return view('system-mgmt/accounts/index', ['accounts' => $accounts]);
     }
@@ -68,7 +68,7 @@ class AccountsController extends Controller
     public function store(Request $request)
     {
         $this->validateInput($request);
-        
+
         AccountsTeamLead::create([
             'account_id'  =>  $request['account_id'],
             'date_from'		=> 	date('Y-m-d', strtotime($request['date_from'])),
@@ -105,7 +105,7 @@ class AccountsController extends Controller
     		->leftJoin('roles AS r', 'es.role_id', '=', 'r.id')
     		->where('r.name', 'Team Lead')
     		->select('e.id', DB::raw('CONCAT(e.firstname," ",e.lastname)  AS name'))->get();
-        return view('system-mgmt/shift/edit', ['acctTL' => $accTL, 'accounts' => $accounts, 'teamleads' => $leads]);
+        return view('system-mgmt/accounts/edit', ['acctTL' => $accTL, 'accounts' => $accounts, 'teamleads' => $leads]);
     }
 
     /**
@@ -124,10 +124,10 @@ class AccountsController extends Controller
 	        'date_to'		=> 	date('Y-m-d', strtotime($request['date_to'])),
             'team_lead_id' =>  $request['team_lead_id']
         ];
-        Shift::where('id', $id)
+        AccountsTeamLead::where('id', $id)
             ->update($input);
         
-        return redirect()->intended('system-management/shift');
+        return redirect()->intended('system-management/accounts');
     }
 
     /**
@@ -139,34 +139,71 @@ class AccountsController extends Controller
     public function destroy($id)
     {
         AccountsTeamLead::where('id', $id)->delete();
-         return redirect()->intended('system-management/shift');
+         return redirect()->intended('system-management/accounts');
     }
 
-    private function validateInput($request)
+    /**
+     * Search shift from database base on some specific constraints
+     *
+     * @param  \Illuminate\Http\Request  $request
+     *  @return \Illuminate\Http\Response
+     */
+    public function search(Request $request) {
+        $constraints = [
+            'name' => $request['accountname']
+            ];
+
+       $accounts = $this->doSearchingQuery($constraints);
+       return view('system-mgmt/accounts/index', ['accounts' => $accounts, 'searchingVals' => $constraints]);
+    }
+
+    private function doSearchingQuery($constraints) {
+        // $query = AccountsTeamLead::query();
+        $query = DB::table('accounts_team_lead AS tl')
+        		->leftJoin('account AS a', 'tl.account_id', '=', 'a.id')
+        		->leftJoin('employees AS e', 'tl.team_lead_id', '=', 'e.id')
+        		->select('tl.id','a.name', 'tl.date_from', 'tl.date_to', 'tl.team_lead_id', DB::raw('CONCAT(e.firstname," ",e.lastname)  AS team_lead'));
+        $fields = array_keys($constraints);
+        $index = 0;
+        foreach ($constraints as $constraint) {
+            if ($constraint != null) {
+                $query = $query->where( $fields[$index], 'like', '%'.$constraint.'%');
+            }
+
+            $index++;
+        }
+        return $query->paginate(5);
+    }
+
+    private function validateInput($request, $id=NULL)
     {
-    	$overlaps = false;
     	$from = $request['date_from'];
     	$to = $request['date_to'];
         $message = [
 			'overlap' => 'Schedule for the account team lead overlaps another schedule'
 		];
-        // check if unique name for department
+        // check if accounts has overlap schedule
         $schedule = AccountsTeamLead::where('account_id', $request['account_id'])
         		->where(function ($query) use ($from, $to) {
         			$query->where('date_from', '>=', $from)->where('date_from', '<=', $to)
 		              ->orWhere('date_from', '<=', $from)->where('date_to', '>=', $to)
 		              ->orWhere('date_to', '>', $from)->where('date_to', '<=', $to)
 		              ->orWhere('date_from', '>=', $from)->where('date_to', '<=', $to);
-        		})
-			    ->get()->first();
-        if (count($schedule) > 0) {
-        	$overlaps = true;
-        } 
+        		});
+		if ($id) {
+        	$schedule->where('id', '!=', $id);
+        }
+        $sched = $schedule->get()->toArray();
 
+        if (count($sched) > 0) {
+        	$overlaps = true;
+        } else {
+        	$overlaps = false;
+        }
         $this->validate($request, [
             'account_id'	=>  'required',
             'date_from'		=>	'required|date',
-	        'date_to'		=>	'required|date|after_or_equal:date_from|'. $overlaps ? 'overlap' : '',
+	        'date_to'		=>	'required|date|after_or_equal:date_from|'. ($overlaps ? 'overlap' : ''),
             'team_lead_id'	=>  'required'
         ], $message);
     }

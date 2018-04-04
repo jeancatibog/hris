@@ -9,8 +9,13 @@
             $stringFormat =  strtolower(str_replace(' ', '', $item));
           @endphp
           <label for="input<?=$stringFormat?>" class="col-sm-3 control-label">{{$item}}</label>
-          <div class="col-sm-9">
+          <div class="col-md-6">
             <input value="{{isset($oldVals) ? $oldVals[$index] : ''}}" type="text" class="form-control" name="<?=$stringFormat?>" id="input<?=$stringFormat?>" placeholder="{{$item}}">
+          </div>
+          <div class="col-md-2">
+            <button type="submit" class="btn btn-primary">
+              <icon class="fa fa-search"></icon>
+            </button>
           </div>
       </div>
     </div>
