@@ -81,3 +81,5 @@ Route::post('dtr/dailyLog', 'DtrController@dailyLog')->name('dtr.dailyLog');
 // Route::resource('timekeeping/process', 'TimekeepingController@process');
 Route::get('timekeeping/process', 'TimekeepingController@process')->name('timekeeping.process');
 Route::post('timekeeping/processing', 'TimekeepingController@processing')->name('timekeeping.processing');
+
+Route::resource('form-approval','FormApprovalController');

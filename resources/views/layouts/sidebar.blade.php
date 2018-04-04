@@ -34,6 +34,7 @@
         <li class="active"><a href="{{ url('dashboard') }}"><i class="fa fa-home"></i> <span>Dashboard</span></a></li>
         <li><a href="{{ url('dtr') }}"><i class="fa fa-calendar"></i> <span>My Attendance</span></a></li>
         <li><a href="{{ url('forms') }}"><i class="fa fa-pencil-square-o"></i> <span>File Form</span></a></li>
+        <li><a href="{{ url('form-approval') }}"><i class="fa fa-file-text-o"></i> <span>Form Approval</span></a></li>
         <li><a href="{{ url('employee-management') }}"><i class="fa fa-users"></i> <span>Employee Management</span></a></li>
         <li class="treeview">
           <a href="#"><i class="fa fa-cogs"></i> <span>System Management</span>
