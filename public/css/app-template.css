@@ -128,7 +128,8 @@ table.dataTable thead > tr > th {
   display: none;
 }
 
-#logtimeModal .modal-content {
+#logtimeModal .modal-content,
+#leaveModal .modal-content {
   position: absolute;
   top: 50%;
   left: 50%;
@@ -147,4 +148,20 @@ table.dataTable thead > tr > th {
 
 #logtimModal #msg-log {
   font-weight: bold;
+}
+@media (min-width: 768px) {
+  .form-inline #leaveModal .form-group {
+    margin-bottom: 10px !important;
+    display: inherit !important;
+  }
+}
+#leaveModal .container {
+  width: 700px !important;
+}
+#leaveModal .modal-footer {
+  margin-left: 20% !important;
+  padding-top: 0px !important;
+}
+#leaveModal .modal-body {
+  padding-bottom: 0px;
 }

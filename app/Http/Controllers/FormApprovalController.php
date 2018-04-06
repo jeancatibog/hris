@@ -36,8 +36,9 @@ class FormApprovalController extends Controller
         $employee_id = Auth::user()->employee_id;
         $employee_details = DB::table('employees AS e')
                 ->leftJoin('employee_setup AS es', 'es.employee_id', '=', 'e.id')
+                ->leftJoin('roles AS r', 'es.role_id', '=', 'r.id')
                 ->where('es.employee_id', $employee_id)
-                ->select('es.*')->get()->first();
+                ->select('es.team_id', 'r.name AS role','es.*')->get()->first();
 
         $acct_sched = DB::table('accounts_team_lead AS tl')
             ->leftJoin('account AS a', 'tl.account_id', '=', 'a.id')
@@ -51,6 +52,7 @@ class FormApprovalController extends Controller
             ->leftJoin('employee_setup AS es', 'el.employee_id', '=', 'es.employee_id')
             ->leftJoin('form_status AS fs', 'el.form_status_id', '=', 'fs.id')
             ->leftJoin('form_type AS ft', 'el.form_type_id', '=', 'ft.id')
+            ->leftJoin('roles AS r', 'es.role_id', '=', 'r.id')
             ->where(function ($query) use ($acct_sched, $employee_details, $employee_id) {
                 if (count($acct_sched) > 0) {
                     foreach ($acct_sched as $sched) {
@@ -63,48 +65,51 @@ class FormApprovalController extends Controller
                 }
             })
             ->where('fs.status', 'For Approval')
-            ->where('el.employee_id', '!=', $employee_id) //exclude own filed forms
-            ->select(DB::raw('CONCAT(e.firstname," ",e.lastname)  AS name'), 'el.id', 'ft.form', 'fs.status', 'el.date_from', 'el.date_to', 'el.reason')->get()->toArray();
-        echo "<pre>";print_r($leave_form);die("here");
-        
+            ->where('es.team_id', $employee_details->team_id)
+            ->where('el.employee_id', '!=', $employee_id); //exclude own filed forms
+            if ($employee_details->role == 'Team Lead') {
+                $leave_form->whereNotIn('r.name', ['Team Lead', 'Supervisor', 'Manager']); //exclude all user with roles higher than associate
+            } elseif ($employee_details->role == 'Supervisor') {
+                $leave_form->where('r.name', 'Team Lead');
+            } elseif ($employee_details->role == 'Manager') {
+                $leave_form->where('r.name', 'Supervisor');
+            }
+            $leave_form->select(DB::raw('CONCAT(e.firstname," ",e.lastname)  AS name'), 'el.id', 'ft.form', 'fs.status', 'el.date_from', 'el.date_to', 'el.reason');
 
+            $leave = $leave_form->get()->toArray();
+        // echo "<pre>";print_r($leave);die("here");
+        // echo "<pre>";print_r($acct_sched);die("here");
+        // echo "<pre>";print_r(DB::getQueryLog());die("jere");
 
+        $ot_forms = array();
+        $obt_forms = array();
         // DB::enableQueryLog();
-        $leave_forms = DB::table('employee_leaves AS el')
-	        ->leftJoin('employees AS emp', 'el.employee_id', '=', 'emp.id')
-	        ->leftJoin('form_type AS ft', 'el.form_type_id', '=', 'ft.id')
-	        ->leftJoin('form_status AS fs', 'el.form_status_id', '=', 'fs.id')
-	        ->where('emp.id','=',Auth::user()->employee_id)
-	        ->select('el.id', 'emp.firstname' , 'emp.lastname', 'ft.form', 'fs.status', 'el.date_from', 'el.date_to', 'el.reason')
-	        ->paginate(5);
+        // $ot_forms = DB::table('employee_overtime AS ot')
+	       //  ->leftJoin('form_status AS fs', 'ot.form_status_id', '=', 'fs.id')
+        //     ->leftJoin('employee_workschedule AS ew', function($join)
+        //         {
+        //             $join->on('ot.date', '=', 'ew.date');
+        //             $join->on('ot.employee_id','=','ew.employee_id');
+        //         })
+        //     ->leftJoin('shift AS s', 'ew.shift_id', '=', 's.id')
+        //     ->where('ot.employee_id', '=', Auth::user()->employee_id)
+	       //  ->select('s.is_restday','ot.*', 'fs.status')->paginate(5); 
 
-        // DB::enableQueryLog();
-        $ot_forms = DB::table('employee_overtime AS ot')
-	        ->leftJoin('form_status AS fs', 'ot.form_status_id', '=', 'fs.id')
-            ->leftJoin('employee_workschedule AS ew', function($join)
-                {
-                    $join->on('ot.date', '=', 'ew.date');
-                    $join->on('ot.employee_id','=','ew.employee_id');
-                })
-            ->leftJoin('shift AS s', 'ew.shift_id', '=', 's.id')
-            ->where('ot.employee_id', '=', Auth::user()->employee_id)
-	        ->select('s.is_restday','ot.*', 'fs.status')->paginate(5); 
-
-        $obt_forms = DB::table('employee_obt AS obt')
-	        ->leftJoin('form_status AS fs', 'obt.form_status_id', '=', 'fs.id')
-	        ->where('employee_id', '=', Auth::user()->employee_id)
-	        ->select('obt.*', 'fs.status')->paginate(5); 
+        // $obt_forms = DB::table('employee_obt AS obt')
+	       //  ->leftJoin('form_status AS fs', 'obt.form_status_id', '=', 'fs.id')
+	       //  ->where('employee_id', '=', Auth::user()->employee_id)
+	       //  ->select('obt.*', 'fs.status')->paginate(5); 
         // dd(DB::getQueryLog());
-        $forms['leaves'] = $leave_forms;
-        $forms['ot'] = $ot_forms;
-        $forms['obt'] = $obt_forms;
-        return view('forms/index', ['forms' => $forms]);
+        $approval_form['leaves'] = $leave;
+        $approval_form['ot'] = $ot_forms;
+        $approval_form['obt'] = $obt_forms;
+        return view('form-approval/index', ['form_approval' => $approval_form]);
     }
 
     /*
     * File form for leaves
     */
-    public function create()
+    /*public function create()
     {
     	// DB::enableQueryLog();
     	$form = $_GET['form'];
@@ -122,7 +127,7 @@ class FormApprovalController extends Controller
     	} else {
     		return view('forms/'.$form.'/create', ['employee_id' => Auth::user()->employee_id]);
     	}
-    }
+    }*/
 
     /**
      * Store a newly created form in storage.
@@ -130,63 +135,9 @@ class FormApprovalController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request, $id)
+    public function store(Request $request)
     {
-    	$this->validateInput($request, $request['ftype']);
-
-    	$status = $id == 0 ? 1 : 2;
-    	if ($request['ftype'] == 'leave') {
-	    	/* Insert data for leave forms and dates */
-	    	$leaves = EmployeeLeaves::create([
-	            'employee_id'	=> 	$request['employee_id'],
-	            'form_type_id'	=> 	$request['form_type_id'],
-	            'date_from'		=> 	date('Y-m-d', strtotime($request['date_from'])),
-	            'date_to'		=> 	date('Y-m-d', strtotime($request['date_to'])),
-	            'reason'		=> 	$request['reason'],
-	    		'is_halfday'	=>	$request['is_halfday'],
-	    		'halfday_type'	=>	$request['halfday_type'],
-	            'form_status_id'=>	$status
-	        ]);
-	        
-	        $insertId = $leaves->id;
-	        $this->storeLeaveDates($insertId, $request['is_halfday'], $request['date_from'], $request['date_to']);	
-	    	/* End insertion for leave and dates */
-	    } elseif ($request['ftype'] == 'ot') {
-	    	EmployeeOvertime::create([
-	    		'employee_id'	=>	$request['employee_id'],
-	    		'date'			=>	date('Y-m-d', strtotime($request['date'])),
-	    		'datetime_from'	=>	date('Y-m-d H:i:s', strtotime($request['datetime_from'])),
-	    		'datetime_to'	=>	date('Y-m-d H:i:s', strtotime($request['datetime_to'])),
-	    		'reason'		=>	$request['reason'],
-	            'form_status_id'=>	$status
-	    	]);
-	    } elseif ($request['ftype'] == 'obt') {
-            EmployeeObt::create([
-                'employee_id'       =>  $request['employee_id'],
-                'date_from'         =>  date('Y-m-d', strtotime($request['date_from'])),
-                'date_to'           =>  date('Y-m-d', strtotime($request['date_to'])),
-                'starttime'         =>  date('H:i:s', strtotime($request['starttime'])),
-                'endtime'           =>  date('H:i:s', strtotime($request['endtime'])),
-                'reason'            =>  $request['reason'],
-                'form_status_id'    =>  $status,
-                'contact_name'      =>  $request['contact_name'],
-                'contact_info'      =>  $request['contact_info'],
-                'contact_position'  =>  $request['contact_position'],
-                'company_to_visit'  =>  $request['company_to_visit'],
-                'company_location'  =>  $request['company_location']
-            ]);
-
-        } else {
-            EmployeeDtrp::create([
-                'employee_id'   =>  $request['employee_id'],
-                'date'          =>  $request['date'],
-                'log_type_id'   =>  $request['log_type'],
-                'timelog'       =>  date('H:i:s', strtotime($request['timelog'])),
-                'reason'        =>  $request['request']    
-            ]);
-        }
-
-        return redirect()->intended('forms');
+        
     }
 
     /**
@@ -195,24 +146,25 @@ class FormApprovalController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function edit($form="")
+    public function edit(Request $request, $id)
     {
-    	$id = $_GET['id'];
-    	if($form == 'leave') {
-    		$leave = EmployeeLeaves::find($id);
-    		
-    		$employee_detail = Employee::find(Auth::user()->employee_id);
-	        
-	        $query = FormType::where('is_leave', 1);
-			if($employee_detail['gender'] == 1) {
-				$query->where('for_men', 1);
-			} else {
-				$query->where('for_women', 1);
-			}
-			$types = $query->get();
-			$file_form['leave'] = $leave;
-			$params = ['form' => $file_form[$form], 'types' => $types];
-    	} elseif($form == 'overtime') {
+        $returnHTML = "";
+        $form = $request['form'];
+        if($form == 'leave') {
+            $leave = EmployeeLeaves::find($id);
+            
+            $employee_detail = Employee::find(Auth::user()->employee_id);
+            
+            $query = FormType::where('is_leave', 1);
+            if($employee_detail['gender'] == 1) {
+                $query->where('for_men', 1);
+            } else {
+                $query->where('for_women', 1);
+            }
+            $types = $query->get();
+            $file_form['leave'] = $leave;
+            $params = ['form' => $file_form[$form], 'types' => $types];
+        } elseif($form == 'overtime') {
             $ot = EmployeeOvertime::find($id);
 
             $file_form['overtime'] = $ot;
@@ -227,8 +179,9 @@ class FormApprovalController extends Controller
 
             $params = ['form' => $file_form[$form]];
         }
-
-        return view('forms/'.$form.'/edit', $params);
+        $returnHTML = view('forms.'.$form.'.edit')->with($params)->render();
+        // echo "<pre>";print_r(view('forms.'.$form.'.edit')->with($params)->render());die("jere");
+        return response()->json( array('html'=>$returnHTML) );
     }
 
     /**

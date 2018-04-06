@@ -80,6 +80,47 @@ function registerEvents() {
     form.attr('action', form.attr('action') + '=' + id);
   });
 
+   /*** FORM APPROVAL ***/
+  $('.approval-update').on('click', function(e) {
+    var url = $('input[name="form_url"]').val();
+    var formId = $('input[name="id"]').val();
+    var token = $('meta[name=_token]').attr('content');
+    e.preventDefault();
+    $_token = token;
+    $.ajaxSetup({
+        headers: {
+            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+        }
+    });
+    $.ajax({
+      url: url,
+      type: 'GET',
+      dataType: "json",
+      data: {'_token': $_token},
+      success: function(response) {
+        var $container = $(response.html).wrap('<div />').parent();
+        var $body = $container.find('.panel-body');
+        $body.find('div[class="form-group"]:last').remove();
+        $('#leaveModal .modal-body .panel-default').html($body);
+        if ($('#is-halfday').is(':checked')) {
+          $('.halfday').show().removeAttr('disabled');
+        } else {
+          $('.halfday').hide().attr('disabled','disabled');
+        }
+        // If halfday is selected
+        $('#is-halfday').on('change', function() {
+          if($(this).is(':checked')) {
+            $('.halfday').show().removeAttr('disabled');
+          } else {
+            $('.halfday').hide().attr('disabled','disabled');
+          }
+        });
+        $('#leaveModal').modal('show');
+      }
+    });
+  });
+  /*** END FORM APPROVAL ***/
+
   /*** Leave Forms ***/
   // Leave form edit on load
   if ($('#is-halfday').is(':checked')) {
@@ -134,7 +175,6 @@ function registerEvents() {
   $('.datepicker').on('changeDate', function(e) {
     getLogs();
   });
-
 }
 
 function getLogs() {
