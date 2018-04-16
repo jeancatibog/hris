@@ -1,6 +1,9 @@
 @extends('layouts.base', ['module' => 'Leave Form'])
 
 @section('action-content')
+
+{{$disabled = (isset($for_approval) && $for_approval) ? 'disabled' : ''}}
+
 <div class="container">
     <div class="row">
         <div class="col-md-8 col-md-offset-2">
@@ -15,7 +18,7 @@
                         <div class="form-group{{ $errors->has('form_type_id') ? ' has-error' : '' }}">
                             <label class="col-md-4 control-label">Leave Type</label>
                             <div class="col-md-6">
-                                <select class="form-control" name="form_type_id" required>
+                                <select class="form-control" name="form_type_id" required {{$disabled}}>
                                     <option value="">Please select your leave type</option>
                                     @foreach ($types as $type)
                                         <option {{$form->form_type_id == $type->id ? 'selected' : ''}} value="{{$type->id}}">{{$type->form}}</option>
@@ -36,7 +39,7 @@
                                     <div class="input-group-addon">
                                         <i class="fa fa-calendar"></i>
                                     </div>
-                                    <input type="text" value="{{ $form->date_from }}" name="date_from" class="form-control pull-right datepicker" id="dateFrom" required>
+                                    <input type="text" value="{{ $form->date_from }}" name="date_from" class="form-control pull-right datepicker" id="dateFrom" required {{$disabled}}>
                                 </div>
                             @if ($errors->has('date_from'))
                                 <span class="help-block">
@@ -52,7 +55,7 @@
                                     <div class="input-group-addon">
                                         <i class="fa fa-calendar"></i>
                                     </div>
-                                    <input type="text" value="{{ $form->date_to }}" name="date_to" class="form-control pull-right datepicker" id="dateTo" required>
+                                    <input type="text" value="{{ $form->date_to }}" name="date_to" class="form-control pull-right datepicker" id="dateTo" required {{$disabled}}>
                                 </div>
                             @if ($errors->has('date_to'))
                                 <span class="help-block">
@@ -64,7 +67,7 @@
                         <div class="form-group{{ $errors->has('reason') ? ' has-error' : '' }}">
                             <label for="reason" class="col-md-4 control-label">Reason</label>
                             <div class="col-md-6">
-                                <textarea class="form-control" rows="5" id="reason" name="reason" required>{{ $form->reason }}</textarea>
+                                <textarea class="form-control" rows="5" id="reason" name="reason" required {{$disabled}}>{{ $form->reason }}</textarea>
                                 @if ($errors->has('reason'))
                                     <span class="help-block">
                                         <strong>{{ $errors->first('reason') }}</strong>
@@ -75,10 +78,10 @@
                         <div class="form-group">
                             <label class="col-md-4 control-label">Is Halfday</label>
                             <div class="col-md-1">
-                                <input type="checkbox" name="is_halfday" class="form-check-input" id="is-halfday" {{$form->is_halfday == 1 ? 'checked' : ''}}>
+                                <input type="checkbox" name="is_halfday" class="form-check-input" id="is-halfday" {{$form->is_halfday == 1 ? 'checked' : ''}} {{$disabled}}>
                             </div>
                             <div class="col-md-5 halfday" style="display: none;">
-                                <select class="form-control" name="halfday_type">
+                                <select class="form-control" name="halfday_type" {{$disabled}}>
                                     <option value="1" {{$form->halfday_type == 1 ? 'selected' : ''}}>1st Half Day</option>
                                     <option value="2" {{$form->halfday_type == 2 ? 'selected' : ''}}>2nd Half Day</option>
                                 </select>

@@ -154,6 +154,10 @@ table.dataTable thead > tr > th {
     margin-bottom: 10px !important;
     display: inherit !important;
   }
+
+  #leaveModal .form-control {
+    width: 100% !important;
+  }
 }
 #leaveModal .container {
   width: 700px !important;

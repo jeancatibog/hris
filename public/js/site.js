@@ -80,6 +80,20 @@ function registerEvents() {
     form.attr('action', form.attr('action') + '=' + id);
   });
 
+  $('form.approval-form :submit').on('click', function(event){
+    event.stopPropagation();
+    var param = $(this).attr('id'),
+        form = $('form.approval-form');
+    if (param == 'approved') {
+      var id = 3;
+    } else if(param == 'disapproved') {
+      var id = 4;
+    } else {
+      var id = 5;
+    }
+    form.attr('action', form.attr('action') + '=' + id);
+  });
+
    /*** FORM APPROVAL ***/
   $('.approval-update').on('click', function(e) {
     var url = $('input[name="form_url"]').val();
@@ -119,6 +133,18 @@ function registerEvents() {
       }
     });
   });
+
+  // $('.approved').on('click', function() {
+    
+  // });
+
+  // $('.disapproved').on('click', function() {
+  //   alert("disapproved");
+  // });
+  
+  // $('.cancelled').on('click', function() {
+  //   alert("cancelled");
+  // });
   /*** END FORM APPROVAL ***/
 
   /*** Leave Forms ***/

@@ -106,28 +106,6 @@ class FormApprovalController extends Controller
         return view('form-approval/index', ['form_approval' => $approval_form]);
     }
 
-    /*
-    * File form for leaves
-    */
-    /*public function create()
-    {
-    	// DB::enableQueryLog();
-    	$form = $_GET['form'];
-    	$employee_detail = Employee::find(Auth::user()->employee_id);
-    	if($form == 'leave') {
-    		$query = FormType::where('is_leave', 1);
-    		if($employee_detail['gender'] == 1) {
-				$query->where('for_men', 1);
-			} else {
-				$query->where('for_women', 1);
-			}
-    		$forms = $query->get();
-    		// dd(DB::getQueryLog());		
-    		return view('forms/'.$form.'/create', ['forms' => $forms, 'employee_id' => Auth::user()->employee_id]);
-    	} else {
-    		return view('forms/'.$form.'/create', ['employee_id' => Auth::user()->employee_id]);
-    	}
-    }*/
 
     /**
      * Store a newly created form in storage.
@@ -179,8 +157,10 @@ class FormApprovalController extends Controller
 
             $params = ['form' => $file_form[$form]];
         }
+        
+        $params['for_approval'] = true;
+
         $returnHTML = view('forms.'.$form.'.edit')->with($params)->render();
-        // echo "<pre>";print_r(view('forms.'.$form.'.edit')->with($params)->render());die("jere");
         return response()->json( array('html'=>$returnHTML) );
     }
 
@@ -191,28 +171,19 @@ class FormApprovalController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id=0, $action_id=0)
+    public function update(Request $request, $id=0)
     {
-        $this->validateInput($request, $request['ftype']);
-        $status = $_GET['action_id'] == 0 ? 1 : 2;
+        $status = $_GET['action_id'];
     	if ($request['ftype'] == 'leave') {
-    		/*Delete existing dates on employee leave dates*/
-    		EmployeeLeaveDates::where('employee_leave_id', $id)->delete();
-	    	/* Update data for leave forms and dates */
 	    	$input = [
-	            'employee_id'	=> 	$request['employee_id'],
-	            'form_type_id'	=> 	$request['form_type_id'],
-	            'date_from'		=> 	date('Y-m-d', strtotime($request['date_from'])),
-	            'date_to'		=> 	date('Y-m-d', strtotime($request['date_to'])),
-	            'reason'		=> 	$request['reason'],
-	    		'is_halfday'	=>	$request['is_halfday'],
-	    		'halfday_type'	=>	$request['halfday_type'],
+	            'approvers_remarks'	=> 	$request['approvers_remarks'],
+                'date_approved'     =>  date('Y-m-d H:i:s'),
+                'approved_by'       =>  Auth::user()->employee_id,
 	            'form_status_id'=>	$status
 	        ];
 
 	        EmployeeLeaves::where('id', $id)
 	            ->update($input);
-	        $this->storeLeaveDates($id, $request['is_halfday'], $request['date_from'], $request['date_to']);
 	    	/* End insertion for leave and dates */
 	    } elseif ($request['ftype'] == 'ot') {
 	    	$input = [
@@ -244,7 +215,7 @@ class FormApprovalController extends Controller
                 ->update($input);
         }
         
-        return redirect()->intended('forms');
+        return redirect()->intended('form-approval');
     }
 
     public function storeLeaveDates($id, $is_halfday, $from, $to)
