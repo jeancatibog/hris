@@ -1,6 +1,8 @@
 @extends('layouts.base', ['module' => 'Overtime Form'])
 
 @section('action-content')
+
+{{$disabled = (isset($for_approval) && $for_approval) ? 'disabled' : ''}}
 <div class="container">
     <div class="row">
         <div class="col-md-8 col-md-offset-2">
@@ -19,7 +21,7 @@
                                     <div class="input-group-addon">
                                         <i class="fa fa-calendar"></i>
                                     </div>
-                                    <input type="text" value="{{ $form->date }}" name="date" class="form-control pull-right datepicker" id="date" required>
+                                    <input type="text" value="{{ $form->date }}" name="date" class="form-control pull-right datepicker" id="date" required {{$disabled}}>
                                 </div>
                             @if ($errors->has('date'))
                                 <span class="help-block">
@@ -35,7 +37,7 @@
                                     <div class="input-group-addon">
                                         <i class="fa fa-clock-o"></i>
                                     </div>
-                                    <input type="text" value="{{ $form->datetime_from }}" name="datetime_from" class="form-control pull-right datetimepicker" id="datetimeFrom" required>
+                                    <input type="text" value="{{ $form->datetime_from }}" name="datetime_from" class="form-control pull-right datetimepicker" id="datetimeFrom" required {{$disabled}}>
                                 </div>
                             @if ($errors->has('datetime_from'))
                                 <span class="help-block">
@@ -51,7 +53,7 @@
                                     <div class="input-group-addon">
                                         <i class="fa fa-clock-o"></i>
                                     </div>
-                                    <input type="text" value="{{ $form->datetime_to }}" name="datetime_to" class="form-control pull-right datetimepicker" id="datetimeTo" required>
+                                    <input type="text" value="{{ $form->datetime_to }}" name="datetime_to" class="form-control pull-right datetimepicker" id="datetimeTo" required {{$disabled}}>
                                 </div>
                             @if ($errors->has('datetime_to'))
                                 <span class="help-block">
@@ -63,7 +65,7 @@
                         <div class="form-group{{ $errors->has('reason') ? ' has-error' : '' }}">
                             <label for="reason" class="col-md-4 control-label">Reason</label>
                             <div class="col-md-6">
-                                <textarea class="form-control" rows="5" id="reason" name="reason" required>{{ $form->reason }}</textarea>
+                                <textarea class="form-control" rows="5" id="reason" name="reason" required {{$disabled}}>{{ $form->reason }}</textarea>
                             @if ($errors->has('reason'))
                                 <span class="help-block">
                                     <strong>{{ $errors->first('reason') }}</strong>

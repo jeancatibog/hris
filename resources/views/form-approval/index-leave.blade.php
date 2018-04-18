@@ -1,7 +1,7 @@
 <table id="example2" class="table table-bordered table-hover dataTable" role="grid" aria-describedby="example2_info">
   <thead>
     <tr role="row">
-      <th width="20%" class="sorting" tabindex="0" aria-controls="example2" rowspan="1" colspan="1" aria-label="leave type: activate to sort column ascending">Employee Name</th>
+      <th width="20%" class="sorting" tabindex="0" aria-controls="example2" rowspan="1" colspan="1" aria-label="name: activate to sort column ascending">Employee Name</th>
       <th width="15%" class="sorting" tabindex="0" aria-controls="example2" rowspan="1" colspan="1" aria-label="leave type: activate to sort column ascending">Leave Type</th>
       <th width="10%" class="sorting" tabindex="0" aria-controls="example2" rowspan="1" colspan="1" aria-label="date from: activate to sort column ascending">Date From</th>
       <th width="10%" class="sorting" tabindex="0" aria-controls="example2" rowspan="1" colspan="1" aria-label="date to: activate to sort column ascending">Date To</th>
@@ -25,7 +25,7 @@
               <!-- <input type="hidden" name="_token" value="{{ csrf_token() }}"> -->
               <meta name="csrf-token" content="{{ csrf_token() }}">
               <input type="hidden" name="form_url" value="{{ route('form-approval.edit', ['id' => $leave->id, 'form'=>'leave']) }}">
-              <a href="#" class="btn btn-warning col-sm-3 col-xs-5 btn-margin approval-update">
+              <a href="#" class="btn btn-warning col-sm-4 col-xs-5 btn-margin approval-update">
                 Update
               </a>
           </form>
@@ -35,46 +35,4 @@
   </tbody>
 </table>
 
-<!-- Modal -->
-<div class="modal fade" id="leaveModal" tabindex="-1" role="dialog">
-    <div class="modal-content">
-        <div class="modal-header">
-            <h4 class="modal-title" id="leaveModalLabel">Leave Form</h4>
-        </div>
-        <form class="form-horizontal approval-form" role="form" method="POST" action="{{ route('form-approval.update', ['id' => $leave->id, 'action_id']) }}">
-          <input type="hidden" name="ftype" value="leave">
-          <div class="modal-body">
-            <div class="container">
-              <div class="row">
-                  <div class="panel panel-default">
-                  </div>
-                  <div class="form-group">
-                    <label for="reason" class="col-md-4 control-label"> Approvers Remarks</label>
-                    <div class="col-md-6">
-                        <textarea class="form-control" rows="5" id="approvers_remarks" name="approvers_remarks" required></textarea>
-                        @if ($errors->has('approvers_remarks'))
-                            <span class="help-block">
-                                <strong>{{ $errors->first('approvers_remarks') }}</strong>
-                            </span>
-                        @endif
-                    </div>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div class="modal-footer">
-            <input type="hidden" name="_method" value="PATCH">
-            <input type="hidden" name="_token" value="{{ csrf_token() }}">
-            <div class="col-md-10">
-              <button type="submit" class="btn btn-success col-sm-3 col-xs-5 btn-margin" id="approved" title="Approve"><i class="fa fa-thumbs-up"></i><span>Approve</span>
-              </button>
-              <button type="submit" class="btn btn-primary col-sm-3 col-xs-5 btn-margin" id="disapproved" title="Disapprove"><i class="fa fa-thumbs-down"></i><span>Disapprove</span>
-              </button>
-              <button type="submit" class="btn btn-danger col-sm-3 col-xs-5 btn-margin" id="cancelled" title="Cancel"><i class="fa fa fa-close"></i><span>Cancel</span>
-              </button>
-            </div>
-          </div>
-        </form>  
-    </div>
-<div id="content">
-</div>
+@include ('form-approval.approval-modal', ['id' => isset($leave->id) ? $leave->id : '', 'form' => 'leave'])

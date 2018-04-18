@@ -80,24 +80,10 @@ function registerEvents() {
     form.attr('action', form.attr('action') + '=' + id);
   });
 
-  $('form.approval-form :submit').on('click', function(event){
-    event.stopPropagation();
-    var param = $(this).attr('id'),
-        form = $('form.approval-form');
-    if (param == 'approved') {
-      var id = 3;
-    } else if(param == 'disapproved') {
-      var id = 4;
-    } else {
-      var id = 5;
-    }
-    form.attr('action', form.attr('action') + '=' + id);
-  });
-
-   /*** FORM APPROVAL ***/
+  /*** FORM APPROVAL ***/
   $('.approval-update').on('click', function(e) {
-    var url = $('input[name="form_url"]').val();
-    var formId = $('input[name="id"]').val();
+    var tab = $(".nav-tabs .active > a").attr("id");
+    var url = $(this).parent().find('input[name="form_url"]').val();
     var token = $('meta[name=_token]').attr('content');
     e.preventDefault();
     $_token = token;
@@ -114,39 +100,53 @@ function registerEvents() {
       success: function(response) {
         var $container = $(response.html).wrap('<div />').parent();
         var $body = $container.find('.panel-body');
-        $body.find('div[class="form-group"]:last').remove();
-        $('#leaveModal .modal-body .panel-default').html($body);
-        if ($('#is-halfday').is(':checked')) {
-          $('.halfday').show().removeAttr('disabled');
-        } else {
-          $('.halfday').hide().attr('disabled','disabled');
+        var update = $('#'+tab+'-tab #approvalModal').children().find('.approval-form').attr('action');
+        if($body.find('div[class="form-group"]:last').parent().is('form')){
+          $body.find('div[class="form-group"]:last').unwrap();
         }
-        // If halfday is selected
-        $('#is-halfday').on('change', function() {
-          if($(this).is(':checked')) {
+        $body.find('div[class="form-group"]:last').remove();
+        $('#approvalModal .modal-body .panel-default').html($body);
+        if(response.form == 'leave') {
+          if ($('#is-halfday').is(':checked')) {
             $('.halfday').show().removeAttr('disabled');
           } else {
             $('.halfday').hide().attr('disabled','disabled');
           }
+          // If halfday is selected
+          $('#is-halfday').on('change', function() {
+            if($(this).is(':checked')) {
+              $('.halfday').show().removeAttr('disabled');
+            } else {
+              $('.halfday').hide().attr('disabled','disabled');
+            }
+          });
+        }
+
+        $('#'+tab+'-tab #approvalModal').modal({
+          show: true,
+
         });
-        $('#leaveModal').modal('show');
+        setTimeout(function() {
+          $('.btn-approval').click(function(event) {
+            event.stopPropagation();
+            var param = $(this).attr('id');
+            if (param == 'approved') {
+              var id = 3;
+            } else if(param == 'disapproved') {
+              var id = 4;
+            } else {
+              var id = 5;
+            }
+            $('#'+tab+'-tab #approvalModal').children().find('form').attr('action', update.slice( 0, update.lastIndexOf( "/" ) ) + '/' + response.id +'?action_id=' + id);
+            $(this).prop('type', 'submit');
+            $('#approvers_remarks').val();
+          }); 
+        }, 1000);
       }
     });
   });
-
-  // $('.approved').on('click', function() {
-    
-  // });
-
-  // $('.disapproved').on('click', function() {
-  //   alert("disapproved");
-  // });
-  
-  // $('.cancelled').on('click', function() {
-  //   alert("cancelled");
-  // });
   /*** END FORM APPROVAL ***/
-
+  
   /*** Leave Forms ***/
   // Leave form edit on load
   if ($('#is-halfday').is(':checked')) {

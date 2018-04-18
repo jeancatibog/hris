@@ -19,8 +19,8 @@
     <div id="example2_wrapper" class="dataTables_wrapper form-inline dt-bootstrap">
       <div class="nav-tabs-custom">
         <ul class="nav nav-tabs" id="approvalFormsTab">
-            <li class="active"><a id="leave" href="#leaves-tab" data-toggle="tab" aria-expanded="false"><span>Leaves</span></a></li>
-            <li><a id="overtime" href="#ot-tab" data-toggle="tab" aria-expanded="true"><span>Overtime</span></a></li>
+            <li class="active"><a id="leaves" href="#leaves-tab" data-toggle="tab" aria-expanded="false"><span>Leaves</span></a></li>
+            <li><a id="overtime" href="#overtime-tab" data-toggle="tab" aria-expanded="true"><span>Overtime</span></a></li>
             <li><a id="obt" href="#obt-tab" data-toggle="tab" aria-expanded="true"><span>OBT</span></a></li>
         </ul>
       </div>
@@ -30,11 +30,11 @@
           @include ('form-approval.index-leave', [ 'leaves' => $form_approval['leaves'] ])
           @include ('layouts.pagination', ['data' => $form_approval['leaves']])
         </div>
-        <!-- <div class="tab-pane" id="ot-tab">
+        <div class="tab-pane" id="overtime-tab">
           @include ('form-approval.index-overtime', [ 'overtime' => $form_approval['ot'] ])
           @include ('layouts.pagination', ['data' => $form_approval['ot']])
         </div>
-        <div class="tab-pane" id="obt-tab">
+        <!-- <div class="tab-pane" id="obt-tab">
           @include ('form-approval.index-obt', [ 'obt' => $form_approval['obt'] ])
           @include ('layouts.pagination', ['data' => $form_approval['obt']])
         </div> -->

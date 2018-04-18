@@ -42,7 +42,7 @@ class FormsController extends Controller
 	        ->select('el.id', 'emp.firstname' , 'emp.lastname', 'ft.form', 'fs.status', 'el.date_from', 'el.date_to', 'el.reason')
 	        ->paginate(5);
 
-        DB::enableQueryLog();
+        // DB::enableQueryLog();
         $ot_forms = DB::table('employee_overtime AS ot')
 	        ->leftJoin('form_status AS fs', 'ot.form_status_id', '=', 'fs.id')
             ->leftJoin('employee_workschedule AS ew', function($join)

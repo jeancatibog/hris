@@ -129,7 +129,7 @@ table.dataTable thead > tr > th {
 }
 
 #logtimeModal .modal-content,
-#leaveModal .modal-content {
+#approvalModal .modal-content {
   position: absolute;
   top: 50%;
   left: 50%;
@@ -150,22 +150,22 @@ table.dataTable thead > tr > th {
   font-weight: bold;
 }
 @media (min-width: 768px) {
-  .form-inline #leaveModal .form-group {
+  .form-inline #approvalModal .form-group {
     margin-bottom: 10px !important;
     display: inherit !important;
   }
 
-  #leaveModal .form-control {
+  #approvalModal .form-control {
     width: 100% !important;
   }
 }
-#leaveModal .container {
+#approvalModal .container {
   width: 700px !important;
 }
-#leaveModal .modal-footer {
+#approvalModal .modal-footer {
   margin-left: 20% !important;
   padding-top: 0px !important;
 }
-#leaveModal .modal-body {
+#approvalModal .modal-body {
   padding-bottom: 0px;
 }
