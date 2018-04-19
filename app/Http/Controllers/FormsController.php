@@ -137,7 +137,8 @@ class FormsController extends Controller
                 'contact_info'      =>  $request['contact_info'],
                 'contact_position'  =>  $request['contact_position'],
                 'company_to_visit'  =>  $request['company_to_visit'],
-                'company_location'  =>  $request['company_location']
+                'company_location'  =>  $request['company_location'],
+                'form_status_id'=>  $status
             ]);
 
         } else {
@@ -146,7 +147,8 @@ class FormsController extends Controller
                 'date'          =>  $request['date'],
                 'log_type_id'   =>  $request['log_type'],
                 'timelog'       =>  date('H:i:s', strtotime($request['timelog'])),
-                'reason'        =>  $request['request']    
+                'reason'        =>  $request['request'],
+                'form_status_id'=>  $status    
             ]);
         }
 
