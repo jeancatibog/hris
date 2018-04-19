@@ -2,8 +2,8 @@
   <thead>
     <tr role="row">
       <th width="20%" class="sorting" tabindex="0" aria-controls="example2" rowspan="1" colspan="1" aria-label="date from: activate to sort column ascending">Employee Name</th>
-      <th width="15%" class="sorting" tabindex="0" aria-controls="example2" rowspan="1" colspan="1" aria-label="date from: activate to sort column ascending">Date From</th>
-      <th width="15%" class="sorting" tabindex="0" aria-controls="example2" rowspan="1" colspan="1" aria-label="date to: activate to sort column ascending">Date To</th>
+      <th width="10%" class="sorting" tabindex="0" aria-controls="example2" rowspan="1" colspan="1" aria-label="date from: activate to sort column ascending">Date From</th>
+      <th width="10%" class="sorting" tabindex="0" aria-controls="example2" rowspan="1" colspan="1" aria-label="date to: activate to sort column ascending">Date To</th>
       <th width="10%" class="sorting" tabindex="0" aria-controls="example2" rowspan="1" colspan="1" aria-label="datetime start: activate to sort column ascending">Start Time</th>
       <th width="10%" class="sorting" tabindex="0" aria-controls="example2" rowspan="1" colspan="1" aria-label="datetime end: activate to sort column ascending">Start End</th>
       <th width="15%" class="sorting" tabindex="0" aria-controls="example2" rowspan="1" colspan="1" aria-label="reason: activate to sort column ascending">Reason</th>
@@ -25,7 +25,8 @@
           <form class="row" method="POST" action="{{ route('form-approval.destroy', ['id' => $obts->id]) }}" onsubmit = "return confirm('Are you sure?')">
               <input type="hidden" name="_method" value="DELETE">
               <input type="hidden" name="_token" value="{{ csrf_token() }}">
-              <a href="{{ route('form-approval.edit', ['id' => $leave->id, 'form'=>'leave']) }}" class="btn btn-warning col-sm-3 col-xs-5 btn-margin">
+              <input type="hidden" name="form_url" value="{{ route('form-approval.edit', ['id' => $obts->id, 'form'=>'obt']) }}">
+              <a href="#" class="btn btn-warning col-sm-4 col-xs-5 btn-margin approval-update">
                 Update
               </a>
           </form>
@@ -34,3 +35,5 @@
   @endforeach
   </tbody>
 </table>
+
+@include ('form-approval.approval-modal', ['id' => isset($obts->id) ? $obts->id : '', 'form' => 'obt'])

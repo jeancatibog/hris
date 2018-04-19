@@ -147,7 +147,7 @@ class FormsController extends Controller
                 'date'          =>  $request['date'],
                 'log_type_id'   =>  $request['log_type'],
                 'timelog'       =>  date('H:i:s', strtotime($request['timelog'])),
-                'reason'        =>  $request['request'],
+                'reason'        =>  $request['reason'],
                 'form_status_id'=>  $status    
             ]);
         }

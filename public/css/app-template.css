@@ -103,7 +103,12 @@ footer.main-footer {
 .nav-tabs-custom>.nav-tabs> li.active>a {
   background-color: #f3f0f0 !important;
   font-weight: bold !important;
+  color: #dd4b39 !important;
 }
+.nav-tabs-custom>.nav-tabs>li>a {
+  font-weight: bold !important;
+}
+
 
 /*** PROCESSING PROGRESS BAR ***/
 .progress {
@@ -168,4 +173,8 @@ table.dataTable thead > tr > th {
 }
 #approvalModal .modal-body {
   padding-bottom: 0px;
+}
+
+#obt-tab #approvalModal .modal-content {
+  top: 70% !important;
 }

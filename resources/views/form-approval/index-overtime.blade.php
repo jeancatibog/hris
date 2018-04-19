@@ -43,4 +43,4 @@
   </tbody>
 </table>
 
-@include ('form-approval.approval-modal', ['id' => $ot->id, 'form' => 'overtime'])
+@include ('form-approval.approval-modal', ['id' => isset($ot->id) ? $ot->id : '', 'form' => 'overtime'])

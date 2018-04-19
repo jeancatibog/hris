@@ -127,8 +127,7 @@ function registerEvents() {
 
         });
         setTimeout(function() {
-          $('.btn-approval').click(function(event) {
-            event.stopPropagation();
+          $('#'+tab+'-tab .btn-approval').click(function(event) {
             var param = $(this).attr('id');
             if (param == 'approved') {
               var id = 3;
@@ -140,6 +139,7 @@ function registerEvents() {
             $('#'+tab+'-tab #approvalModal').children().find('form').attr('action', update.slice( 0, update.lastIndexOf( "/" ) ) + '/' + response.id +'?action_id=' + id);
             $(this).prop('type', 'submit');
             $('#approvers_remarks').val();
+            event.stopPropagation();
           }); 
         }, 1000);
       }

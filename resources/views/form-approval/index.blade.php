@@ -22,6 +22,7 @@
             <li class="active"><a id="leaves" href="#leaves-tab" data-toggle="tab" aria-expanded="false"><span>Leaves</span></a></li>
             <li><a id="overtime" href="#overtime-tab" data-toggle="tab" aria-expanded="true"><span>Overtime</span></a></li>
             <li><a id="obt" href="#obt-tab" data-toggle="tab" aria-expanded="true"><span>OBT</span></a></li>
+            <li><a id="dtrp" href="#dtrp-tab" data-toggle="tab" aria-expanded="true"><span>DTRP</span></a></li>
         </ul>
       </div>
       <!-- Tab contents -->
@@ -34,10 +35,14 @@
           @include ('form-approval.index-overtime', [ 'overtime' => $form_approval['ot'] ])
           @include ('layouts.pagination', ['data' => $form_approval['ot']])
         </div>
-        <!-- <div class="tab-pane" id="obt-tab">
+        <div class="tab-pane" id="obt-tab">
           @include ('form-approval.index-obt', [ 'obt' => $form_approval['obt'] ])
           @include ('layouts.pagination', ['data' => $form_approval['obt']])
-        </div> -->
+        </div>
+        <div class="tab-pane" id="dtrp-tab">
+          @include ('form-approval.index-dtrp', [ 'dtrp' => $form_approval['dtrp'] ])
+          @include ('layouts.pagination', ['data' => $form_approval['dtrp']])
+        </div>
       </div>
       <!-- </div> -->
     </div>
