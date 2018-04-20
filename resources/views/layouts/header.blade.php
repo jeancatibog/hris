@@ -25,7 +25,7 @@
               <!-- The user image in the navbar-->
               <img src="/{{$user->picture}}" class="user-image" alt="User Image">
               <!-- hidden-xs hides the username on small devices so only the image appears. -->
-              <span class="hidden-xs">{{ Auth::user()->firstname }}</span>
+              <span class="hidden-xs">{{ $user->firstname }}</span>
             </a>
             <ul class="dropdown-menu">
               <!-- The user image in the menu -->
@@ -33,21 +33,21 @@
                 <img src="/{{$user->picture}}" class="img-circle" alt="User Image">
 
                 <p>
-                  Hello {{ Auth::user()->firstname }}
+                  Hello {{ $user->firstname }}
                 </p>
               </li>
               <!-- Menu Footer-->
               <li class="user-footer">
                @if (Auth::guest())
                   <div class="pull-left">
-                    <a href="{{ route('login') }}" class="btn btn-default btn-flat">Login</a>
+                    <a href="{{ route('login') }}" class="btn btn-default">Login</a>
                   </div>
                @else
                  <div class="pull-left">
-                    <a href="{{ url('profile') }}" class="btn btn-default btn-flat">Profile</a>
+                    <a href="{{ url('profile') }}" class="btn btn-default">Profile</a>
                   </div>
                  <div class="pull-right">
-                    <a class="btn btn-default btn-flat" href="{{ route('logout') }}" onclick="event.preventDefault();document.getElementById('logout-form').submit();">
+                    <a class="btn btn-default" href="{{ route('logout') }}" onclick="event.preventDefault();document.getElementById('logout-form').submit();">
                     Logout
                     </a>
                  </div>
