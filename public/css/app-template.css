@@ -134,19 +134,22 @@ table.dataTable thead > tr > th {
 }
 
 #logtimeModal .modal-content,
-#approvalModal .modal-content {
+#approvalModal .modal-content,
+#uploadModal .modal-content {
   position: absolute;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
 }
 
-#logtimeModal .modal-header {
+#logtimeModal .modal-header,
+#uploadModal .modal-header {
   padding: 8px !important;
   background-color: #d73925;
 }
 
-#logtimeModal .modal-header h4 {
+#logtimeModal .modal-header h4,
+#uploadModal .modal-header h4 {
   font-size: 15px;
   color: #ffffff;
 }
@@ -160,13 +163,19 @@ table.dataTable thead > tr > th {
     display: inherit !important;
   }
 
-  #approvalModal .form-control {
+  #approvalModal .form-control,
+  #uploadModal .form-control {
     width: 100% !important;
   }
 }
 #approvalModal .container {
   width: 700px !important;
 }
+
+#uploadModal .container {
+  width: 400px !important;
+}
+
 #approvalModal .modal-footer {
   margin-left: 20% !important;
   padding-top: 0px !important;

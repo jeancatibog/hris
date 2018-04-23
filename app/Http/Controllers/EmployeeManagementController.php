@@ -42,7 +42,7 @@ class EmployeeManagementController extends Controller
         ->leftJoin('country AS country', 'emp.country_id', '=', 'country.id')
         // ->leftJoin('division AS div', 'empset.division_id', '=', 'div.id')
         ->select('emp.*', 'country.id as country_id', 'province.id as province_id', 'city.id as city_id')
-        ->paginate(5);
+        ->paginate(10);
         
         return view('employees-mgmt/index', ['employees' => $employees]);
     }
@@ -224,5 +224,9 @@ class EmployeeManagementController extends Controller
         }
 
         return $queryInput;
+    }
+
+    public function import() {
+        die("here");
     }
 }

@@ -201,6 +201,11 @@ function registerEvents() {
   $('.datepicker').on('changeDate', function(e) {
     getLogs();
   });
+
+  /* Mass uploading of employee records */
+  $('.upload-employee').on('click', function(){
+    $('#uploadModal').modal('show');
+  })
 }
 
 function getLogs() {

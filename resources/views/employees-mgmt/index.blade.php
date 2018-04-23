@@ -5,11 +5,14 @@
   <div class="box">
     <div class="box-header">
       <div class="row">
-          <div class="col-sm-8">
+          <div class="col-sm-6">
             <h3 class="box-title">List of employees</h3>
           </div>
-          <div class="col-sm-4">
-            <a class="btn btn-primary" href="{{ route('employee-management.create') }}">Add new employee</a>
+          <div class="col-sm-3">
+            <!-- <a class="btn btn-primary" href="{{ route('employee-management.create') }}">Add new employee</a> -->
+          </div>
+          <div class="col-sm-3">
+            <a class="btn btn-primary upload-employee">Mass Upload</a> 
           </div>
       </div>
     </div>
@@ -19,26 +22,18 @@
           <div class="col-sm-6"></div>
           <div class="col-sm-6"></div>
         </div>
-        <form method="POST" action="{{ route('employee-management.search') }}">
-           {{ csrf_field() }}
-           @component('layouts.search', ['title' => 'Search'])
-            @component('layouts.two-cols-search-row', ['items' => ['First Name', 'Department_Name'], 
-            'oldVals' => [isset($searchingVals) ? $searchingVals['firstname'] : '', isset($searchingVals) ? $searchingVals['department_name'] : '']])
-            @endcomponent
-          @endcomponent
-        </form>
       <div id="example2_wrapper" class="dataTables_wrapper form-inline dt-bootstrap">
         <div class="row">
           <div class="col-sm-12">
             <table id="example2" class="table table-bordered table-hover dataTable" role="grid" aria-describedby="example2_info">
               <thead>
                 <tr role="row">
-                  <th width="8%" tabindex="0" aria-controls="example2" rowspan="1" colspan="1" aria-label="Picture: activate to sort column descending" aria-sort="ascending">Picture</th>
-                  <th width="10%" class="sorting_asc" tabindex="0" aria-controls="example2" rowspan="1" colspan="1" aria-label="Name: activate to sort column descending" aria-sort="ascending">Employee Name</th>
+                  <th width="1%" tabindex="0" aria-controls="example2" rowspan="1" colspan="1" aria-label="Picture: activate to sort column descending" aria-sort="ascending">Picture</th>
+                  <th width="15%" class="sorting_asc" tabindex="0" aria-controls="example2" rowspan="1" colspan="1" aria-label="Name: activate to sort column descending" aria-sort="ascending">Employee Name</th>
                   <th width="12%" class="sorting hidden-xs" tabindex="0" aria-controls="example2" rowspan="1" colspan="1" aria-label="Address: activate to sort column ascending">Address</th>
                   <th width="8%" class="sorting hidden-xs" tabindex="0" aria-controls="example2" rowspan="1" colspan="1" aria-label="Age: activate to sort column ascending">Age</th>
                   <th width="8%" class="sorting hidden-xs" tabindex="0" aria-controls="example2" rowspan="1" colspan="1" aria-label="Birthdate: activate to sort column ascending">Birthdate</th>
-                  <th tabindex="0" aria-controls="example2" rowspan="1" colspan="2" aria-label="Action: activate to sort column ascending">Action</th>
+                  <!-- <th tabindex="0" aria-controls="example2" rowspan="1" colspan="2" aria-label="Action: activate to sort column ascending">Action</th> -->
                 </tr>
               </thead>
               <tbody>
@@ -49,7 +44,7 @@
                     <td class="hidden-xs">{{ $employee->address }}</td>
                     <td class="hidden-xs">{{ $employee->age }}</td>
                     <td class="hidden-xs">{{ $employee->birthdate }}</td>
-                    <td>
+                    <!-- <td>
                       <form class="row" method="POST" action="{{ route('employee-management.destroy', ['id' => $employee->id]) }}" onsubmit = "return confirm('Are you sure?')">
                           <input type="hidden" name="_method" value="DELETE">
                           <input type="hidden" name="_token" value="{{ csrf_token() }}">
@@ -60,22 +55,10 @@
                             Delete
                           </button>
                       </form>
-                    </td>
+                    </td> -->
                 </tr>
               @endforeach
               </tbody>
-              <tfoot>
-                <tr>
-                  <tr role="row">
-                  <th width="8%" tabindex="0" aria-controls="example2" rowspan="1" colspan="1" aria-label="Picture: activate to sort column descending" aria-sort="ascending">Picture</th>
-                  <th width="10%" class="sorting_asc" tabindex="0" aria-controls="example2" rowspan="1" colspan="1" aria-label="Name: activate to sort column descending" aria-sort="ascending">Employee Name</th>
-                  <th width="12%" class="sorting hidden-xs" tabindex="0" aria-controls="example2" rowspan="1" colspan="1" aria-label="Address: activate to sort column ascending">Address</th>
-                  <th width="8%" class="sorting hidden-xs" tabindex="0" aria-controls="example2" rowspan="1" colspan="1" aria-label="Age: activate to sort column ascending">Age</th>
-                  <th width="8%" class="sorting hidden-xs" tabindex="0" aria-controls="example2" rowspan="1" colspan="1" aria-label="Birthdate: activate to sort column ascending">Birthdate</th>
-                  <th tabindex="0" aria-controls="example2" rowspan="1" colspan="2" aria-label="Action: activate to sort column ascending">Action</th>
-                </tr>
-                </tr>
-              </tfoot>
             </table>
           </div>
         </div>
@@ -97,3 +80,28 @@
     <!-- /.content -->
   </div>
 @endsection
+
+<!-- Modal -->
+<div class="modal fade" id="uploadModal" tabindex="-1" role="dialog">
+  <div class="modal-content">
+      <div class="modal-header">
+          <h4 class="modal-title" id="uploadModalLabel">Mass Upload of Employee Details</h4>
+      </div>
+      <form class="form-horizontal approval-form" role="form" method="POST" action="{{ route('employee-management.import') }}">
+        {{ csrf_field() }}
+        <div class="modal-body">
+          <div class="container">
+            <div class="row">
+                <div class="form-group col-md-12">
+                  Choose your xls/csv File : <input type="file" name="file" class="form-control">
+                  <button type="submit" class="btn btn-primary col-sm-3 col-xs-5 btn-margin"><i class="fa fa-upload"></i><span> Import</span>
+                  </button>
+                </div>
+            </div>
+          </div>
+        </div>
+      </form>  
+  </div>
+</div>    
+<div id="content">
+</div>
