@@ -8,6 +8,7 @@ use Illuminate\Foundation\Validation\ValidatesRequests;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Auth;
 use App\Employee;
+use App\EmployeeSetup;
 
 class Controller extends BaseController
 {
@@ -17,6 +18,7 @@ class Controller extends BaseController
     {
         $this->middleware(function ($request, $next) {
             view()->share('user', Employee::find(Auth::user()->employee_id));
+            view()->share('setup', EmployeeSetup::where('employee_id', Auth::user()->employee_id)->get()->first());
 
             return $next($request);
         });
