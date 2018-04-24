@@ -8,18 +8,31 @@
           <div class="col-sm-6">
             <h3 class="box-title">List of employees</h3>
           </div>
-          <div class="col-sm-3">
+          <div class="col-sm-2">
             <!-- <a class="btn btn-primary" href="{{ route('employee-management.create') }}">Add new employee</a> -->
           </div>
-          <div class="col-sm-3">
-            <a class="btn btn-primary upload-employee">Mass Upload</a> 
+          <div class="col-sm-4">
+            <!-- <a class="btn btn-primary upload-employee">Mass Upload</a>  -->
+            <form method="post" enctype="multipart/form-data" action="{{ route('employee-management.import') }}">
+              {{ csrf_field() }}
+              <div class="upload col-md-6">
+                <input type="file" name="upload" accept="xls/*" id="fileUpload" />
+                <span class="fileName">Select file..</span>
+              </div>
+              <div class="col-md-6">
+                <button type="button" class="btn btn-primary col-sm-7 col-xs-9" style="padding: 4px 12px !important;"><i class="fa fa-upload"></i> Import</button>
+              </div>
+            </form>
           </div>
       </div>
     </div>
     <!-- /.box-header -->
     <div class="box-body">
         <div class="row">
-          <div class="col-sm-6"></div>
+          <div class="col-sm-6">
+            <div class="alert alert-block">
+            </div>
+          </div>
           <div class="col-sm-6"></div>
         </div>
       <div id="example2_wrapper" class="dataTables_wrapper form-inline dt-bootstrap">
@@ -82,7 +95,7 @@
 @endsection
 
 <!-- Modal -->
-<div class="modal fade" id="uploadModal" tabindex="-1" role="dialog">
+<!-- <div class="modal fade" id="uploadModal" tabindex="-1" role="dialog">
   <div class="modal-content">
       <div class="modal-header">
           <h4 class="modal-title" id="uploadModalLabel">Mass Upload of Employee Details</h4>
@@ -92,6 +105,8 @@
         <div class="modal-body">
           <div class="container">
             <div class="row">
+                <div class="alert alert-block">
+                </div>
                 <div class="form-group col-md-12">
                   Choose your xls/csv File : <input type="file" name="file" class="form-control">
                   <button type="submit" class="btn btn-primary col-sm-3 col-xs-5 btn-margin"><i class="fa fa-upload"></i><span> Import</span>
@@ -104,4 +119,4 @@
   </div>
 </div>    
 <div id="content">
-</div>
+</div> -->

@@ -226,7 +226,53 @@ class EmployeeManagementController extends Controller
         return $queryInput;
     }
 
-    public function import() {
-        die("here");
+    public function import(Request $request) 
+    {
+        //validate the xls file
+        $this->validate($request, array(
+            'file'      => 'required'
+        ));
+        echo "<pre>";print_r($request->all());die("here");
+        if($request->hasFile('file')){
+            $extension = File::extension($request->file->getClientOriginalName());
+            if ($extension == "xlsx" || $extension == "xls" || $extension == "csv") {
+ 
+                $path = $request->file->getRealPath();
+                $data = Excel::load($path, function($reader) {
+                })->get();
+                if(!empty($data) && $data->count()){
+ 
+                    foreach ($data as $key => $value) {
+                        $insert[] = [
+                        'name' => $value->name,
+                        'email' => $value->email,
+                        'phone' => $value->phone,
+                        ];
+                    }
+ 
+                    if(!empty($insert)){
+ 
+                        $insertData = DB::table('students')->insert($insert);
+                        if ($insertData) {
+                            Session::flash(['status'=>'success', 'message'=>'Your Data has successfully imported']);
+                        }else {                        
+                            Session::flash(['status'=>'error', 'message'=>'Error inserting the data..']);
+                            return back();
+                        }
+                    }
+                }
+ 
+                return back();
+ 
+            }else {
+                Session::flash(['status'=>'error', 'message'=>'File is a '.$extension.' file.!! Please upload a valid xls/csv file..!!']);
+                return back();
+            }
+        } else {
+            return redirect('/employee-management')->with([
+                'status'=>'error', 
+                'message'=>'Please select a file to upload'
+            ]);
+        }
     }
 }

@@ -203,9 +203,15 @@ function registerEvents() {
   });
 
   /* Mass uploading of employee records */
-  $('.upload-employee').on('click', function(){
-    $('#uploadModal').modal('show');
-  })
+  // $('.upload-employee').on('click', function(){
+  //   $('#uploadModal').modal('show');
+  // })
+
+  $('input[type=file]').bind('change', function() {alert("Sad");
+    var str = "";
+    str = $(this).val();
+    $("#filename").text(str);
+}).change();
 }
 
 function getLogs() {
