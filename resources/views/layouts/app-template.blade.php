@@ -32,6 +32,9 @@
 
     <!-- DIGITAL CLOCK -->
     <link href="{{ asset('css/digiclock.css') }}" rel="stylesheet">
+
+    <!-- Multiple selection -->
+    <link rel="stylesheet" href="{{ asset ("/bower_components/AdminLTE/plugins/select2/select2.min.css") }}">
     <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
     <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
     <!--[if lt IE 9]>
@@ -91,7 +94,8 @@
     <script src="{{ asset ("/bower_components/AdminLTE/dist/js/demo.js") }}" type="text/javascript"></script>
     <!-- DIGITAL CLOCK -->
     <script src="{{ asset ("/js/digiclock.js") }}" type="text/javascript"></script>
-
+    <!-- Multiple selection -->
+    <script src="{{ asset ("/bower_components/AdminLTE/plugins/select2/select2.full.min.js") }}"></script>
     <!-- Optionally, you can add Slimscroll and FastClick plugins.
       Both of these plugins are recommended to enhance the
       user experience. Slimscroll is required when using the
@@ -113,6 +117,8 @@
                 format: 'YYYY-MM-DD hh:mm A'
             }
         });
+
+        $('.select2').select2()
     });
 </script>
 <script src="{{ asset('js/site.js') }}"></script>

@@ -15,6 +15,7 @@ function registerEvents() {
 
   $('.js-account').on('change', function() {
     loadTeamLeads(this);
+    loadAgents(this);
   });
 
   $('.btn-in').on('click', function(){
@@ -278,6 +279,11 @@ function loadCities(element) {
 function loadTeamLeads(element) {
   $('.js-team-lead').empty().append('<option value="">Please select your team lead</option>');;
   loadItems(element, '/get-tl-list/', '.js-team-lead');
+}
+
+function loadAgents(element) {
+  $('.js-agents').empty().append('<option value="">Please select your agents</option>');;
+  loadItems(element, '/get-agent-list/', '.js-agents');
 }
 
 /*function loadEmployees(element) {

@@ -59,6 +59,7 @@ Route::post('system-management/shift/search', 'ShiftController@search')->name('s
 Route::resource('system-management/accounts', 'AccountsController');
 Route::post('system-management/accounts/search', 'AccountsController@search')->name('accounts.search');
 Route::get('get-tl-list/{accountId}', 'AccountsController@loadTeamLead');
+Route::get('get-agent-list/{accountId}', 'AccountsController@loadAgents');
 
 Route::resource('employee-setup-management', 'EmployeeSetupManagementController');
 

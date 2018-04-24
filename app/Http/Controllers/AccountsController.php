@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\DB;
 use App\AccountsTeamLead;
 use App\Employee;
 use App\Account;
+use App\Shift;
 
 class AccountsController extends Controller
 {
@@ -31,7 +32,7 @@ class AccountsController extends Controller
         $accounts = DB::table('accounts_team_lead AS tl')
         		->leftJoin('account AS a', 'tl.account_id', '=', 'a.id')
         		->leftJoin('employees AS e', 'tl.team_lead_id', '=', 'e.id')
-        		->select('tl.id','a.name', 'tl.date_from', 'tl.date_to', 'tl.team_lead_id', DB::raw('CONCAT(e.firstname," ",e.lastname)  AS team_lead'))
+        		->select('tl.id','a.name','tl.team_lead_id', DB::raw('CONCAT(e.firstname," ",e.lastname)  AS team_lead'))
         		->get()->toArray();
         return view('system-mgmt/accounts/index', ['accounts' => $accounts]);
     }
@@ -44,8 +45,10 @@ class AccountsController extends Controller
     public function create()
     {
     	$accounts = Account::all();
-    	$leads = Employee::all();
-        return view('system-mgmt/accounts/create', ['accounts' => $accounts, 'teamleads' => $leads]);
+    	$employees = Employee::all();
+        $shifts = Shift::all()->sortBy("start");
+        $days = DB::table('day')->get();
+        return view('system-mgmt/accounts/create', ['accounts' => $accounts, 'employees' => $employees, 'shifts' => $shifts, 'days' => $days]);
     }
 
     public function loadTeamLead($accountId)
@@ -59,6 +62,26 @@ class AccountsController extends Controller
         return response()->json($leads);
     }
 
+    public function loadAgents($accountId)
+    {
+        // check if agents already has manage
+        $manage = DB::table('accounts_team_lead AS tl')
+            ->where('tl.account_id', $accountId)->get();
+        $agentIds = [];
+        foreach ($manage as $agent) {
+            array_push($agentIds, $agent->agent_ids);
+        }
+
+        $agents = DB::table('employees AS e')
+            ->leftJoin('employee_setup AS es', 'es.employee_id', '=', 'e.id')
+            ->leftJoin('roles AS r', 'es.role_id', '=', 'r.id')
+            ->where('es.account_id', $accountId)
+            ->whereNotIn('r.name', ['Team Lead', 'Supervisor', ])
+            ->whereNotIn('e.id', [implode($agentIds, ",")])
+            ->select('e.id', DB::raw('CONCAT(e.firstname," ",e.lastname)  AS name'))->get();
+        return response()->json($agents);
+    }
+
     /**
      * Store a newly created resource in storage.
      *
@@ -68,12 +91,15 @@ class AccountsController extends Controller
     public function store(Request $request)
     {
         $this->validateInput($request);
-
+        echo "<pre>";print_r($request->all());die("here");
         AccountsTeamLead::create([
             'account_id'  =>  $request['account_id'],
-            'date_from'		=> 	date('Y-m-d', strtotime($request['date_from'])),
-	        'date_to'		=> 	date('Y-m-d', strtotime($request['date_to'])),
-            'team_lead_id' =>  $request['team_lead_id']
+            'shift_id'    =>  $request['shift_id'],
+         //    'date_from'		=> 	date('Y-m-d', strtotime($request['date_from'])),
+	        // 'date_to'		=> 	date('Y-m-d', strtotime($request['date_to'])),
+            'restday_ids'  =>   implode($request['restdays'], ","),
+            'team_lead_id' =>  $request['team_lead_id'],
+            'agent_ids'    =>  implode($request['agent_ids'], ",")
         ]);
         
 
@@ -177,7 +203,7 @@ class AccountsController extends Controller
 
     private function validateInput($request, $id=NULL)
     {
-    	$from = $request['date_from'];
+    	/*$from = $request['date_from'];
     	$to = $request['date_to'];
         $message = [
 			'overlap' => 'Schedule for the account team lead overlaps another schedule'
@@ -199,12 +225,13 @@ class AccountsController extends Controller
         	$overlaps = true;
         } else {
         	$overlaps = false;
-        }
+        }*/
         $this->validate($request, [
             'account_id'	=>  'required',
-            'date_from'		=>	'required|date',
-	        'date_to'		=>	'required|date|after_or_equal:date_from|'. ($overlaps ? 'overlap' : ''),
+            'shift_id'      =>  'required',
+         //    'date_from'		=>	'required|date',
+	        // 'date_to'		=>	'required|date|after_or_equal:date_from|'. ($overlaps ? 'overlap' : ''),
             'team_lead_id'	=>  'required'
-        ], $message);
+        ]);
     }
 }

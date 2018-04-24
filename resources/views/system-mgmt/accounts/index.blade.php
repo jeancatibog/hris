@@ -34,8 +34,8 @@
             <thead>
               <tr role="row">
                 <th width="20%" class="sorting" tabindex="0" aria-controls="example2" rowspan="1" colspan="1" aria-label="account: activate to sort column ascending">Account</th>
-                <th width="20%" class="sorting" tabindex="0" aria-controls="example2" rowspan="1" colspan="1" aria-label="date from: activate to sort column ascending">From</th>
-                <th width="20%" class="sorting" tabindex="0" aria-controls="example2" rowspan="1" colspan="1" aria-label="date to: activate to sort column ascending">To</th>
+                <!-- <th width="20%" class="sorting" tabindex="0" aria-controls="example2" rowspan="1" colspan="1" aria-label="date from: activate to sort column ascending">From</th>
+                <th width="20%" class="sorting" tabindex="0" aria-controls="example2" rowspan="1" colspan="1" aria-label="date to: activate to sort column ascending">To</th> -->
                 <th width="20%" class="sorting" tabindex="0" aria-controls="example2" rowspan="1" colspan="1" aria-label="team lead: activate to sort column ascending">Team Lead</th>
                 <th tabindex="0" aria-controls="example2" rowspan="1" colspan="2" aria-label="Action: activate to sort column ascending">Action</th>
               </tr>
@@ -44,8 +44,6 @@
             @foreach ($accounts as $account)
                 <tr role="row" class="odd">
                   <td>{{ $account->name }}</td>
-                  <td>{{ date("Y-m-d",strtotime($account->date_from)) }}</td>
-                  <td>{{ date("Y-m-d",strtotime($account->date_to)) }}</td>
                   <td>{{ $account->team_lead }}</td>
                   <td>
                     <form class="row" method="POST" action="{{ route('accounts.destroy', ['id' => $account->id]) }}" onsubmit = "return confirm('Are you sure?')">
