@@ -60,6 +60,33 @@
                             @endif
                             </div>
                         </div>
+                        <div class="form-group{{ $errors->has('shift_id') ? ' has-error' : '' }}">
+                            <label class="col-md-4 control-label">Shift</label>
+                            <div class="col-md-6">
+                                <select class="form-control" name="shift_id" required>
+                                    <option value="">Please select your shift</option>
+                                    @foreach ($shifts as $shift)
+                                        <option {{$acctTL->shift_id == $shift->id ? 'selected' : ''}} value="{{$shift->id}}">{{ date("h:i A",strtotime($shift->start)) }} - {{  date("h:i A",strtotime($shift->end)) }}</option>
+                                    @endforeach
+                                </select>
+
+                                @if ($errors->has('shift_id'))
+                                    <span class="help-block">
+                                        <strong>{{ $errors->first('shift_id') }}</strong>
+                                    </span>
+                                @endif
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-md-4 control-label">Restday</label>
+                            <div class="col-md-6">
+                                <!-- <ul class="restday"> -->
+                                @foreach ($days as $day)
+                                    <input {{ in_array($day->day_id, explode(",",$acctTL->restday_ids)) ? 'checked' : '' }} name="restdays[]" type="checkbox" value="{{$day->day_id}}"><span>{{$day->day}}</span><br>
+                                @endforeach
+                                </ul>
+                            </div>
+                        </div>
                         <div class="form-group">
                             <label class="col-md-4 control-label">Team Lead</label>
                             <div class="col-md-6">
@@ -69,6 +96,22 @@
                                         <option {{$acctTL->team_lead_id == $tl->id ? 'selected' : ''}} value="{{$tl->id}}">{{$tl->name}}</option>
                                     @endforeach
                                 </select>
+                            </div>
+                        </div>
+                        <div class="form-group{{ $errors->has('agent_ids') ? ' has-error' : '' }}">
+                            <label class="col-md-4 control-label">Agents</label>
+                            <div class="col-md-6">
+                                <select id="agent-ids" class="select2 form-control js-agents" name="agent_ids[]" required multiple="multiple" data-placeholder="Select your agent">
+                                   @foreach ($agents as $agent)
+                                        <option {{ in_array($agent->id, explode(",",$acctTL->agent_ids)) ? 'selected' : '' }} value="{{$agent->id}}">{{$agent->name}}</option>
+                                    @endforeach
+                                </select>
+
+                                @if ($errors->has('agent_ids'))
+                                    <span class="help-block">
+                                        <strong>{{ $errors->first('agent_ids') }}</strong>
+                                    </span>
+                                @endif
                             </div>
                         </div>
                         @include('layouts.update-buttons')

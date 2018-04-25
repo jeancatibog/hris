@@ -4,6 +4,9 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use DateTime;
+use DatePeriod;
+use DateInterval;
 use App\AccountsTeamLead;
 use App\Employee;
 use App\Account;
@@ -32,7 +35,8 @@ class AccountsController extends Controller
         $accounts = DB::table('accounts_team_lead AS tl')
         		->leftJoin('account AS a', 'tl.account_id', '=', 'a.id')
         		->leftJoin('employees AS e', 'tl.team_lead_id', '=', 'e.id')
-        		->select('tl.id','a.name','tl.team_lead_id', DB::raw('CONCAT(e.firstname," ",e.lastname)  AS team_lead'))
+                ->leftJoin('shift AS s', 'tl.shift_id', '=', 's.id')
+        		->select('tl.id', 's.name AS shift', 'tl.date_from', 'tl.date_to', 'a.name','tl.team_lead_id', DB::raw('CONCAT(e.firstname," ",e.lastname)  AS team_lead'))
         		->get()->toArray();
         return view('system-mgmt/accounts/index', ['accounts' => $accounts]);
     }
@@ -91,19 +95,60 @@ class AccountsController extends Controller
     public function store(Request $request)
     {
         $this->validateInput($request);
-        echo "<pre>";print_r($request->all());die("here");
-        AccountsTeamLead::create([
-            'account_id'  =>  $request['account_id'],
-            'shift_id'    =>  $request['shift_id'],
-         //    'date_from'		=> 	date('Y-m-d', strtotime($request['date_from'])),
-	        // 'date_to'		=> 	date('Y-m-d', strtotime($request['date_to'])),
+        $agents = $request['agent_ids'];
+        $rd = $request['restdays'];
+        $acctLead = AccountsTeamLead::create([
+            'account_id'  =>    $request['account_id'],
+            'shift_id'    =>    $request['shift_id'],
+            'date_from'		=> 	date('Y-m-d', strtotime($request['date_from'])),
+	        'date_to'		=> 	date('Y-m-d', strtotime($request['date_to'])),
             'restday_ids'  =>   implode($request['restdays'], ","),
-            'team_lead_id' =>  $request['team_lead_id'],
-            'agent_ids'    =>  implode($request['agent_ids'], ",")
+            'team_lead_id' =>   $request['team_lead_id'],
+            'agent_ids'    =>   implode($request['agent_ids'], ",")
         ]);
-        
+        $id = $acctLead->id; 
+        $this->setWorkshift($request['date_from'], $request['date_to'], $request['shift_id'], $agents, $rd, $id);
 
         return redirect()->intended('system-management/accounts');
+    }
+
+    public function setWorkshift($from, $to, $shift, $agents, $rd, $id)
+    {
+        DB::table('employee_workschedule')->where('account_tl_id', $id)->delete();;
+        foreach ($agents as $key => $agentId) {
+            $start = new DateTime($from);
+            $end = new DateTime($to);
+            $oneDay = new DateInterval('P1D');
+            $period = new DatePeriod(
+                    $start,
+                    $oneDay,
+                    $end->add($oneDay)
+            );
+            $all_days = array();$i = 0;
+            foreach($period as $date) {
+                $date = $date->format('Y-m-d');
+                if (in_array($this->getDayId($date), $rd)){
+                    $rdShift = DB::table('shift')->where('is_restday', 1)->select('id')->first();
+                    $shiftId = $rdShift->id;
+                }else {
+                    $shiftId = $shift;
+                }
+
+                $input = [
+                    'employee_id'   =>  $agentId,
+                    'date'          =>  $date,
+                    'shift_id'      =>  $shiftId,
+                    'account_tl_id' => $id
+                ];
+                DB::table('employee_workschedule')->insert($input);
+            }
+        }
+    }
+
+    public function getDayId($date) 
+    {   
+        $day = date('w', strtotime($date));
+        return $day;
     }
 
     /**
@@ -126,12 +171,21 @@ class AccountsController extends Controller
     {
         $accTL = AccountsTeamLead::find($id);
         $accounts = Account::all();
+        $shift = Shift::all();
+        $days = DB::table('day')->get();
     	$leads = DB::table('employees AS e')
     		->leftJoin('employee_setup AS es', 'es.employee_id', '=', 'e.id')
     		->leftJoin('roles AS r', 'es.role_id', '=', 'r.id')
     		->where('r.name', 'Team Lead')
+            ->where('es.account_id', $accTL->account_id)
     		->select('e.id', DB::raw('CONCAT(e.firstname," ",e.lastname)  AS name'))->get();
-        return view('system-mgmt/accounts/edit', ['acctTL' => $accTL, 'accounts' => $accounts, 'teamleads' => $leads]);
+        $agents = DB::table('employees AS e')
+            ->leftJoin('employee_setup AS es', 'es.employee_id', '=', 'e.id')
+            ->leftJoin('roles AS r', 'es.role_id', '=', 'r.id')
+            ->whereIn('r.name', ['Senior Associate', 'Associate'])
+            ->where('es.account_id', $accTL->account_id)
+            ->select('e.id', DB::raw('CONCAT(e.firstname," ",e.lastname)  AS name'))->get()->toArray();
+        return view('system-mgmt/accounts/edit', ['acctTL' => $accTL, 'accounts' => $accounts, 'teamleads' => $leads, 'agents' => $agents, 'shifts' => $shift,'days' => $days]);
     }
 
     /**
@@ -144,15 +198,21 @@ class AccountsController extends Controller
     public function update(Request $request, $id)
     {
         $this->validateInput($request, $id);
+        $agents = $request['agent_ids'];
+        $rd = $request['restdays'];
         $input = [
             'account_id'  =>  $request['account_id'],
+            'shift_id'    =>    $request['shift_id'],
             'date_from'		=> 	date('Y-m-d', strtotime($request['date_from'])),
 	        'date_to'		=> 	date('Y-m-d', strtotime($request['date_to'])),
-            'team_lead_id' =>  $request['team_lead_id']
+            'restday_ids'  =>   implode($request['restdays'], ","),
+            'team_lead_id' =>   $request['team_lead_id'],
+            'agent_ids'    =>   implode($request['agent_ids'], ",")
         ];
         AccountsTeamLead::where('id', $id)
             ->update($input);
         
+        $this->setWorkshift($request['date_from'], $request['date_to'], $request['shift_id'], $agents, $rd, $id);
         return redirect()->intended('system-management/accounts');
     }
 
@@ -203,7 +263,7 @@ class AccountsController extends Controller
 
     private function validateInput($request, $id=NULL)
     {
-    	/*$from = $request['date_from'];
+    	$from = $request['date_from'];
     	$to = $request['date_to'];
         $message = [
 			'overlap' => 'Schedule for the account team lead overlaps another schedule'
@@ -225,13 +285,13 @@ class AccountsController extends Controller
         	$overlaps = true;
         } else {
         	$overlaps = false;
-        }*/
+        }
         $this->validate($request, [
             'account_id'	=>  'required',
             'shift_id'      =>  'required',
-         //    'date_from'		=>	'required|date',
-	        // 'date_to'		=>	'required|date|after_or_equal:date_from|'. ($overlaps ? 'overlap' : ''),
+            'date_from'		=>	'required|date',
+	        'date_to'		=>	'required|date|after_or_equal:date_from|'. ($overlaps ? 'overlap' : ''),
             'team_lead_id'	=>  'required'
-        ]);
+        ], $message);
     }
 }

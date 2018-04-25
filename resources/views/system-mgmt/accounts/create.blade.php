@@ -27,35 +27,7 @@
 							  	@endif
                             </div>
                         </div>
-                        <div class="form-group{{ $errors->has('shift_id') ? ' has-error' : '' }}">
-                            <label class="col-md-4 control-label">Shift</label>
-                            <div class="col-md-6">
-                                <select class="form-control" name="shift_id" required>
-                                    <option value="">Please select your shift</option>
-                                    @foreach ($shifts as $shift)
-                                        <option value="{{$shift->id}}">{{ date("h:i A",strtotime($shift->start)) }} - {{  date("h:i A",strtotime($shift->end)) }}</option>
-                                    @endforeach
-                                </select>
-
-                                @if ($errors->has('shift_id'))
-                                    <span class="help-block">
-                                        <strong>{{ $errors->first('shift_id') }}</strong>
-                                    </span>
-                                @endif
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label class="col-md-4 control-label">Restday</label>
-                            <div class="col-md-6">
-                                <!-- <ul class="restday"> -->
-                                @foreach ($days as $day)
-                                    <input name="restdays[]" type="checkbox" value="{{$day->day_id}}"><span>{{$day->day}}</span><br>
-                                @endforeach
-                                </ul>
-                            </div>
-                            
-                        </div>
-                        <!-- <div class="form-group{{ $errors->has('date_from') ? ' has-error' : '' }}">
+                        <div class="form-group{{ $errors->has('date_from') ? ' has-error' : '' }}">
                             <label class="col-md-4 control-label">Date From</label>
                             <div class="col-md-6">
                                 <div class="input-group date">
@@ -86,7 +58,35 @@
                                 </span>
                             @endif
                             </div>
-                        </div> -->
+                        </div>
+                        <div class="form-group{{ $errors->has('shift_id') ? ' has-error' : '' }}">
+                            <label class="col-md-4 control-label">Shift</label>
+                            <div class="col-md-6">
+                                <select class="form-control" name="shift_id" required>
+                                    <option value="">Please select your shift</option>
+                                    @foreach ($shifts as $shift)
+                                        <option value="{{$shift->id}}">{{ date("h:i A",strtotime($shift->start)) }} - {{  date("h:i A",strtotime($shift->end)) }}</option>
+                                    @endforeach
+                                </select>
+
+                                @if ($errors->has('shift_id'))
+                                    <span class="help-block">
+                                        <strong>{{ $errors->first('shift_id') }}</strong>
+                                    </span>
+                                @endif
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-md-4 control-label">Restday</label>
+                            <div class="col-md-6">
+                                <!-- <ul class="restday"> -->
+                                @foreach ($days as $day)
+                                    <input name="restdays[]" type="checkbox" value="{{$day->day_id}}"><span>{{$day->day}}</span><br>
+                                @endforeach
+                                </ul>
+                            </div>
+                            
+                        </div>
                         <div class="form-group">
                             <label class="col-md-4 control-label">Team Lead</label>
                             <div class="col-md-6">
@@ -98,7 +98,6 @@
                                 </select>
                             </div>
                         </div>
-
                         <div class="form-group{{ $errors->has('agent_ids') ? ' has-error' : '' }}">
                             <label class="col-md-4 control-label">Agents</label>
                             <div class="col-md-6">
