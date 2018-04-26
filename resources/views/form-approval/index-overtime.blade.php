@@ -2,12 +2,13 @@
   <thead>
     <tr role="row">
       <th width="1%" tabindex="0" aria-controls="example2" rowspan="1" colspan="1"></th>
-      <th width="20%" class="sorting" tabindex="0" aria-controls="example2" rowspan="1" colspan="1" aria-label="date from: activate to sort column ascending">Employee Name</th>
-      <th width="8%" class="sorting" tabindex="0" aria-controls="example2" rowspan="1" colspan="1" aria-label="date from: activate to sort column ascending">Date</th>
+      <th width="17%" class="sorting" tabindex="0" aria-controls="example2" rowspan="1" colspan="1" aria-label="date from: activate to sort column ascending">Employee Name</th>
+      <th width="12%" class="sorting" tabindex="0" aria-controls="example2" rowspan="1" colspan="1" aria-label="name: activate to sort column ascending">Role</th>
+      <th width="7%" class="sorting" tabindex="0" aria-controls="example2" rowspan="1" colspan="1" aria-label="date from: activate to sort column ascending">Date</th>
       <th width="14%" class="sorting" tabindex="0" aria-controls="example2" rowspan="1" colspan="1" aria-label="datetime start: activate to sort column ascending">Actual Start</th>
       <th width="14%" class="sorting" tabindex="0" aria-controls="example2" rowspan="1" colspan="1" aria-label="datetime end: activate to sort column ascending">Actual End</th>
-      <th width="17%" class="sorting" tabindex="0" aria-controls="example2" rowspan="1" colspan="1" aria-label="reason: activate to sort column ascending">Reason</th>
-      <th width="10%" class="sorting" tabindex="0" aria-controls="example2" rowspan="1" colspan="1" aria-label="status: activate to sort column ascending">Status</th>
+      <th width="15%" class="sorting" tabindex="0" aria-controls="example2" rowspan="1" colspan="1" aria-label="reason: activate to sort column ascending">Reason</th>
+      <th width="9%" class="sorting" tabindex="0" aria-controls="example2" rowspan="1" colspan="1" aria-label="status: activate to sort column ascending">Status</th>
       <th tabindex="0" aria-controls="example2" rowspan="1" colspan="2" aria-label="Action: activate to sort column ascending">Action</th>
     </tr>
   </thead>
@@ -22,6 +23,7 @@
           <td></td>
         @endif
         <td>{{ $ot->name }}</td>
+        <td>{{ $ot->role }}</td>
         <td>{{ $ot->date }}</td>
         <td>{{ date("Y-m-d h:i A", strtotime($ot->datetime_from)) }}</td>
         <td>{{ date("Y-m-d h:i A", strtotime($ot->datetime_to)) }}</td>

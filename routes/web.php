@@ -84,3 +84,4 @@ Route::get('timekeeping/process', 'TimekeepingController@process')->name('timeke
 Route::post('timekeeping/processing', 'TimekeepingController@processing')->name('timekeeping.processing');
 
 Route::resource('form-approval','FormApprovalController');
+Route::post('form-approval/search', 'FormApprovalController@search')->name('form-approval.search');

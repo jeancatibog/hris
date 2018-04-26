@@ -31,7 +31,7 @@ class FormApprovalController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index($search=NULL)
     {
         $employee_id = Auth::user()->employee_id;
         $employee_details = DB::table('employees AS e')
@@ -53,33 +53,42 @@ class FormApprovalController extends Controller
             ->leftJoin('form_status AS fs', 'el.form_status_id', '=', 'fs.id')
             ->leftJoin('form_type AS ft', 'el.form_type_id', '=', 'ft.id')
             ->leftJoin('roles AS r', 'es.role_id', '=', 'r.id')
-            ->leftJoin('employee_workschedule AS ew', function($join)
+            /*->leftJoin('employee_workschedule AS ew', function($join)
             {
                 $join->on('el.date_from', '=', 'ew.date');
                 $join->on('el.employee_id','=','ew.employee_id');
-            })
+            })*/
             ->where(function ($query) use ($acct_sched, $employee_details, $employee_id) {
                 if (count($acct_sched) > 0) {
                     foreach ($acct_sched as $sched) {
                         $query->orWhereBetween('el.date_from',[$sched->date_from, $sched->date_to]);
+                        $query->whereIn('el.employee_id',explode(",", $sched->agent_ids));
+                        $query->where('es.account_id', $sched->account_id);
                     }
 
-                    $query->where('es.account_id', $employee_details->account_id);
                 } else {
-                    $query->where('es.approver_id', $employee_id);
+                    $query->where('es.approver_id', $employee_id); // default approver
                 }
             })
             ->where('fs.status', 'For Approval')
             ->where('es.team_id', $employee_details->team_id)
             ->where('el.employee_id', '!=', $employee_id); //exclude own filed forms
         if ($employee_details->role == 'Team Lead') {
-            $leave_form->whereNotIn('r.name', ['Team Lead', 'Supervisor', 'Manager']); //exclude all user with roles higher than associate
+            $leave_form->whereIn('r.name', ['Associate', 'Senior Associate']); // for lower role only
         } elseif ($employee_details->role == 'Supervisor') {
-            $leave_form->where('r.name', 'Team Lead');
+            $leave_form->whereIn('r.name', ['Associate', 'Senior Associate', 'Team Lead']); // will add Assos and Sr. Assoc if approver is absent
         } elseif ($employee_details->role == 'Manager') {
-            $leave_form->where('r.name', 'Supervisor');
+            $leave_form->whereIn('r.name', ['Assistant Manager', 'Supervisor', 'Team Lead', 'Associate', 'Senior Associate']); // will add TL and Assoc and Sr. Assoc if approver is absent
+        }elseif ($employee_details->role == 'Director') {
+            $leave_form->where('r.name', 'Manager');
+        }elseif ($employee_details->role == 'President') {
+            $leave_form->whereIn('r.name', ['Manager', 'Director']);
         }
-        $leave_form->select(DB::raw('CONCAT(e.firstname," ",e.lastname)  AS name'), 'el.id', 'ft.form', 'fs.status', 'el.date_from', 'el.date_to', 'el.reason');
+        if (!is_null($search)) {
+            $leave_form->where('r.name', $search);
+        }
+        $leave_form->orderBy('r.id', 'asc');
+        $leave_form->select(DB::raw('CONCAT(e.firstname," ",e.lastname)  AS name'), 'el.id', 'ft.form', 'fs.status', 'el.date_from', 'el.date_to', 'el.reason', 'r.name as role');
 
         $leave = $leave_form->get()->toArray();
         // echo "<pre>";print_r($leave);die("here");
@@ -91,19 +100,19 @@ class FormApprovalController extends Controller
             ->leftJoin('employee_setup AS es', 'ot.employee_id', '=', 'es.employee_id')
             ->leftJoin('form_status AS fs', 'ot.form_status_id', '=', 'fs.id')
             ->leftJoin('roles AS r', 'es.role_id', '=', 'r.id')
-            ->leftJoin('employee_workschedule AS ew', function($join)
+            /*->leftJoin('employee_workschedule AS ew', function($join)
             {
                 $join->on('ot.date', '=', 'ew.date');
                 $join->on('ot.employee_id','=','ew.employee_id');
-            })
-            ->leftJoin('shift AS s', 'ew.shift_id', '=', 's.id')
+            })*/
+            ->leftJoin('shift AS s', 'es.shift_id', '=', 's.id')
             ->where(function ($query) use ($acct_sched, $employee_details, $employee_id) {
                 if (count($acct_sched) > 0) {
                     foreach ($acct_sched as $sched) {
                         $query->orWhereBetween('ot.date',[$sched->date_from, $sched->date_to]);
+                        $query->whereIn('ot.employee_id',explode(",", $sched->agent_ids));
+                        $query->where('es.account_id', $sched->account_id);
                     }
-
-                    $query->where('es.account_id', $employee_details->account_id);
                 } else {
                     $query->where('es.approver_id', $employee_id);
                 }
@@ -112,13 +121,18 @@ class FormApprovalController extends Controller
             ->where('es.team_id', $employee_details->team_id)
             ->where('ot.employee_id', '!=', $employee_id); //exclude own filed forms
         if ($employee_details->role == 'Team Lead') {
-            $ot_form->whereNotIn('r.name', ['Team Lead', 'Supervisor', 'Manager']); //exclude all user with roles higher than associate
+            $ot_form->whereIn('r.name', ['Associate', 'Senior Associate']); // for lower role only
         } elseif ($employee_details->role == 'Supervisor') {
-            $ot_form->where('r.name', 'Team Lead');
+            $ot_form->whereIn('r.name', ['Associate', 'Senior Associate', 'Team Lead']); // will add Assos and Sr. Assoc if approver is absent
         } elseif ($employee_details->role == 'Manager') {
-            $ot_form->where('r.name', 'Supervisor');
+            $ot_form->whereIn('r.name', ['Assistant Manager', 'Supervisor', 'Team Lead', 'Associate', 'Senior Associate']); // will add TL and Assoc and Sr. Assoc if approver is absent
+        }elseif ($employee_details->role == 'Director') {
+            $ot_form->where('r.name', 'Manager');
+        }elseif ($employee_details->role == 'President') {
+            $ot_form->whereIn('r.name', ['Manager', 'Director']);
         }
-        $ot_form->select(DB::raw('CONCAT(e.firstname," ",e.lastname)  AS name'), 'ot.id', 'fs.status', 'ot.date', 'ot.datetime_from', 'ot.datetime_to', 'ot.reason', 's.is_restday');
+        $ot_form->orderBy('r.id', 'asc');
+        $ot_form->select(DB::raw('CONCAT(e.firstname," ",e.lastname)  AS name'), 'ot.id', 'fs.status', 'ot.date', 'ot.datetime_from', 'ot.datetime_to', 'ot.reason', 's.is_restday', 'r.name as role');
 
         $ot = $ot_form->get()->toArray();
 
@@ -127,16 +141,17 @@ class FormApprovalController extends Controller
             ->leftJoin('employee_setup AS es', 'obt.employee_id', '=', 'es.employee_id')
             ->leftJoin('form_status AS fs', 'obt.form_status_id', '=', 'fs.id')
             ->leftJoin('roles AS r', 'es.role_id', '=', 'r.id')
-            ->leftJoin('employee_workschedule AS ew', function($join)
+            /*->leftJoin('employee_workschedule AS ew', function($join)
             {
                 $join->on('obt.date_from', '=', 'ew.date');
                 $join->on('obt.employee_id','=','ew.employee_id');
-            })
-            ->leftJoin('shift AS s', 'ew.shift_id', '=', 's.id')
+            })*/
             ->where(function ($query) use ($acct_sched, $employee_details, $employee_id) {
                 if (count($acct_sched) > 0) {
                     foreach ($acct_sched as $sched) {
                         $query->orWhereBetween('obt.date_from',[$sched->date_from, $sched->date_to]);
+                        $query->whereIn('obt.employee_id',explode(",", $sched->agent_ids));
+                        $query->where('es.account_id', $sched->account_id);
                     }
 
                     $query->where('es.account_id', $employee_details->account_id);
@@ -148,13 +163,18 @@ class FormApprovalController extends Controller
             ->where('es.team_id', $employee_details->team_id)
             ->where('obt.employee_id', '!=', $employee_id); //exclude own filed forms
         if ($employee_details->role == 'Team Lead') {
-            $obt_form->whereNotIn('r.name', ['Team Lead', 'Supervisor', 'Manager']); //exclude all user with roles higher than associate
+            $obt_form->whereIn('r.name', ['Associate', 'Senior Associate']); // for lower role only
         } elseif ($employee_details->role == 'Supervisor') {
-            $obt_form->where('r.name', 'Team Lead');
+            $obt_form->whereIn('r.name', ['Associate', 'Senior Associate', 'Team Lead']); // will add Assos and Sr. Assoc if approver is absent
         } elseif ($employee_details->role == 'Manager') {
-            $obt_form->where('r.name', 'Supervisor');
+            $obt_form->whereIn('r.name', ['Assistant Manager', 'Supervisor', 'Team Lead', 'Associate', 'Senior Associate']); // will add TL and Assoc and Sr. Assoc if approver is absent
+        }elseif ($employee_details->role == 'Director') {
+            $obt_form->where('r.name', 'Manager');
+        }elseif ($employee_details->role == 'President') {
+            $obt_form->whereIn('r.name', ['Manager', 'Director']);
         }
-        $obt_form->select(DB::raw('CONCAT(e.firstname," ",e.lastname)  AS name'), 'obt.id', 'fs.status', 'obt.date_from', 'obt.date_to', 'obt.starttime', 'obt.endtime', 'obt.reason', 'contact_name', 'contact_info', 'contact_position', 'company_to_visit', 'company_location');
+        $obt_form->orderBy('r.id', 'asc');
+        $obt_form->select(DB::raw('CONCAT(e.firstname," ",e.lastname)  AS name'), 'obt.id', 'fs.status', 'obt.date_from', 'obt.date_to', 'obt.starttime', 'obt.endtime', 'obt.reason', 'contact_name', 'contact_info', 'contact_position', 'company_to_visit', 'company_location', 'r.name as role');
 
         $obt = $obt_form->get()->toArray();
 
@@ -163,16 +183,17 @@ class FormApprovalController extends Controller
             ->leftJoin('employee_setup AS es', 'dtrp.employee_id', '=', 'es.employee_id')
             ->leftJoin('form_status AS fs', 'dtrp.form_status_id', '=', 'fs.id')
             ->leftJoin('roles AS r', 'es.role_id', '=', 'r.id')
-            ->leftJoin('employee_workschedule AS ew', function($join)
+            /*->leftJoin('employee_workschedule AS ew', function($join)
             {
                 $join->on('dtrp.date', '=', 'ew.date');
                 $join->on('dtrp.employee_id','=','ew.employee_id');
-            })
-            ->leftJoin('shift AS s', 'ew.shift_id', '=', 's.id')
+            })*/
             ->where(function ($query) use ($acct_sched, $employee_details, $employee_id) {
                 if (count($acct_sched) > 0) {
                     foreach ($acct_sched as $sched) {
                         $query->orWhereBetween('dtrp.date',[$sched->date_from, $sched->date_to]);
+                        $query->whereIn('dtrp.employee_id',explode(",", $sched->agent_ids));
+                        $query->where('es.account_id', $sched->account_id);
                     }
 
                     $query->where('es.account_id', $employee_details->account_id);
@@ -184,13 +205,18 @@ class FormApprovalController extends Controller
             ->where('es.team_id', $employee_details->team_id)
             ->where('dtrp.employee_id', '!=', $employee_id); //exclude own filed forms
         if ($employee_details->role == 'Team Lead') {
-            $dtrp_form->whereNotIn('r.name', ['Team Lead', 'Supervisor', 'Manager']); //exclude all user with roles higher than associate
+            $dtrp_form->whereIn('r.name', ['Associate', 'Senior Associate']); // for lower role only
         } elseif ($employee_details->role == 'Supervisor') {
-            $dtrp_form->where('r.name', 'Team Lead');
+            $dtrp_form->whereIn('r.name', ['Associate', 'Senior Associate', 'Team Lead']); // will add Assos and Sr. Assoc if approver is absent
         } elseif ($employee_details->role == 'Manager') {
-            $dtrp_form->where('r.name', 'Supervisor');
+            $dtrp_form->whereIn('r.name', ['Assistant Manager', 'Supervisor', 'Team Lead', 'Associate', 'Senior Associate']); // will add TL and Assoc and Sr. Assoc if approver is absent
+        }elseif ($employee_details->role == 'Director') {
+            $dtrp_form->where('r.name', 'Manager');
+        }elseif ($employee_details->role == 'President') {
+            $dtrp_form->whereIn('r.name', ['Manager', 'Director']);
         }
-        $dtrp_form->select(DB::raw('CONCAT(e.firstname," ",e.lastname)  AS name'), 'dtrp.id', 'fs.status', 'dtrp.date', 'dtrp.log_type_id', 'dtrp.timelog', 'dtrp.reason');
+        $dtrp_form->orderBy('r.id', 'asc');
+        $dtrp_form->select(DB::raw('CONCAT(e.firstname," ",e.lastname)  AS name'), 'dtrp.id', 'fs.status', 'dtrp.date', 'dtrp.log_type_id', 'dtrp.timelog', 'dtrp.reason', 'r.name as role');
 
         $dtrp = $dtrp_form->get()->toArray();
         
@@ -305,5 +331,34 @@ class FormApprovalController extends Controller
         } 
         
         return redirect()->intended('form-approval');
+    }
+
+    public function search(Request $request) {
+        // $constraints = [
+        //     'name' => $request['name']
+        //     ];
+        $this->index($request['name']);
+        // return view('form-approval/index', ['employees' => $employees, 'searchingVals' => $constraints]);
+    }
+
+    private function doSearchingQuery($constraints) {
+        $query = DB::table('employees')
+        ->leftJoin('city', 'employees.city_id', '=', 'city.id')
+        // ->leftJoin('department', 'employees.department_id', '=', 'department.id')
+        ->leftJoin('province', 'employees.province_id', '=', 'province.id')
+        ->leftJoin('country', 'employees.country_id', '=', 'country.id')
+        // ->leftJoin('division', 'employees.division_id', '=', 'division.id')
+        ->select('employees.firstname as employee_name', 'employees.*');
+        //,'department.name as department_name', 'department.id as department_id', 'division.name as division_name', 'division.id as division_id');
+        $fields = array_keys($constraints);
+        $index = 0;
+        foreach ($constraints as $constraint) {
+            if ($constraint != null) {
+                $query = $query->where($fields[$index], 'like', '%'.$constraint.'%');
+            }
+
+            $index++;
+        }
+        return $query->paginate(5);
     }
 }

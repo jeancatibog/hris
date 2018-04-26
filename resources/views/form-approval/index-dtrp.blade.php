@@ -2,10 +2,11 @@
   <thead>
     <tr role="row">
       <th width="20%" class="sorting" tabindex="0" aria-controls="example2" rowspan="1" colspan="1" aria-label="name: activate to sort column ascending">Employee Name</th>
-      <th width="12%" class="sorting" tabindex="0" aria-controls="example2" rowspan="1" colspan="1" aria-label="date: activate to sort column ascending">Date</th>
-      <th width="10%" class="sorting" tabindex="0" aria-controls="example2" rowspan="1" colspan="1" aria-label="log type: activate to sort column ascending">Type</th>
-      <th width="15%" class="sorting" tabindex="0" aria-controls="example2" rowspan="1" colspan="1" aria-label="timelog: activate to sort column ascending">Time</th>
-      <th width="19%" class="sorting" tabindex="0" aria-controls="example2" rowspan="1" colspan="1" aria-label="reason: activate to sort column ascending">Reason</th>
+      <th width="12%" class="sorting" tabindex="0" aria-controls="example2" rowspan="1" colspan="1" aria-label="name: activate to sort column ascending">Role</th>
+      <th width="10%" class="sorting" tabindex="0" aria-controls="example2" rowspan="1" colspan="1" aria-label="date: activate to sort column ascending">Date</th>
+      <th width="7%" class="sorting" tabindex="0" aria-controls="example2" rowspan="1" colspan="1" aria-label="log type: activate to sort column ascending">Type</th>
+      <th width="10%" class="sorting" tabindex="0" aria-controls="example2" rowspan="1" colspan="1" aria-label="timelog: activate to sort column ascending">Time</th>
+      <th width="17%" class="sorting" tabindex="0" aria-controls="example2" rowspan="1" colspan="1" aria-label="reason: activate to sort column ascending">Reason</th>
       <th width="10%" class="sorting" tabindex="0" aria-controls="example2" rowspan="1" colspan="1" aria-label="status: activate to sort column ascending">Status</th>
       <th tabindex="0" aria-controls="example2" rowspan="1" colspan="2" aria-label="Action: activate to sort column ascending">Action</th>
     </tr>
@@ -14,6 +15,7 @@
   @foreach ($dtrp as $log)
       <tr role="row" class="odd">
         <td>{{ $log->name }}</td>
+        <td>{{ $log->role }}</td>
         <td>{{ $log->date }}</td>
         <td>{{ $log->log_type_id == 1 ? 'Time In' : 'Time Out' }}</td>
         <td>{{ date("Y-m-d h:i A", strtotime($log->timelog)) }}</td>
