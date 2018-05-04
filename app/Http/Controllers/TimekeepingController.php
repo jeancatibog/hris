@@ -343,9 +343,42 @@ class TimekeepingController extends Controller
                     }
                 }
 
+                /* check if there is dtrp apporoved */
+                $dtrp = DB::table('employee_dtrp AS dtrp')
+                    ->leftJoin('employees AS e', 'dtrp.employee_id', '=', 'e.id')
+                    ->leftJoin('employee_setup AS es', 'e.id', 'es.employee_id')
+                    ->where('dtrp.employee_id', $empId)
+                    ->where('dtrp.date', $workdate)
+                    ->where('dtrp.form_status_id', 3)->get()->first();
+
+                if( !empty($dtrp) ) {
+                    if($dtrp->log_type_id == 1) {
+                        $actualIn = $dtrp->timelog;
+                    } else {
+                        $actualOut = $dtrp->timelog;
+                    }
+                }
+
+                /* check if there is OBT approved */
+                $obt = DB::table('employee_obt AS obt')
+                    ->leftJoin('employees AS e', 'obt.employee_id', '=', 'e.id')
+                    ->leftJoin('employee_setup AS es', 'e.id', 'es.employee_id')
+                    ->where('obt.employee_id', $empId)
+                    ->where('obt.date_from', '>=', $workdate)
+                    ->where('obt.date_to', '<=', $workdate)
+                    ->where('obt.form_status_id', 3)->get()->first();
+
+                if( !empty($obt) ) {
+                    $obtIn = $workdate . " " . $obt->starttime;
+                    $obtOut = $workdate . " " . $obt->endtime;
+                    
+                    $actualIn = strtotime($actualIn) < strtotime($obtIn) ? $obtIn : $actualIn;
+                    $actualOut = strtotime($actualOut) < strtotime($obtOut) ? $obtOut : $actualOut;
+                }
+
+
                 // if no computed in and out
-                if (empty($actualIn) && empty($actualOut) && (!$holiday && $isWeekday)) {
-                    /* check if there is dtrp apporoved */
+                if ( (empty($actualIn) || empty($actualOut)) && (!$holiday && $isWeekday)) {
                     $absent = 1;
                 }
 

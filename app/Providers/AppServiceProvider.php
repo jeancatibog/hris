@@ -42,6 +42,12 @@ class AppServiceProvider extends ServiceProvider
         Validator::extend('overlap', function($attribute, $value, $parameters, $validator) {
             return false;
         });
+
+        Validator::extend('no_credit', function($attribute, $value, $parameters, $validator) {
+            if ($parameters[0] >= $parameters[1]) { // balance must be greater than the 
+                return false;
+            } 
+        });
     }
 
     /**

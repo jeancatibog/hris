@@ -40,11 +40,11 @@
                   <div class="form-group{{ $errors->has('timelog') ? ' has-error' : '' }}">
                       <label class="col-md-4 control-label">Actual Time</label>
                       <div class="col-md-6">
-                          <div class="input-group bootstrap-timepicker">
+                          <div class="input-group bootstrap-datetimepicker">
                               <div class="input-group-addon">
                                   <i class="fa fa-clock-o"></i>
                               </div>
-                              <input type="text" value="{{ old('timelog') }}" name="timelog" class="form-control pull-right timepicker" id="timeLog" required>
+                              <input type="text" value="{{ old('timelog') }}" name="timelog" class="form-control pull-right datetimepicker" id="timeLog" required>
                           </div>
                       @if ($errors->has('timelog'))
                           <span class="help-block">

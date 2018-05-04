@@ -146,7 +146,7 @@ class FormsController extends Controller
                 'employee_id'   =>  $request['employee_id'],
                 'date'          =>  $request['date'],
                 'log_type_id'   =>  $request['log_type'],
-                'timelog'       =>  date('H:i:s', strtotime($request['timelog'])),
+                'timelog'       =>  date('Y-m-d H:i:s', strtotime($request['timelog'])),
                 'reason'        =>  $request['reason'],
                 'form_status_id'=>  $status    
             ]);
@@ -327,6 +327,15 @@ class FormsController extends Controller
         $date = $request['date'];
         $holidays = $tkController->getHoliday($date);
         $holiday = (count($holidays) > 0) ? 1 : 0;
+        $empCredits = DB::table('employee_leave_credits')
+            ->where('employee_id', Auth::user()->employee_id)
+            ->where('leave_type_id', $request['form_type_id'])
+            ->where('year', date('Y', strtotime($request['date_from'])))
+            ->get()->first();
+
+        $diff = ((strtotime($request['date_to']) - strtotime($request['date_from']))/(60*60*24))+1;
+        $days = $request['is_halfday'] ? $diff * 0.5 : $diff;
+
         /* check for employee shift */
         $empShift = DB::table('employee_workschedule AS ew')
                 ->leftJoin('shift AS s', 'ew.shift_id', '=', 's.id')
@@ -349,12 +358,15 @@ class FormsController extends Controller
         $shiftStart = $date . " " . $empShift->start;
         $shiftEnd = $dateEnd . " " . $empShift->end;
     	if($type == 'leave') {
+            $message = [
+                'no_credit' => 'Leave credits is not enough'
+            ];
     		$this->validate($request, [
 	        	'form_type_id'	=>	'required',
 	        	'date_from'		=>	'required|date',
-	            'date_to'		=>	'required|date|after_or_equal:date_from',
+	            'date_to'		=>	'required|date|after_or_equal:date_from|no_credit:'.$empCredits->balance.','.$days,
 	            'reason'		=>	'required'
-	        ]);
+	        ], $message);
     	} elseif($type == 'ot') {
     		$message = [
     			'min_ot' => 'The overtime filing must be greater than or equal ' . $policy['min_ot'] . ' minutes',
