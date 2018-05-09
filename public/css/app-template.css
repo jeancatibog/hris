@@ -197,3 +197,8 @@ table.dataTable thead > tr > th {
 .select2-container--default.select2-container--focus .select2-selection--multiple {
   border: solid #6297f9 1px !important;
 }
+
+table.reports thead tr th {
+  text-align: center !important;
+  word-wrap: break-word !important;
+}

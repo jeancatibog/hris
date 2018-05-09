@@ -46,6 +46,9 @@
         @if (in_array($setup->role_id, array(2,3), true))
           <li><a href="{{ url('employee-management') }}"><i class="fa fa-users"></i> <span>Employee Management</span></a></li>
         @endif
+        @if (in_array($setup->role_Id, array(2,3), true))
+          <li><a href="{{ url('reports') }}">Reports</a></li>
+        @endif
         @if (in_array($setup->role_id, array(1,2), true))
           <li class="treeview">
             <a href="#"><i class="fa fa-cogs"></i> <span>System Management</span>
