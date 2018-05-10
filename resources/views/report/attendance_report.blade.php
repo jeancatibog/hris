@@ -40,6 +40,7 @@
               <?php
                 $ot = 0;
                 $tardy = 0;
+                $leave = 0;
                 $old = '';
                 $old_name = '';
                 $day_type = '';
@@ -88,13 +89,15 @@
                   $ot = $record['ot_hours'] + $record['ot_excess'] + $record['ndot'] + $record['ndot_excess'] + $record['legot'] + $record['legot_excess'] + $record['leg_ndot'] + $record['leg_ndot_excess'] + $record['splot'] + $record['splot_excess'] + $record['spl_ndot'] + $record['spl_ndot_excess'];
                   
                   $tardy = $record['late'] + $record['undertime'];
+
+                  $leave = $record['leave_credit'];
                 
                   $ot_sub += $ot;
                   $tardy_sub += $tardy;
                   $leave_sub += $leave;
                   $ot_total += $ot;
                   $tardy_total += $tardy;
-                  $leave_total += $record['leave_credit'];
+                  $leave_total += $leave;
                 ?>
                 <tr role="row" class="odd">
                   <td style="text-align: right;">{{ date("d F Y", strtotime($record['date'])) }}</td>
@@ -106,11 +109,11 @@
                   <td>{{ date("h:i A", strtotime($record['start'])) }} - {{ date("h:i A", strtotime($record['end'])) }}</td>
                   <td>{{ $record['team'] }}</td>
                   <td>{{ $record['account'] }}</td>
-                  <td>{{ $record['absent'] != 1 ? date("h:i A", strtotime($record['time_in'])) : '' }} </td>
-                  <td>{{ $record['absent'] != 1 ? date("h:i A", strtotime($record['time_out'])) : '' }}</td>
+                  <td style="text-align: center;">{{ $record['absent'] != 1 ? date("h:i A", strtotime($record['time_in'])) : '' }} </td>
+                  <td style="text-align: right;">{{ $record['absent'] != 1 ? date("h:i A", strtotime($record['time_out'])) : '' }}</td>
                   <td>{{ $record['ndiff'] }}</td>
-                  <td>{{ !empty($record['ot_start']) ? date("h:i A", strtotime($record['ot_start'])) : '' }}</td>
-                  <td>{{ !empty($record['ot_end']) ? date("h:i A", strtotime($record['ot_end'])) : '' }}</td>
+                  <td style="text-align: center;">{{ !empty($record['ot_start']) ? date("h:i A", strtotime($record['ot_start'])) : '' }}</td>
+                  <td style="text-align: center;">{{ !empty($record['ot_end']) ? date("h:i A", strtotime($record['ot_end'])) : '' }}</td>
                   <td style="text-align: right;">{{ $ot }}</td>
                   <td style="text-align: right;">{{ $tardy }}</td>
                   <td style="text-align: center;">{{ $record['leave_type'] }}</td>

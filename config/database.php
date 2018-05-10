@@ -51,6 +51,9 @@ return [
             'prefix' => '',
             'strict' => true,
             'engine' => null,
+            'modes' => [
+                // 'ONLY_FULL_GROUP_BY',
+            ],
         ],
 
         'pgsql' => [

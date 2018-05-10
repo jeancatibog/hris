@@ -46,10 +46,10 @@ Route::resource('system-management/city', 'CityController');
 Route::post('system-management/city/search', 'CityController@search')->name('city.search');
 Route::get('get-city-list/{provinceId}', 'CityController@loadCities');
 
-Route::get('system-management/report', 'ReportController@index');
-Route::post('system-management/report/search', 'ReportController@search')->name('report.search');
-Route::post('system-management/report/excel', 'ReportController@exportExcel')->name('report.excel');
-Route::post('system-management/report/pdf', 'ReportController@exportPDF')->name('report.pdf');
+Route::get('report', 'ReportController@index');
+Route::post('report/search', 'ReportController@search')->name('report.search');
+Route::post('report/excel', 'ReportController@exportExcel')->name('report.excel');
+// Route::post('report/pdf', 'ReportController@exportPDF')->name('report.pdf');
 
 Route::get('avatars/{name}', 'EmployeeManagementController@load');
 

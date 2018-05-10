@@ -64,9 +64,8 @@
               <li><a href="{{ url('system-management/country') }}">Country</a></li>
               <li><a href="{{ url('system-management/province') }}">Province</a></li>
               <li><a href="{{ url('system-management/city') }}">City</a></li>
-              <li><a href="{{ url('system-management/report') }}">Report</a></li>
             </ul>
-          </li>Ti
+          </li>
         @endif
         @if (in_array($setup->role_id, array(1,2), true))
           <li><a href="{{ url('user-management') }}"><i class="fa fa-user"></i> <span>User management</span></a></li>
@@ -85,6 +84,9 @@
               <li><a href="{{ url('timekeeping/process') }}"><i class="fa fa-cog fa-spinner"></i><span>Processing</span></a></li>
             </ul>
           </li>
+        @endif
+        @if (in_array($setup->role_id, array(1,2), true))
+          <li><a href="{{ url('report') }}"><i class="fa fa-line-chart"></i>Report</a></li>
         @endif
       </ul>
       <!-- /.sidebar-menu -->

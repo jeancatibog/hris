@@ -11,8 +11,8 @@
             <thead style="word-wrap: break-word;">
               <tr role="rows">
                 <th colspan="2" style="text-align: center;"></th>
-                <th colspan="3" style="text-align: center;">Tardiness</th>
-                <th colspan="1" style="text-align: center;">Absent/UL</th>
+                <th style="text-align: center;">Tardiness</th>
+                <th style="text-align: center;">Absent/UL</th>
               </tr>
               <tr role="rows">
                 <th width="15%" style="text-align: center;">Ee number</th>
@@ -29,13 +29,14 @@
                 
               @foreach ($data as $key => $record)
                 <?php
-                  $tardy_total += $record['tardy'];
+                  $tardy = number_format($record['late'], 2, '.', '') + number_format($record['undertime'], 2, '.','');
+                  $tardy_total += $tardy;
                   $absent_total += $record['absent'];
                 ?>
                 <tr role="row" class="odd">
                   <td style="text-align: center;">{{ $record['employee_number'] }}</td>
                   <td>{{ $record['employee_name'] }}</td>
-                  <td style="text-align: center;">{{ $record['tardy'] }}</td>
+                  <td style="text-align: right;">{{ $tardy }}</td>
                   <td style="text-align: right;">{{ $record['absent'] }}</td>>
                 </tr>
               @endforeach

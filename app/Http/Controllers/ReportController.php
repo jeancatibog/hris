@@ -35,12 +35,12 @@ class ReportController extends Controller
         ];
 
         $employees = $this->getHiredEmployees($constraints);
-        return view('system-mgmt/report/index', ['employees' => $employees, 'searchingVals' => $constraints]);
+        return view('report/index', ['employees' => $employees, 'searchingVals' => $constraints]);
     }
 
     public function exportExcel(Request $request) {
         $this->prepareExportingData($request)->export('xls');
-        redirect()->intended('system-management/report');
+        redirect()->intended('report');
     }
 
     /*public function exportPDF(Request $request) {
@@ -62,7 +62,7 @@ class ReportController extends Controller
             $data = $this->getExportingAttendanceData(['from'=> $request->date_from, 'to' => $request->date_to]);
         } elseif ($request->report_id == 2) {
             $report = 'Overtime Report';
-            // $data = $this->getExportingOvertimeData(['from'=> $request->date_from, 'to' => $request->date_to]);
+            $data = $this->getExportingOvertimeData(['from'=> $request->date_from, 'to' => $request->date_to]);
         } elseif ($request->report_id == 3) {
             $report = 'Tardiness Report';
             $data = $this->getExportingTardinessData(['from'=> $request->date_from, 'to' => $request->date_to]);
@@ -73,7 +73,7 @@ class ReportController extends Controller
 
         
 
-        return Excel::create('Time and Attendance Report '. $request['date_from'].'_to_'.$request['date_to'], function($excel) use($data, $request, $author, $report) {
+        return Excel::create($report . $request['date_from'].'_to_'.$request['date_to'], function($excel) use($data, $request, $author, $report) {
 
             // Set the title
             $excel->setTitle('List of hired employees from '. $request['from'].' to '. $request['to']);
@@ -125,7 +125,7 @@ class ReportController extends Controller
 
                 $sheet->fromArray($data);*/
                 // echo "<pre>";print_r(strtolower(str_replace(" ", "_", $report)));die("here");
-                $sheet->loadView('system-mgmt/report/'.strtolower(str_replace(" ", "_", $report)), array('data' => $data, 'report'=> $report, 'range' => $request));
+                $sheet->loadView('report/'.strtolower(str_replace(" ", "_", $report)), array('data' => $data, 'report'=> $report, 'range' => $request));
             });
         });
     }
@@ -149,7 +149,72 @@ class ReportController extends Controller
         return $employees;
     }
 
-    private function getExportingAttendanceData($constraints) {
+    private function getExportingAttendanceData($constraints)
+    {
+        $query = DB::table('tk_employee_dtr_summary AS dtr')
+            ->leftJoin('employees AS e', 'dtr.employee_id', '=', 'e.id')
+            ->leftJoin('employee_setup AS es', 'e.id', '=', 'es.employee_id')
+            ->leftJoin('roles AS r', 'es.role_id', '=', 'r.id')
+            ->leftJoin('shift AS s', 'dtr.shift_id', '=', 's.id')
+            ->leftJoin('account AS a', 'es.account_id', '=', 'a.id')
+            ->leftJoin('team AS t', 'es.team_id', '=', 't.id')
+            ->leftJoin('employee_overtime AS ot', function($join) {
+                $join->on('dtr.employee_id', '=', 'ot.employee_id');
+                $join->on('dtr.date', '=', 'ot.date');
+            })
+            ->leftJoin('employee_leave_dates AS eld', 'eld.date', '=', 'dtr.date')
+            ->leftJoin('employee_leaves AS el', function($join) {
+                $join->on('eld.employee_leave_id', '=', 'el.id');
+                $join->on('dtr.employee_id', '=', 'el.employee_id');
+            })
+            ->where('dtr.date', '>=', $constraints['from'])
+            ->where('dtr.date', '<=', $constraints['to'])
+            ->select('e.employee_number', DB::raw('CONCAT(e.firstname," ",e.lastname)  AS employee_name'), 'r.name AS role', 'a.name AS account', 't.name AS team', 's.start', 's.end', 'dtr.*', 'ot.datetime_from AS ot_start', 'ot.datetime_to AS ot_end', 'eld.leave_credit')
+            ->orderBy('e.employee_number')
+            ->orderBy('dtr.date')
+            ->groupBy('dtr.employee_id', 'dtr.date')
+            ->get()
+            ->map(function ($item, $key) {
+                return (array) $item;
+            })
+            ->all();
+        return $query;    
+    }
+
+    private function getExportingOvertimeData($constraints)
+    {
+        $query = DB::table('tk_employee_dtr_summary AS dtr')
+            ->leftJoin('employees AS e', 'dtr.employee_id', '=', 'e.id')
+            ->leftJoin('employee_setup AS es', 'e.id', '=', 'es.employee_id')
+            ->leftJoin('roles AS r', 'es.role_id', '=', 'r.id')
+            ->leftJoin('shift AS s', 'dtr.shift_id', '=', 's.id')
+            ->leftJoin('account AS a', 'es.account_id', '=', 'a.id')
+            ->leftJoin('team AS t', 'es.team_id', '=', 't.id')
+            ->leftJoin('employee_overtime AS ot', function($join) {
+                $join->on('dtr.employee_id', '=', 'ot.employee_id');
+                $join->on('dtr.date', '=', 'ot.date');
+            })
+            ->leftJoin('employee_leave_dates AS eld', 'eld.date', '=', 'dtr.date')
+            ->leftJoin('employee_leaves AS el', function($join) {
+                $join->on('eld.employee_leave_id', '=', 'el.id');
+                $join->on('dtr.employee_id', '=', 'el.employee_id');
+            })
+            ->where('dtr.date', '>=', $constraints['from'])
+            ->where('dtr.date', '<=', $constraints['to'])
+            ->select('e.employee_number', DB::raw('CONCAT(e.firstname," ",e.lastname)  AS employee_name'), 'r.name AS role', 'a.name AS account', 't.name AS team', 's.start', 's.end', 'dtr.*', 'ot.datetime_from AS ot_start', 'ot.datetime_to AS ot_end', 'eld.leave_credit')
+            ->orderBy('e.employee_number')
+            ->orderBy('dtr.date')
+            ->groupBy('dtr.employee_id', 'dtr.date')
+            ->get()
+            ->map(function ($item, $key) {
+                return (array) $item;
+            })
+            ->all();
+        return $query;    
+    }
+
+    private function getExportingLeaveData($constraints)
+    {
         $query = DB::table('tk_employee_dtr_summary AS dtr')
             ->leftJoin('employees AS e', 'dtr.employee_id', '=', 'e.id')
             ->leftJoin('employee_setup AS es', 'e.id', '=', 'es.employee_id')
@@ -179,44 +244,15 @@ class ReportController extends Controller
         return $query;    
     }
 
-    private function getExportingLeaveData($constraints) {
-        $query = DB::table('tk_employee_dtr_summary AS dtr')
-            ->leftJoin('employees AS e', 'dtr.employee_id', '=', 'e.id')
-            ->leftJoin('employee_setup AS es', 'e.id', '=', 'es.employee_id')
-            ->leftJoin('roles AS r', 'es.role_id', '=', 'r.id')
-            ->leftJoin('shift AS s', 'dtr.shift_id', '=', 's.id')
-            ->leftJoin('account AS a', 'es.account_id', '=', 'a.id')
-            ->leftJoin('team AS t', 'es.team_id', '=', 't.id')
-            ->leftJoin('employee_overtime AS ot', function($join) {
-                $join->on('dtr.employee_id', '=', 'ot.employee_id');
-                $join->on('dtr.date', '=', 'ot.date');
-            })
-            ->leftJoin('employee_leave_dates AS eld', 'eld.date', '=', 'dtr.date')
-            ->leftJoin('employee_leaves AS el', function($join) {
-                $join->on('eld.employee_leave_id', '=', 'el.id');
-                $join->on('dtr.employee_id', '=', 'el.employee_id');
-            })
-            ->where('dtr.date', '>=', $constraints['from'])
-            ->where('dtr.date', '<=', $constraints['to'])
-            ->select('e.employee_number', DB::raw('CONCAT(e.firstname," ",e.lastname)  AS employee_name'), 'r.name AS role', 'a.name AS account', 't.name AS team', 's.start', 's.end', 'dtr.*', 'ot.datetime_from AS ot_start', 'ot.datetime_to AS ot_end', 'eld.leave_credit')
-            ->orderBy('e.employee_number')
-            ->orderBy('dtr.date')
-            ->get()
-            ->map(function ($item, $key) {
-                return (array) $item;
-            })
-            ->all();
-        return $query;    
-    }
-
-    private function getExportingTardinessData($constraints) {
+    private function getExportingTardinessData($constraints)
+    {
         // DB::enableQueryLog();
         $query = DB::table('tk_employee_dtr_summary AS dtr')
             ->leftJoin('employees AS e', 'dtr.employee_id', '=', 'e.id')
             ->leftJoin('employee_setup AS es', 'e.id', '=', 'es.employee_id')
             ->where('dtr.date', '>=', $constraints['from'])
             ->where('dtr.date', '<=', $constraints['to'])
-            ->select('e.employee_number', DB::raw('CONCAT(e.firstname," ",e.lastname)  AS employee_name'), DB::raw('SUM(dtr.late + dtr.undertime)  AS tardy'), DB::raw('SUM(dtr.absent)  AS absent'))
+            ->select('e.employee_number', DB::raw('CONCAT(e.firstname," ",e.lastname)  AS employee_name'), DB::raw('SUM(dtr.late)  AS late'), DB::raw('SUM(dtr.undertime) AS undertime'), DB::raw('SUM(dtr.absent)  AS absent'))
             ->groupBy('dtr.employee_id')
             ->get()
             ->map(function ($item, $key) {
