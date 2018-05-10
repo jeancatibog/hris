@@ -185,23 +185,13 @@ class ReportController extends Controller
     {
         $query = DB::table('tk_employee_dtr_summary AS dtr')
             ->leftJoin('employees AS e', 'dtr.employee_id', '=', 'e.id')
-            ->leftJoin('employee_setup AS es', 'e.id', '=', 'es.employee_id')
-            ->leftJoin('roles AS r', 'es.role_id', '=', 'r.id')
-            ->leftJoin('shift AS s', 'dtr.shift_id', '=', 's.id')
-            ->leftJoin('account AS a', 'es.account_id', '=', 'a.id')
-            ->leftJoin('team AS t', 'es.team_id', '=', 't.id')
             ->leftJoin('employee_overtime AS ot', function($join) {
                 $join->on('dtr.employee_id', '=', 'ot.employee_id');
                 $join->on('dtr.date', '=', 'ot.date');
             })
-            ->leftJoin('employee_leave_dates AS eld', 'eld.date', '=', 'dtr.date')
-            ->leftJoin('employee_leaves AS el', function($join) {
-                $join->on('eld.employee_leave_id', '=', 'el.id');
-                $join->on('dtr.employee_id', '=', 'el.employee_id');
-            })
             ->where('dtr.date', '>=', $constraints['from'])
             ->where('dtr.date', '<=', $constraints['to'])
-            ->select('e.employee_number', DB::raw('CONCAT(e.firstname," ",e.lastname)  AS employee_name'), 'r.name AS role', 'a.name AS account', 't.name AS team', 's.start', 's.end', 'dtr.*', 'ot.datetime_from AS ot_start', 'ot.datetime_to AS ot_end', 'eld.leave_credit')
+            ->select('e.employee_number', DB::raw('CONCAT(e.firstname," ",e.lastname)  AS employee_name'), 'dtr.*')
             ->orderBy('e.employee_number')
             ->orderBy('dtr.date')
             ->groupBy('dtr.employee_id', 'dtr.date')

@@ -117,7 +117,7 @@
                   <td style="text-align: right;">{{ $ot }}</td>
                   <td style="text-align: right;">{{ $tardy }}</td>
                   <td style="text-align: center;">{{ $record['leave_type'] }}</td>
-                  <td style="text-align: right;">{{ $record['leave_credit'] }}</td>>
+                  <td style="text-align: right;">{{ $record['leave_credit'] }}</td>
                 </tr>
                 <?php
                   $old = $record['employee_number'];

@@ -37,7 +37,7 @@
                   <td style="text-align: center;">{{ $record['employee_number'] }}</td>
                   <td>{{ $record['employee_name'] }}</td>
                   <td style="text-align: right;">{{ $tardy }}</td>
-                  <td style="text-align: right;">{{ $record['absent'] }}</td>>
+                  <td style="text-align: right;">{{ $record['absent'] }}</td>
                 </tr>
               @endforeach
               <tr>

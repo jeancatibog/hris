@@ -99,29 +99,79 @@
               </tr>
             </thead>
             <tbody>
-              <?php
-                $tardy_total = 0;
-                $absent_total = 0;
-              ?>
-                
               @foreach ($data as $key => $record)
-                <?php
-                  $tardy = number_format($record['late'], 2, '.', '') + number_format($record['undertime'], 2, '.','');
-                  $tardy_total += $tardy;
-                  $absent_total += $record['absent'];
-                ?>
                 <tr role="row" class="odd">
-                  <td style="text-align: center;">{{ $record['employee_number'] }}</td>
-                  <td>{{ $record['employee_name'] }}</td>
-                  <td style="text-align: right;">{{ $tardy }}</td>
-                  <td style="text-align: right;">{{ $record['absent'] }}</td>>
+                    <td style="text-align: center;">{{ $record['employee_number'] }}</td>
+                    <td>{{ $record['employee_name'] }}</td>
+                    @if ($record['day_type'] == 'reg')
+                        <td style="text-align: right;">{{ $record['ot_hours'] }}</td>
+                        <td style="text-align: right;">{{ $record['ndot'] }}</td>
+                        <td></td> <td></td> <td></td> <td></td> <td></td>
+                        <td></td> <td></td> <td></td> <td></td> <td></td>
+                        <td></td> <td></td> <td></td> <td></td> <td></td>
+                        <td></td> <td></td> <td></td> <td></td> <td></td>
+                        <td></td> <td></td> <td></td>
+                    @elseif ($record['day_type'] == 'rd')
+                        <td></td> <td></td>
+                        <td style="text-align: right;">{{ $record['ot_hours'] }}</td>
+                        <td style="text-align: right;">{{ $record['ot_excess'] }}</td>
+                        <td style="text-align: right;">{{ $record['ndot'] }}</td>
+                        <td></td> <td></td> <td></td> <td></td> <td></td>
+                        <td></td> <td></td> <td></td> <td></td> <td></td>
+                        <td></td> <td></td> <td></td> <td></td> <td></td>
+                        <td></td> <td></td> <td></td> <td></td> <td></td>
+                    @eleseif ($record['day_type'] == 'leg')
+                        <td></td> <td></td> <td></td> <td></td> <td></td>
+                        <td style="text-align: right;">{{ $record['legot'] }}</td>
+                        <td style="text-align: right;">{{ $record['leg_ndot'] }}</td>
+                        <td style="text-align: right;">{{ $record['legot_excess'] }}</td>
+                        <td style="text-align: right;">{{ $record['leg_ndot_excess'] }}</td>
+                        <td></td> <td></td> <td></td> <td></td> <td></td>
+                        <td></td> <td></td> <td></td> <td></td> <td></td>
+                        <td></td> <td></td> <td></td> <td></td> <td></td> <td></td>
+                    @elseif ($record['day_type'] == 'legrd')
+                        <td></td> <td></td> <td></td> <td></td> <td></td>
+                        <td></td> <td></td> <td></td> <td></td>
+                        <td style="text-align: right;">{{ $record['legot'] }}</td>
+                        <td style="text-align: right;">{{ $record['leg_ndot'] }}</td>
+                        <td style="text-align: right;">{{ $record['legot_excess'] }}</td>
+                        <td style="text-align: right;">{{ $record['leg_ndot_excess'] }}</td>
+                        <td></td> <td></td> <td></td> <td></td> <td></td>
+                        <td></td> <td></td> <td></td> <td></td> <td></td>
+                        <td></td> <td></td>
+                    @elseif ($record['day_type'] == 'spl')
+                        <td></td> <td></td> <td></td> <td></td> <td></td>
+                        <td></td> <td></td> <td></td> <td></td> <td></td>
+                        <td></td> <td></td> <td></td>
+                        <td style="text-align: right;">{{ $record['splot'] }}</td>
+                        <td style="text-align: right;">{{ $record['spl_ndot'] }}</td>
+                        <td style="text-align: right;">{{ $record['splot_excess'] }}</td>
+                        <td style="text-align: right;">{{ $record['spl_ndot_excess'] }}</td>
+                        <td></td> <td></td> <td></td> <td></td> <td></td>
+                        <td></td> <td></td> <td></td>
+                    @elseif ($record['day_type'] == 'splrd')
+                        <td></td> <td></td> <td></td> <td></td> <td></td>
+                        <td></td> <td></td> <td></td> <td></td> <td></td>
+                        <td></td> <td></td> <td></td> <td></td> <td></td>
+                        <td></td> <td></td>
+                        <td style="text-align: right;">{{ $record['splot'] }}</td>
+                        <td style="text-align: right;">{{ $record['spl_ndot'] }}</td>
+                        <td style="text-align: right;">{{ $record['splot_excess'] }}</td>
+                        <td style="text-align: right;">{{ $record['spl_ndot_excess'] }}</td>
+                        <td></td> <td></td> <td></td> <td></td>
+                    @else <!-- double holiday -->
+                        <td></td> <td></td> <td></td> <td></td> <td></td>
+                        <td></td> <td></td> <td></td> <td></td> <td></td>
+                        <td></td> <td></td> <td></td> <td></td> <td></td>
+                        <td></td> <td></td> <td></td> <td></td> <td></td> <td></td>
+                        <td style="text-align: right;"> - </td>
+                        <td style="text-align: right;"> - </td>
+                        <td style="text-align: right;"> - </td>
+                        <td style="text-align: right;"> - </td>
+                    @endif
+                        <td style="text-align: right;"></td> <!-- total -->
                 </tr>
               @endforeach
-              <tr>
-                <td colspan="2"><b>GRAND TOTAL</b></td>
-                <td>{{  $tardy_total }}</td>
-                <td>{{ $absent_total }}</td>
-              </tr>
             </tbody>
           </table>
         </div>
