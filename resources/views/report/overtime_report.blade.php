@@ -99,7 +99,12 @@
               </tr>
             </thead>
             <tbody>
-              @foreach ($data as $key => $record)
+            <?php $total = 0; $grand_total = 0; ?>
+            @foreach ($data as $key => $record)
+                <?php   
+                    $total = $record['ot_hours'] + $record['ndot'] + $record['ot_excess'] + $record['legot'] + $record['leg_ndot'] + $record['legot_excess'] + $record['leg_ndot_excess'] + $record['splot'] + $record['spl_ndot'] + $record['splot_excess'] + $record['spl_ndot_excess'];
+                    $grand_total += $total;
+                ?>
                 <tr role="row" class="odd">
                     <td style="text-align: center;">{{ $record['employee_number'] }}</td>
                     <td>{{ $record['employee_name'] }}</td>
@@ -169,9 +174,14 @@
                         <td style="text-align: right;"> - </td>
                         <td style="text-align: right;"> - </td>
                     @endif
-                        <td style="text-align: right;"></td> <!-- total -->
+                        <td style="text-align: right;">{{$total}}</td> <!-- total -->
                 </tr>
-              @endforeach
+            @endforeach
+                <br>
+                <tr>
+                    <td><b>TOTAL</b></td>
+                    <td><b>{{$grand_total}}</b></td>
+              </tr>
             </tbody>
           </table>
         </div>
