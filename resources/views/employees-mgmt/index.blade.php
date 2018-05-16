@@ -9,7 +9,12 @@
             <h3 class="box-title">List of employees</h3>
           </div>
           <div class="col-sm-4">
-            <a class="btn btn-primary" href="{{ route('employee-management.create') }}">Add new employee</a>
+            <!-- <a class="btn btn-primary" href="{{ route('employee-management.create') }}">Add new employee</a> -->
+            <form action="{{ route('employee-management.import') }}" method="POST" enctype="multipart/form-data">
+              {{ csrf_field() }}
+              <input type="file" name="import_file" />
+              <button class="btn btn-primary">Import File</button>
+            </form>
           </div>
       </div>
     </div>

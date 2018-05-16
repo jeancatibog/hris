@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Excel;
 use Response;
 use App\Employee;
 use App\City;
@@ -224,5 +225,42 @@ class EmployeeManagementController extends Controller
         }
 
         return $queryInput;
+    }
+
+    public function import(Request $request)
+    {
+        $file = $request->file('import_file');
+        if($file){
+            $path = $file->getRealPath();
+            $data = Excel::load($path, function($reader) {
+            })->get();
+
+            $headers = array (
+                'employee_number'   =>  'employee_number',
+                'last_name'         =>  'lastname',
+                'first_name'        =>  'firstname',
+                'middle_name'       =>  'middlename',
+                'nickname'          =>  'nickname',
+                'date_of_birth'     =>  'birthdate'
+            );
+            // echo "<pre>";print_r($data);die("jere");
+            if(!empty($data) && $data->count()){
+                foreach ($data as $employee) {
+                    foreach ($employee as $details) {
+                        foreach ($details as $key => $value) {
+                            $arr[$headers[$key]] = $value;
+                        }
+                        $insert[] = $arr;
+                    }
+                    // 
+                }
+                echo "<pre>";print_r($insert);die("jere");
+
+                // if(!empty($insert)){
+                //     DB::table('items')->insert($insert);
+                // //  dd('Insert Record successfully.');
+                // }
+            }
+        } 
     }
 }

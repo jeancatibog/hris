@@ -28,6 +28,7 @@ Route::resource('user-management', 'UserManagementController');
 
 Route::resource('employee-management', 'EmployeeManagementController');
 Route::post('employee-management/search', 'EmployeeManagementController@search')->name('employee-management.search');
+Route::post('employee-management/import', 'EmployeeManagementController@import')->name('employee-management.import');
 
 Route::resource('system-management/department', 'DepartmentController');
 Route::post('system-management/department/search', 'DepartmentController@search')->name('department.search');
