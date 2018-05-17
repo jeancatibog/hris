@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Carbon\Carbon;
 use Excel;
 use Response;
 use App\Employee;
@@ -241,14 +242,47 @@ class EmployeeManagementController extends Controller
                 'first_name'        =>  'firstname',
                 'middle_name'       =>  'middlename',
                 'nickname'          =>  'nickname',
-                'date_of_birth'     =>  'birthdate'
+                'date_of_birth'     =>  'birthdate',
+                'place_of_birth'    =>  'place_of_birth',
+                'age'               =>  'age',
+                'gender'            =>  'gender',
+                'civil_status'      =>  'civil_status',
+                'date_of_marriage'  =>  'date_of_marriage',
+                'role_title'        =>  'role_id',
+                'division_id'       =>  'division_id',
+                'team'              =>  'team_id',
+                'account'           =>  'account_id',
+                'direct_manager'    =>  'reports_to_id',
+                'shift_schedule'    =>  'shift_id',
+                'original_hire_date'=>  'original_hired_date',
+                'hire_date'         =>  'hired_date',
+                'regularization_date'   =>  'regularization_date',
+                'last_transfer_date'=>  'last_transfer_date',
+                'last_promotion_date'   =>  'last_promotion_date',
+                'resignation_date'  =>  'resignation_date',
+                'official_last_working_date'    =>  'last_working_date',
+                'actual_last_working_date'  =>  'actual_last_working_date',
+                'reason_of_separation'  =>  'reason_of_separation',
+                'employee_status'   =>  'status_id'
+                'approver'          =>  'approver_id',
+                'is_scheduler'      =>  'is_scheduler'    
             );
             // echo "<pre>";print_r($data);die("jere");
             if(!empty($data) && $data->count()){
                 foreach ($data as $employee) {
                     foreach ($employee as $details) {
                         foreach ($details as $key => $value) {
-                            $arr[$headers[$key]] = $value;
+                            if (in_array($key, array('date_of_birth','date_of_marriage','original_hire_date','hire_date','regularization_date','last_transfer_date','last_promotion_date','resignation_date','official_last_working_date','actual_last_working_date')) && !empty($value)) {
+                                $value = $value->toDateString();
+                            }
+
+                            if(in_array($key, array('employee_number','last_name','first_name','middle_name','nickname','date_of_birth','place_of_birth','age','gender','civil_status','date_of_marriage'))) // for employee table
+                            {
+                                $arr['employees'][$headers[$key]] = $value;    
+                            } elseif (in_array($key, array('role_title','division_id','team','account','direct_manager','shift_schedule','original_hire_date','hire_date','regularization_date','last_transfer_date','last_promotion_date','resignation_date','official_last_working_date','actual_last_working_date','reason_of_separation','employee_status','approver','is_scheduler'))) { // for employee setup table
+                                $arr['employee_setup'][$headers[$key]] = $value;
+                            }
+                            
                         }
                         $insert[] = $arr;
                     }
@@ -256,10 +290,13 @@ class EmployeeManagementController extends Controller
                 }
                 echo "<pre>";print_r($insert);die("jere");
 
-                // if(!empty($insert)){
-                //     DB::table('items')->insert($insert);
-                // //  dd('Insert Record successfully.');
-                // }
+                if(!empty($insert)){
+                    foreach ($insert as $data) {
+                        
+                    }
+                    DB::table('items')->insert($insert);
+                //  dd('Insert Record successfully.');
+                }
             }
         } 
     }
