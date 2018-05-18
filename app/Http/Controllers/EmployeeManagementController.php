@@ -248,11 +248,45 @@ class EmployeeManagementController extends Controller
                 'gender'            =>  'gender',
                 'civil_status'      =>  'civil_status',
                 'date_of_marriage'  =>  'date_of_marriage',
-                'role_title'        =>  'role_id',
-                'division_id'       =>  'division_id',
-                'team'              =>  'team_id',
-                'account'           =>  'account_id',
-                'direct_manager'    =>  'reports_to_id',
+                // contacts
+                'mobile_no'         =>  'mobile_number',
+                'home_phone_no'     =>  '',
+                'current_address'   =>  '',
+                'city'              =>  '',
+                'permanent_address' =>  '',
+                // education
+                'school_1'          =>  '',
+                'major_completed_1' =>  '',
+                'year_graduated_1'  =>  '',
+                
+                'school_2'          =>  '',
+                'major_completed_2' =>  '',
+                'year_graduated_2'  =>  '',
+
+                /*'language_1'        =>  '',
+                'language_2'        =>  '',
+                'language_3'        =>  '',*/
+                // work experience
+                'company_name_1'    =>  '',
+                'role_title_1'      =>  '',
+                'inclusive_dates_1' =>  '',
+
+                'company_name_2'    =>  '',
+                'role_title_2'      =>  '',
+                'inclusive_dates_2' =>  '',
+
+                'company_name_3'    =>  '',
+                'role_title_3'      =>  '',
+                'inclusive_dates_3' =>  '',
+                // hiring source
+                'hiring_source_1'   =>  '',
+                'hiring_source_2'   =>  '',
+
+                'tcap_role_title'        =>  'role_id',
+                'tcap_division'       =>  'division_id',
+                'tcap_team'              =>  'team_id',
+                'tcap_accountclient'           =>  'account_id',
+                'tcap_direct_manager'    =>  'reports_to_id',
                 'shift_schedule'    =>  'shift_id',
                 'original_hire_date'=>  'original_hired_date',
                 'hire_date'         =>  'hired_date',
@@ -263,7 +297,7 @@ class EmployeeManagementController extends Controller
                 'official_last_working_date'    =>  'last_working_date',
                 'actual_last_working_date'  =>  'actual_last_working_date',
                 'reason_of_separation'  =>  'reason_of_separation',
-                'employee_status'   =>  'status_id'
+                'employee_status'   =>  'status_id',
                 'approver'          =>  'approver_id',
                 'is_scheduler'      =>  'is_scheduler'    
             );
@@ -279,10 +313,30 @@ class EmployeeManagementController extends Controller
                             if(in_array($key, array('employee_number','last_name','first_name','middle_name','nickname','date_of_birth','place_of_birth','age','gender','civil_status','date_of_marriage'))) // for employee table
                             {
                                 $arr['employees'][$headers[$key]] = $value;    
-                            } elseif (in_array($key, array('role_title','division_id','team','account','direct_manager','shift_schedule','original_hire_date','hire_date','regularization_date','last_transfer_date','last_promotion_date','resignation_date','official_last_working_date','actual_last_working_date','reason_of_separation','employee_status','approver','is_scheduler'))) { // for employee setup table
+                            } elseif (in_array($key, array('tcap_role_title','tcap_division','tcap_team','tcap_accountclient','tcap_direct_manager','shift_schedule','original_hire_date','hire_date','regularization_date','last_transfer_date','last_promotion_date','resignation_date','official_last_working_date','actual_last_working_date','reason_of_separation','employee_status','approver','is_scheduler'))) { // for employee setup table
                                 $arr['employee_setup'][$headers[$key]] = $value;
+                            } elseif (in_array($key, array('school_1','major_completed_1','year_graduated_1','school_2','major_completed_2','year_graduated_2'))) { // for employee education table
+                                $i = substr($key, -1);
+                                if (strpos($key, 'school') !== false) {
+                                    $educ['school'] = $value;
+                                }elseif (strpos($key, 'major_completed') !== false) {
+                                    $educ['major_completed'] = $value;
+                                }elseif (strpos($key, 'year_graduated') !== false) {
+                                    $educ['year_graduated'] = $value;
+                                }
+                                $arr['employee_education'][$i-1] = $educ;
+                                
+                            } elseif (in_array($key, array('company_name_1','role_title_1','inclusive_dates_1','company_name_2','role_title_2','inclusive_dates_2','company_name_3','role_title_3','inclusive_dates_3'))) { // for employee work experience table
+                                $i = substr($key, -1);
+                                if (strpos($key, 'company_name') !== false) {
+                                    $work['company_name'] = $value;
+                                }elseif (strpos($key, 'role_title') !== false) {
+                                    $work['role_title'] = $value;
+                                }elseif (strpos($key, 'inclusive_dates') !== false) {
+                                    $work['inclusive_dates'] = $value;
+                                }
+                                $arr['employee_work_experience'][$i-1] = $work;
                             }
-                            
                         }
                         $insert[] = $arr;
                     }
@@ -292,9 +346,13 @@ class EmployeeManagementController extends Controller
 
                 if(!empty($insert)){
                     foreach ($insert as $data) {
-                        
+                        foreach ($data as $table => $record) {
+                            $employee = DB::table($table)->insert($record);        
+                            $empId = $employee->lastInsertId();
+
+                            if($)
+                        }
                     }
-                    DB::table('items')->insert($insert);
                 //  dd('Insert Record successfully.');
                 }
             }
