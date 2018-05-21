@@ -15,6 +15,7 @@ use App\Department;
 use App\Division;
 use App\Role;
 use App\Shift;
+use App\Account;
 
 class EmployeeManagementController extends Controller
 {
@@ -287,7 +288,8 @@ class EmployeeManagementController extends Controller
                 'tcap_team'              =>  'team_id',
                 'tcap_accountclient'           =>  'account_id',
                 'tcap_direct_manager'    =>  'reports_to_id',
-                'shift_schedule'    =>  'shift_id',
+                'shift_schedule_start'    =>  'start',
+                'shift_schedule_end'    =>  'end',
                 'original_hire_date'=>  'original_hired_date',
                 'hire_date'         =>  'hired_date',
                 'regularization_date'   =>  'regularization_date',
@@ -313,7 +315,11 @@ class EmployeeManagementController extends Controller
                             if(in_array($key, array('employee_number','last_name','first_name','middle_name','nickname','date_of_birth','place_of_birth','age','gender','civil_status','date_of_marriage'))) // for employee table
                             {
                                 $arr['employees'][$headers[$key]] = $value;    
-                            } elseif (in_array($key, array('tcap_role_title','tcap_division','tcap_team','tcap_accountclient','tcap_direct_manager','shift_schedule','original_hire_date','hire_date','regularization_date','last_transfer_date','last_promotion_date','resignation_date','official_last_working_date','actual_last_working_date','reason_of_separation','employee_status','approver','is_scheduler'))) { // for employee setup table
+                            } elseif (in_array($key, array('tcap_role_title','tcap_division','tcap_team','tcap_accountclient','tcap_direct_manager','shift_schedule_start','shift_schedule_end','original_hire_date','hire_date','regularization_date','last_transfer_date','last_promotion_date','resignation_date','official_last_working_date','actual_last_working_date','reason_of_separation','employee_status','approver','is_scheduler'))) { // for employee setup table
+                                if($key == 'shift_schedule_start' || $key == 'shift_schedule_end')
+                                {
+                                    $value = $value->toTimeString();
+                                }
                                 $arr['employee_setup'][$headers[$key]] = $value;
                             } elseif (in_array($key, array('school_1','major_completed_1','year_graduated_1','school_2','major_completed_2','year_graduated_2'))) { // for employee education table
                                 $i = substr($key, -1);
@@ -342,17 +348,53 @@ class EmployeeManagementController extends Controller
                     }
                     // 
                 }
-                echo "<pre>";print_r($insert);die("jere");
 
+            echo "<pre>";print_r($insert);die("jere");
                 if(!empty($insert)){
                     foreach ($insert as $data) {
                         foreach ($data as $table => $record) {
-                            $employee = DB::table($table)->insert($record);        
-                            $empId = $employee->lastInsertId();
+                            if($table == 'employees'){
+                                $record['civil_status'] = DB::table('civil_status')->where('status', $record['civil_status'])->first()->id;
+                                $record['gender'] = $record['gender'] == 'Male' ? 0 : 1;
+                                $employee = DB::table($table)->insertGetId($record);  
+                                // $empId = $employee->id();
+                                // echo "<pre>";print_r($employee);die("jere");
+                            }elseif ($table == 'employee_setup') {
+                                $record['employee_id'] = $employee;
+                                // get employment status id
+                                // get role id
+                                $record['role_id'] = Role::where('name', $record['role_id'])->first()->id;
+                                // get division id
+                                $record['division_id'] = Division::where('name', $record['division_id'])->first()->id;
+                                // get team id
+                                $record['team_id'] = DB::table('team')->where('name', $record['team_id'])->first()->id;
+                                // get account id
+                                $record['account_id'] = Account::where('name', $record['account_id'])->first()->id;
+                                // get shift id
+                                $record['shift_id'] = Shift::where('start', $record['start'])->where('end', $record['end'])->first()->id;
+                                unset($record['start']);
+                                unset($record['end']);
+                                // get direct manager id by employee number
+                                // get approver id by employee number
 
-                            if($)
+                                
+                                $setup[$employee][$table] = $record;
+                            } else {
+                                if($table == 'employee_contacts' || $table == 'employee_emergency_contacts') {
+                                    $record['employee_id'] = $employee;
+                                    DB::table($table)->insert($record);
+                                }else {
+                                    foreach ($record as $values) {
+                                        $values['employee_id'] = $employee;
+                                        DB::table($table)->insert($values);
+                                    }
+                                }   
+                            }
+
+                            // if($)
                         }
-                    }
+                    }//die("ere");
+                echo "<pre>";print_r($setup);die("jere");
                 //  dd('Insert Record successfully.');
                 }
             }
