@@ -143,8 +143,8 @@ class ReportController extends Controller
     private function getHiredEmployees($constraints) {
         $employees = DB::table('employees')
             ->leftJoin('employee_setup', 'employee_setup.employee_id', '=', 'employees.id')
-            ->where('employee_setup.date_hired', '>=', $constraints['from'])
-            ->where('employee_setup.date_hired', '<=', $constraints['to'])
+            ->where('employee_setup.hired_date', '>=', $constraints['from'])
+            ->where('employee_setup.hired_date', '<=', $constraints['to'])
             ->get();
         return $employees;
     }

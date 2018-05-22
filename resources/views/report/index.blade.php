@@ -17,7 +17,7 @@
                 <label class="col-md-4 control-label">Leave Type</label>
                 <div class="col-md-4">
                   <select class="form-control" name="report_id" required>
-                    <option value="">Please select your leave type</option>
+                    <option value="">Please select your report</option>
                     <option value="1">Attendance Report</option>
                     <option value="2">Overtime Report</option>
                     <option value="3">Tardiness Report</option>
