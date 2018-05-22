@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Carbon\Carbon;
+use Excel;
 use Response;
 use App\Employee;
 use App\City;
@@ -13,6 +15,7 @@ use App\Department;
 use App\Division;
 use App\Role;
 use App\Shift;
+use App\Account;
 
 class EmployeeManagementController extends Controller
 {
@@ -224,5 +227,178 @@ class EmployeeManagementController extends Controller
         }
 
         return $queryInput;
+    }
+
+    public function import(Request $request)
+    {
+        $file = $request->file('import_file');
+        if($file){
+            $path = $file->getRealPath();
+            $data = Excel::load($path, function($reader) {
+            })->get();
+
+            $headers = array (
+                'employee_number'   =>  'employee_number',
+                'last_name'         =>  'lastname',
+                'first_name'        =>  'firstname',
+                'middle_name'       =>  'middlename',
+                'nickname'          =>  'nickname',
+                'date_of_birth'     =>  'birthdate',
+                'place_of_birth'    =>  'place_of_birth',
+                'age'               =>  'age',
+                'gender'            =>  'gender',
+                'civil_status'      =>  'civil_status',
+                'date_of_marriage'  =>  'date_of_marriage',
+                // contacts
+                'mobile_no'         =>  'mobile_number',
+                'home_phone_no'     =>  '',
+                'current_address'   =>  '',
+                'city'              =>  '',
+                'permanent_address' =>  '',
+                // education
+                'school_1'          =>  '',
+                'major_completed_1' =>  '',
+                'year_graduated_1'  =>  '',
+                
+                'school_2'          =>  '',
+                'major_completed_2' =>  '',
+                'year_graduated_2'  =>  '',
+
+                /*'language_1'        =>  '',
+                'language_2'        =>  '',
+                'language_3'        =>  '',*/
+                // work experience
+                'company_name_1'    =>  '',
+                'role_title_1'      =>  '',
+                'inclusive_dates_1' =>  '',
+
+                'company_name_2'    =>  '',
+                'role_title_2'      =>  '',
+                'inclusive_dates_2' =>  '',
+
+                'company_name_3'    =>  '',
+                'role_title_3'      =>  '',
+                'inclusive_dates_3' =>  '',
+                // hiring source
+                'hiring_source_1'   =>  '',
+                'hiring_source_2'   =>  '',
+
+                'tcap_role_title'        =>  'role_id',
+                'tcap_division'       =>  'division_id',
+                'tcap_team'              =>  'team_id',
+                'tcap_accountclient'           =>  'account_id',
+                'tcap_direct_manager'    =>  'reports_to_id',
+                'shift_schedule_start'    =>  'start',
+                'shift_schedule_end'    =>  'end',
+                'original_hire_date'=>  'original_hired_date',
+                'hire_date'         =>  'hired_date',
+                'regularization_date'   =>  'regularization_date',
+                'last_transfer_date'=>  'last_transfer_date',
+                'last_promotion_date'   =>  'last_promotion_date',
+                'resignation_date'  =>  'resignation_date',
+                'official_last_working_date'    =>  'last_working_date',
+                'actual_last_working_date'  =>  'actual_last_working_date',
+                'reason_of_separation'  =>  'reason_of_separation',
+                'employee_status'   =>  'status_id',
+                'approver'          =>  'approver_id',
+                'is_scheduler'      =>  'is_scheduler'    
+            );
+            // echo "<pre>";print_r($data);die("jere");
+            if(!empty($data) && $data->count()){
+                foreach ($data as $employee) {
+                    foreach ($employee as $details) {
+                        foreach ($details as $key => $value) {
+                            if (in_array($key, array('date_of_birth','date_of_marriage','original_hire_date','hire_date','regularization_date','last_transfer_date','last_promotion_date','resignation_date','official_last_working_date','actual_last_working_date')) && !empty($value)) {
+                                $value = $value->toDateString();
+                            }
+
+                            if(in_array($key, array('employee_number','last_name','first_name','middle_name','nickname','date_of_birth','place_of_birth','age','gender','civil_status','date_of_marriage'))) // for employee table
+                            {
+                                $arr['employees'][$headers[$key]] = $value;    
+                            } elseif (in_array($key, array('tcap_role_title','tcap_division','tcap_team','tcap_accountclient','tcap_direct_manager','shift_schedule_start','shift_schedule_end','original_hire_date','hire_date','regularization_date','last_transfer_date','last_promotion_date','resignation_date','official_last_working_date','actual_last_working_date','reason_of_separation','employee_status','approver','is_scheduler'))) { // for employee setup table
+                                if($key == 'shift_schedule_start' || $key == 'shift_schedule_end')
+                                {
+                                    $value = $value->toTimeString();
+                                }
+                                $arr['employee_setup'][$headers[$key]] = $value;
+                            } elseif (in_array($key, array('school_1','major_completed_1','year_graduated_1','school_2','major_completed_2','year_graduated_2'))) { // for employee education table
+                                $i = substr($key, -1);
+                                if (strpos($key, 'school') !== false) {
+                                    $educ['school'] = $value;
+                                }elseif (strpos($key, 'major_completed') !== false) {
+                                    $educ['major_completed'] = $value;
+                                }elseif (strpos($key, 'year_graduated') !== false) {
+                                    $educ['year_graduated'] = $value;
+                                }
+                                $arr['employee_education'][$i-1] = $educ;
+                                
+                            } elseif (in_array($key, array('company_name_1','role_title_1','inclusive_dates_1','company_name_2','role_title_2','inclusive_dates_2','company_name_3','role_title_3','inclusive_dates_3'))) { // for employee work experience table
+                                $i = substr($key, -1);
+                                if (strpos($key, 'company_name') !== false) {
+                                    $work['company_name'] = $value;
+                                }elseif (strpos($key, 'role_title') !== false) {
+                                    $work['role_title'] = $value;
+                                }elseif (strpos($key, 'inclusive_dates') !== false) {
+                                    $work['inclusive_dates'] = $value;
+                                }
+                                $arr['employee_work_experience'][$i-1] = $work;
+                            }
+                        }
+                        $insert[] = $arr;
+                    }
+                }
+
+                if(!empty($insert)){
+                    foreach ($insert as $data) {
+                        foreach ($data as $table => $record) {
+                            if($table == 'employees'){
+                                $record['civil_status'] = DB::table('civil_status')->where('status', $record['civil_status'])->first()->id;
+                                $record['gender'] = $record['gender'] == 'Male' ? 0 : 1;
+                                $employee = DB::table($table)->insertGetId($record);  
+                                // $empId = $employee->id();
+                                // echo "<pre>";print_r($employee);die("jere");
+                            }elseif ($table == 'employee_setup') {
+                                $record['employee_id'] = $employee;
+                                // get employment status id
+                                // get role id
+                                $record['role_id'] = Role::where('name', $record['role_id'])->first()->id;
+                                // get division id
+                                $record['division_id'] = Division::where('name', $record['division_id'])->first()->id;
+                                // get team id
+                                $record['team_id'] = DB::table('team')->where('name', $record['team_id'])->first()->id;
+                                // get account id
+                                $record['account_id'] = Account::where('name', $record['account_id'])->first()->id;
+                                // get shift id
+                                $record['shift_id'] = Shift::where('start', $record['start'])->where('end', $record['end'])->first()->id;
+                                unset($record['start']);
+                                unset($record['end']);
+                                // get direct manager id by employee number
+                                // get approver id by employee number
+
+                                $setup[$employee][$table] = $record;
+                            } else {
+                                if($table == 'employee_contacts' || $table == 'employee_emergency_contacts') {
+                                    $record['employee_id'] = $employee;
+                                    DB::table($table)->insert($record);
+                                }else {
+                                    foreach ($record as $values) {
+                                        if(count(array_filter($values)) != 0) {
+                                            $values['employee_id'] = $employee;
+                                            DB::table($table)->insert($values);
+                                        }
+                                    }
+                                }   
+                            }
+                        }
+                    }
+                // echo "<pre>";print_r($setup);die("jere");
+                //  dd('Insert Record successfully.');
+                }
+            }
+        } else {
+            return redirect('/employee-management')->with([
+                'status'    =>  'error', 
+                'message'   =>  "Please select file to import"]);
+        }
     }
 }

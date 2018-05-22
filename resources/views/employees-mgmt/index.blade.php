@@ -5,19 +5,29 @@
   <div class="box">
     <div class="box-header">
       <div class="row">
-          <div class="col-sm-8">
+          <div class="col-sm-10">
             <h3 class="box-title">List of employees</h3>
           </div>
-          <div class="col-sm-4">
-            <a class="btn btn-primary" href="{{ route('employee-management.create') }}">Add new employee</a>
+          <div class="col-sm-2">
+            <!-- <a class="btn btn-primary" href="{{ route('employee-management.create') }}">Add new employee</a> -->
           </div>
       </div>
     </div>
     <!-- /.box-header -->
     <div class="box-body">
         <div class="row">
-          <div class="col-sm-6"></div>
-          <div class="col-sm-6"></div>
+          <div class="col-sm-12">
+            @include('layouts.flash-message')
+            <form action="{{ route('employee-management.import') }}" method="POST" enctype="multipart/form-data">
+              {{ csrf_field() }}
+              <div class="upload">
+                  <input type="file" name="import_file" />
+                  <span class="fileName">Select file..</span>
+              </div>
+              <button class="btn btn-primary">Import File</button>
+            </form>
+          </div>
+          <!-- <div class="col-sm-6"></div> -->
         </div>
       <div id="example2_wrapper" class="dataTables_wrapper form-inline dt-bootstrap">
         <div class="row">
@@ -30,7 +40,7 @@
                   <th width="20%" class="sorting hidden-xs" tabindex="0" aria-controls="example2" rowspan="1" colspan="1" aria-label="Address: activate to sort column ascending">Address</th>
                   <th width="8%" class="sorting hidden-xs" tabindex="0" aria-controls="example2" rowspan="1" colspan="1" aria-label="Age: activate to sort column ascending">Age</th>
                   <th width="8%" class="sorting hidden-xs" tabindex="0" aria-controls="example2" rowspan="1" colspan="1" aria-label="Birthdate: activate to sort column ascending">Birthdate</th>
-                  <th tabindex="0" aria-controls="example2" rowspan="1" colspan="2" aria-label="Action: activate to sort column ascending">Action</th>
+                  <!-- <th tabindex="0" aria-controls="example2" rowspan="1" colspan="2" aria-label="Action: activate to sort column ascending">Action</th> -->
                 </tr>
               </thead>
               <tbody>
@@ -41,7 +51,7 @@
                     <td class="hidden-xs">{{ $employee->address }}</td>
                     <td class="hidden-xs">{{ $employee->age }}</td>
                     <td class="hidden-xs">{{ $employee->birthdate }}</td>
-                    <td>
+                    <!-- <td>
                       <form class="row" method="POST" action="{{ route('employee-management.destroy', ['id' => $employee->id]) }}" onsubmit = "return confirm('Are you sure?')">
                           <input type="hidden" name="_method" value="DELETE">
                           <input type="hidden" name="_token" value="{{ csrf_token() }}">
@@ -52,7 +62,7 @@
                             Delete
                           </button>
                       </form>
-                    </td>
+                    </td> -->
                 </tr>
               @endforeach
               </tbody>
