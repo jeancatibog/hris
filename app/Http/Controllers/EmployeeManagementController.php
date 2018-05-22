@@ -346,10 +346,8 @@ class EmployeeManagementController extends Controller
                         }
                         $insert[] = $arr;
                     }
-                    // 
                 }
 
-            echo "<pre>";print_r($insert);die("jere");
                 if(!empty($insert)){
                     foreach ($insert as $data) {
                         foreach ($data as $table => $record) {
@@ -377,7 +375,6 @@ class EmployeeManagementController extends Controller
                                 // get direct manager id by employee number
                                 // get approver id by employee number
 
-                                
                                 $setup[$employee][$table] = $record;
                             } else {
                                 if($table == 'employee_contacts' || $table == 'employee_emergency_contacts') {
@@ -385,19 +382,23 @@ class EmployeeManagementController extends Controller
                                     DB::table($table)->insert($record);
                                 }else {
                                     foreach ($record as $values) {
-                                        $values['employee_id'] = $employee;
-                                        DB::table($table)->insert($values);
+                                        if(count(array_filter($values)) != 0) {
+                                            $values['employee_id'] = $employee;
+                                            DB::table($table)->insert($values);
+                                        }
                                     }
                                 }   
                             }
-
-                            // if($)
                         }
-                    }//die("ere");
-                echo "<pre>";print_r($setup);die("jere");
+                    }
+                // echo "<pre>";print_r($setup);die("jere");
                 //  dd('Insert Record successfully.');
                 }
             }
-        } 
+        } else {
+            return redirect('/employee-management')->with([
+                'status'    =>  'error', 
+                'message'   =>  "Please select file to import"]);
+        }
     }
 }

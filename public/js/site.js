@@ -202,6 +202,9 @@ function registerEvents() {
   $('.datepicker').on('changeDate', function(e) {
     getLogs();
   });
+
+  // for alert message
+  $('div.alert').delay(2000).slideUp(300);
 }
 
 function getLogs() {
