@@ -66,9 +66,12 @@ class ReportController extends Controller
         } elseif ($request->report_id == 3) {
             $report = 'Tardiness Report';
             $data = $this->getExportingTardinessData(['from'=> $request->date_from, 'to' => $request->date_to]);
-        } else {
+        } elseif ($request->report_id == 4) {
             $report = 'Leave Report';
             $data = $this->getExportingLeaveData(['from'=> $request->date_from, 'to' => $request->date_to]);
+        } else {
+            $report = 'DTR Report';
+            $data = $this->getExportingDtrData(['from'=> $request->date_from, 'to' => $request->date_to]);
         }
 
         
@@ -125,7 +128,11 @@ class ReportController extends Controller
 
                 $sheet->fromArray($data);*/
                 // echo "<pre>";print_r(strtolower(str_replace(" ", "_", $report)));die("here");
-                $sheet->loadView('report/'.strtolower(str_replace(" ", "_", $report)), array('data' => $data, 'report'=> $report, 'range' => $request));
+                // if($request->report_id != 5) {
+                    $sheet->loadView('report/'.strtolower(str_replace(" ", "_", $report)), array('data' => $data, 'report'=> $report, 'range' => $request));
+                // } else {
+                //     $sheet->loadView('dtr/logs', array('data' => $data, 'report'=> $report, 'range' => $request));
+                // }
             });
         });
     }
@@ -205,33 +212,36 @@ class ReportController extends Controller
 
     private function getExportingLeaveData($constraints)
     {
-        $query = DB::table('tk_employee_dtr_summary AS dtr')
-            ->leftJoin('employees AS e', 'dtr.employee_id', '=', 'e.id')
-            ->leftJoin('employee_setup AS es', 'e.id', '=', 'es.employee_id')
-            ->leftJoin('roles AS r', 'es.role_id', '=', 'r.id')
-            ->leftJoin('shift AS s', 'dtr.shift_id', '=', 's.id')
-            ->leftJoin('account AS a', 'es.account_id', '=', 'a.id')
-            ->leftJoin('team AS t', 'es.team_id', '=', 't.id')
-            ->leftJoin('employee_overtime AS ot', function($join) {
-                $join->on('dtr.employee_id', '=', 'ot.employee_id');
-                $join->on('dtr.date', '=', 'ot.date');
-            })
-            ->leftJoin('employee_leave_dates AS eld', 'eld.date', '=', 'dtr.date')
-            ->leftJoin('employee_leaves AS el', function($join) {
-                $join->on('eld.employee_leave_id', '=', 'el.id');
-                $join->on('dtr.employee_id', '=', 'el.employee_id');
-            })
-            ->where('dtr.date', '>=', $constraints['from'])
-            ->where('dtr.date', '<=', $constraints['to'])
-            ->select('e.employee_number', DB::raw('CONCAT(e.firstname," ",e.lastname)  AS employee_name'), 'r.name AS role', 'a.name AS account', 't.name AS team', 's.start', 's.end', 'dtr.*', 'ot.datetime_from AS ot_start', 'ot.datetime_to AS ot_end', 'eld.leave_credit')
-            ->orderBy('e.employee_number')
-            ->orderBy('dtr.date')
+        //DB::enableQueryLog();
+        $query = DB::table('employee_leaves AS el')
+            ->leftJoin('employee_leave_dates AS eld', 'eld.employee_leave_id', '=', 'el.id')
+            ->leftJoin('employees AS e', 'el.employee_id', '=', 'e.id')
+            ->leftJoin('employee_setup AS es', 'es.employee_id', '=', 'e.id')
+            ->leftJoin('employment_status AS est', 'es.status_id', '=', 'est.id')
+            ->leftJoin('form_type AS ft', 'el.form_type_id', '=', 'ft.id')
+            ->where('eld.date', '>=', $constraints['from'])
+            ->where('eld.date', '<=', $constraints['to'])
+            ->select('e.employee_number', DB::raw('CONCAT(e.firstname," ",e.lastname)  AS employee_name'), 'es.hired_date', 'es.regularization_date', 'est.status', DB::raw('GROUP_CONCAT(eld.date) AS date'), 'ft.form',DB::raw('YEAR(eld.date) year, MONTHNAME(eld.date) month'), DB::raw('SUM(eld.leave_credit) AS credit'))
+            ->groupBy('year', 'month')
+            ->groupBy('ft.form')
+            ->groupBy('el.employee_id')
             ->get()
             ->map(function ($item, $key) {
                 return (array) $item;
             })
             ->all();
-        return $query;    
+        $leave = array();
+        foreach ($query as $report) {
+            $leave[$report['employee_number']]['employee_number'] = $report['employee_number'];
+            $leave[$report['employee_number']]['employee_name'] = $report['employee_name'];
+            $leave[$report['employee_number']]['hired_date'] = $report['hired_date'];
+            $leave[$report['employee_number']]['regularization_date'] = $report['regularization_date'];
+            $leave[$report['employee_number']]['status'] = $report['status'];
+            // $leave[$report['employee_number']]['month'] = $report['month'];
+            $leave[$report['employee_number']]['leave'][$report['form']][$report['month']] = $report['credit'];
+        }
+        echo "<pre>";print_r(array_column($leave, 'leave'));die("sda");
+        return $leave;    
     }
 
     private function getExportingTardinessData($constraints)
@@ -251,5 +261,20 @@ class ReportController extends Controller
             ->all();
         // echo "<pre>";print_r(DB::getQueryLog());die("here");
         return $query;    
+    }
+
+    private function getExportingDtrData($constraints)
+    {
+        $query = DB::table('employees AS e')
+            ->leftJoin('employee_setup AS es', 'e.id', '=', 'es.employee_id')
+            ->leftJoin('shift AS s', 'es.shift_id', '=', 's.id')
+            ->leftJoin('tk_employee_dtr_summary AS dtr', 'dtr.employee_id', '=', 'e.id')
+            ->leftJoin('holiday AS h', 'dtr.date', '=', 'h.date_set')
+            // ->where('e.id', Auth::user()->employee_id)
+            ->whereBetween('date',[$constraints['from'], $constraints['to']])
+            ->select('dtr.*', 'e.employee_number', DB::raw('CONCAT(e.firstname," ",e.lastname)  AS fullname'), 's.start', 's.end', 'h.holiday')
+            ->get()->toArray();
+        // echo "<pre>";print_r(DB::getQueryLog());die("jhere");
+        return $query;  
     }
 }

@@ -22,6 +22,7 @@
                     <option value="2">Overtime Report</option>
                     <option value="3">Tardiness Report</option>
                     <option value="4">Leave Report</option>
+                    <option value="5">DTR Report</option>
                   </select>
                 </div>
               </div>
