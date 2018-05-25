@@ -10,9 +10,6 @@
           <table class="reports" id="example2" role="grid">
             <thead style="word-wrap: break-word;">
               <tr role="rows">
-                
-              </tr>
-              <tr role="rows">
                 <th rowspan="2" style="text-align: center;">Ee number</th>
                 <th rowspan="2" style="text-align: center;">Ee Name</th>       
                 <th rowspan="2" style="text-align: center;">Hire Date</th>
@@ -20,23 +17,51 @@
                 <th rowspan="2" style="text-align: center;">Classification</th>
                 <th rowspan="2" style="text-align: center;">Leave Credits</th>
                 <th rowspan="2" style="text-align: center;">Earned Leaves (until Dec 31)</th>
+              <?php foreach (array_column($data, 'leave') as $key => $value) {
+                        foreach ($value as $k => $val) {
+                            $arr[$k] = $val;
+                        }
+                    } ?>
+              @foreach ($arr as $header => $colspan)
+                <th colspan="{{count($colspan)+1}}" style="text-align: center;">{{$header}} Taken</th>
+              @endforeach
+              </tr>
+              <tr>
+                <th></th>
+                <th></th>
+                <th></th>
+                <th></th>
+                <th></th>
+                <th></th>
+                <th></th>
+              @foreach ($arr as $header => $colspan)
+                @foreach ($colspan as $month => $days)
+                  <th>{{$month}}</th>
+                @endforeach
+                  <th>Total {{$header}} Taken</th>
+              @endforeach
               </tr>
             </thead>
             <tbody>
-                
-              @foreach ($data as $key => $record)
-                <tr role="row" class="odd">
-                  <td style="text-align: center;">{{ $record['employee_number'] }}</td>
-                  <td>{{ $record['employee_name'] }}</td>
-                  <td style="text-align: right;">{{ $tardy }}</td>
-                  <td style="text-align: right;">{{ $record['absent'] }}</td>
-                </tr>
-              @endforeach
+            @foreach ($data as $key =>$record)
               <tr>
-                <td colspan="2"><b>GRAND TOTAL</b></td>
-                <td>{{  $tardy_total }}</td>
-                <td>{{ $absent_total }}</td>
+                <td>{{ $record['employee_number'] }}</td>
+                <td>{{ $record['employee_name'] }}</td>
+                <td>{{ $record['hired_date'] }}</td>
+                <td>{{ $record['regularization_date'] }}</td>
+                <td>{{ $record['status'] }}</td>
+                <td></td>
+                <td></td>
+              @foreach ($record['leave'] as $form => $month)
+              <?php $total_days = 0; ?>
+                @foreach ($month as $days)
+                  <?php $total_days += $days; ?>
+                  <td>{{ $days }}</td>
+                @endforeach
+                <td>{{$total_days}}</td>
+              @endforeach
               </tr>
+            @endforeach 
             </tbody>
           </table>
         </div>

@@ -240,7 +240,13 @@ class ReportController extends Controller
             // $leave[$report['employee_number']]['month'] = $report['month'];
             $leave[$report['employee_number']]['leave'][$report['form']][$report['month']] = $report['credit'];
         }
-        echo "<pre>";print_r(array_column($leave, 'leave'));die("sda");
+        
+        // foreach (array_column($leave, 'leave') as $key => $value) {
+        //     foreach ($value as $k => $val) {
+        //         $arr[$k] = count($k);
+        //     }
+        // }
+        // echo "<pre>";print_r($leave);die("hwsda");
         return $leave;    
     }
 
