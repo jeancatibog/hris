@@ -123,6 +123,36 @@ class TimekeepingController extends Controller
         }
     }
 
+    public function prevWorkdate($date, $empId)
+    {
+        $formController = new FormsController;
+        /* employees with workschedule set */
+        $date = date("Y-m-d" , date(strtotime("-1 day", strtotime($date))));
+        $shift = $this->getShiftSchedule($empId, $date);
+        if (count($shift) > 0) {
+            if ($shift->is_restday) {//check for the other day
+                $prev = date("Y-m-d" , date(strtotime("-1 day", strtotime($date))));
+                $prevShift = $this->getShiftSchedule($empId, $prev);
+                if (count($prevShift) > 0) {
+                    if ($prevShift->is_restday) {
+                        $prevWorkdate = date("Y-m-d" , date(strtotime("-1 day", strtotime($prev))));
+                    } else {
+                        $prevWorkdate = $prev;
+                    }
+                } else {
+                    $prevWorkdate = $prev;
+                }
+            } else {
+                $prevWorkdate = $date;
+            }
+        } else {
+            $weekday = $formController->isWeekend($date); // checking if date is saturday is sunday as weekk off
+            $isRestday = $weekday ? 0 : 1;
+            $prevWorkdate = $isRestday ? date("Y-m-d" , date(strtotime("-2 day", strtotime($date)))) : $date;
+         }
+        return $prevWorkdate;
+     }
+
      /**
      * Display the specified resource.
      *
