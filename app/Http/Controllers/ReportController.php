@@ -212,7 +212,7 @@ class ReportController extends Controller
 
     private function getExportingLeaveData($constraints)
     {
-        //DB::enableQueryLog();
+        DB::enableQueryLog();
         $query = DB::table('employee_leaves AS el')
             ->leftJoin('employee_leave_dates AS eld', 'eld.employee_leave_id', '=', 'el.id')
             ->leftJoin('employees AS e', 'el.employee_id', '=', 'e.id')
@@ -221,7 +221,10 @@ class ReportController extends Controller
             ->leftJoin('form_type AS ft', 'el.form_type_id', '=', 'ft.id')
             ->where('eld.date', '>=', $constraints['from'])
             ->where('eld.date', '<=', $constraints['to'])
-            ->select('e.employee_number', DB::raw('CONCAT(e.firstname," ",e.lastname)  AS employee_name'), 'es.hired_date', 'es.regularization_date', 'est.status', DB::raw('GROUP_CONCAT(eld.date) AS date'), 'ft.form',DB::raw('YEAR(eld.date) year, MONTHNAME(eld.date) month'), DB::raw('SUM(eld.leave_credit) AS credit'))
+            ->select('e.employee_number', DB::raw('CONCAT(e.firstname," ",e.lastname)  AS employee_name'), 'es.hired_date', 'es.regularization_date', 'est.status', DB::raw('GROUP_CONCAT(eld.date) AS date'), 'ft.form',DB::raw('YEAR(eld.date) year, MONTHNAME(eld.date) month'), DB::raw('SUM(eld.leave_credit) AS credit'), DB::raw('TIMESTAMPDIFF(MONTH, es.hired_date, es.regularization_date) AS earned_leave'))
+            ->orderBy('e.employee_number')
+            ->orderBy('ft.form', 'DESC')
+            ->orderBy('eld.date')
             ->groupBy('year', 'month')
             ->groupBy('ft.form')
             ->groupBy('el.employee_id')
@@ -230,6 +233,7 @@ class ReportController extends Controller
                 return (array) $item;
             })
             ->all();
+
         $leave = array();
         foreach ($query as $report) {
             $leave[$report['employee_number']]['employee_number'] = $report['employee_number'];
@@ -237,6 +241,7 @@ class ReportController extends Controller
             $leave[$report['employee_number']]['hired_date'] = $report['hired_date'];
             $leave[$report['employee_number']]['regularization_date'] = $report['regularization_date'];
             $leave[$report['employee_number']]['status'] = $report['status'];
+            $leave[$report['employee_number']]['earned_leave'] = $report['earned_leave'] * 1.25;
             // $leave[$report['employee_number']]['month'] = $report['month'];
             $leave[$report['employee_number']]['leave'][$report['form']][$report['month']] = $report['credit'];
         }
