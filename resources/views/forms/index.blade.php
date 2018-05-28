@@ -25,6 +25,7 @@
             <li class="active"><a id="leave" href="#leaves-tab" data-toggle="tab" aria-expanded="false"><span>Leaves</span></a></li>
             <li><a id="overtime" href="#ot-tab" data-toggle="tab" aria-expanded="true"><span>Overtime</span></a></li>
             <li><a id="obt" href="#obt-tab" data-toggle="tab" aria-expanded="true"><span>OBT</span></a></li>
+            <li><a id="ofd" href="#ofd-tab" data-toggle="tab" aria-expanded="true"><span>OFD</span></a></li>
         </ul>
       </div>
       <!-- Tab contents -->
@@ -40,6 +41,10 @@
         <div class="tab-pane" id="obt-tab">
           @include ('forms.obt.index', [ 'obt' => $forms['obt'] ])
           @include ('layouts.pagination', ['data' => $forms['obt']])
+        </div>
+        <div class="tab-pane" id="ofd-tab">
+          @include ('forms.ofd.index', [ 'obt' => $forms['ofd'] ])
+          @include ('layouts.pagination', ['data' => $forms['ofd']])
         </div>
       </div>
       <!-- </div> -->
