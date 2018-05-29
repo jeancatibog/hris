@@ -23,6 +23,9 @@
             <li><a id="overtime" href="#overtime-tab" data-toggle="tab" aria-expanded="true"><span>Overtime</span></a></li>
             <li><a id="obt" href="#obt-tab" data-toggle="tab" aria-expanded="true"><span>OBT</span></a></li>
             <li><a id="dtrp" href="#dtrp-tab" data-toggle="tab" aria-expanded="true"><span>DTRP</span></a></li>
+          @if ($form_approval['role'] != 'Team Lead' && $form_approval['role'] != 'Senior Associate' && $form_approval['role'] != 'Associate')  
+            <li><a id="ofd" href="#ofd-tab" data-toggle="tab" aria-expanded="true"><span>OFD</span></a></li>
+          @endif
         </ul>
       </div>
       <!-- Tab contents -->
@@ -42,6 +45,11 @@
         <div class="tab-pane" id="dtrp-tab">
           @include ('form-approval.index-dtrp', [ 'dtrp' => $form_approval['dtrp'] ])
           @include ('layouts.pagination', ['data' => $form_approval['dtrp']])
+        </div>
+        <!-- for supervisor and up only -->
+        <div class="tab-pane" id="ofd-tab">
+          @include ('form-approval.index-ofd', [ 'ofd' => $form_approval['ofd'] ])
+          @include ('layouts.pagination', ['data' => $form_approval['ofd']])
         </div>
       </div>
       <!-- </div> -->

@@ -25,7 +25,10 @@
             <li class="active"><a id="leave" href="#leaves-tab" data-toggle="tab" aria-expanded="false"><span>Leaves</span></a></li>
             <li><a id="overtime" href="#ot-tab" data-toggle="tab" aria-expanded="true"><span>Overtime</span></a></li>
             <li><a id="obt" href="#obt-tab" data-toggle="tab" aria-expanded="true"><span>OBT</span></a></li>
+            <!-- for TL and up only -->
+          @if ($forms['role'] != 'Associate' && $forms['role'] != 'Senior Associate')
             <li><a id="ofd" href="#ofd-tab" data-toggle="tab" aria-expanded="true"><span>OFD</span></a></li>
+          @endif
         </ul>
       </div>
       <!-- Tab contents -->
@@ -42,10 +45,11 @@
           @include ('forms.obt.index', [ 'obt' => $forms['obt'] ])
           @include ('layouts.pagination', ['data' => $forms['obt']])
         </div>
-        <div class="tab-pane" id="ofd-tab">
-          @include ('forms.ofd.index', [ 'obt' => $forms['ofd'] ])
-          @include ('layouts.pagination', ['data' => $forms['ofd']])
-        </div>
+        <!-- for TL and up only -->
+          <div class="tab-pane" id="ofd-tab">
+            @include ('forms.ofd.index', [ 'ofd' => $forms['ofd'] ])
+            @include ('layouts.pagination', ['data' => $forms['ofd']])
+          </div>
       </div>
       <!-- </div> -->
     </div>

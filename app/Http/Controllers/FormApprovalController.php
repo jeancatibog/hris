@@ -154,7 +154,7 @@ class FormApprovalController extends Controller
         } elseif ($employee_details->role == 'Manager') {
             $obt_form->where('r.name', 'Supervisor');
         }
-        $obt_form->select(DB::raw('CONCAT(e.firstname," ",e.lastname)  AS name'), 'obt.id', 'fs.status', 'obt.date_from', 'obt.date_to', 'obt.starttime', 'obt.endtime', 'obt.reason', 'contact_name', 'contact_info', 'contact_position', 'company_to_visit', 'company_location');
+        $obt_form->select(DB::raw('CONCAT(e.firstname," ",e.lastname)  AS name'), 'obt.id', 'fs.status', 'obt.date_from', 'obt.date_to', 'obt.starttime', 'obt.endtime', 'obt.reason', 'obt.contact_name', 'obt.contact_info', 'obt.contact_position', 'obt.company_to_visit', 'obt.company_location');
 
         $obt = $obt_form->get()->toArray();
 
@@ -193,11 +193,43 @@ class FormApprovalController extends Controller
         $dtrp_form->select(DB::raw('CONCAT(e.firstname," ",e.lastname)  AS name'), 'dtrp.id', 'fs.status', 'dtrp.date', 'dtrp.log_type_id', 'dtrp.timelog', 'dtrp.reason');
 
         $dtrp = $dtrp_form->get()->toArray();
+
+        $ofd_form = DB::table('employee_ofd AS ofd')
+            ->leftJoin('employees AS e', 'ofd.employee_id', '=', 'e.id')
+            ->leftJoin('employee_setup AS es', 'ofd.employee_id', '=', 'es.employee_id')
+            ->leftJoin('form_status AS fs', 'ofd.form_status_id', '=', 'fs.id')
+            ->leftJoin('roles AS r', 'es.role_id', '=', 'r.id')
+            ->where(function ($query) use ($acct_sched, $employee_details, $employee_id) {
+                if (count($acct_sched) > 0) {
+                    foreach ($acct_sched as $sched) {
+                        $query->orWhereBetween('ofd.date',[$sched->date_from, $sched->date_to]);
+                    }
+
+                    $query->where('es.account_id', $employee_details->account_id);
+                } else {
+                    $query->where('es.approver_id', $employee_id);
+                }
+            })
+            ->where('fs.status', 'For Approval')
+            ->where('es.team_id', $employee_details->team_id)
+            ->where('ofd.employee_id', '!=', $employee_id); //exclude own filed forms
+        if ($employee_details->role == 'Team Lead') {
+            $ofd_form->whereNotIn('r.name', ['Team Lead', 'Supervisor', 'Manager']); //exclude all user with roles higher than associate
+        } elseif ($employee_details->role == 'Supervisor') {
+            $ofd_form->where('r.name', 'Team Lead');
+        } elseif ($employee_details->role == 'Manager') {
+            $ofd_form->where('r.name', 'Supervisor');
+        }
+        $ofd_form->select(DB::raw('CONCAT(e.firstname," ",e.lastname)  AS name'), 'ofd.id', 'fs.status', 'ofd.date', 'ofd.start', 'ofd.end', 'ofd.reason');
+
+        $ofd = $ofd_form->get()->toArray();
         
         $approval_form['leaves'] = $leave;
         $approval_form['ot'] = $ot;
         $approval_form['obt'] = $obt;
         $approval_form['dtrp'] = $dtrp;
+        $approval_form['ofd'] = $ofd;
+        $approval_form['role'] = $employee_details->role;
         return view('form-approval/index', ['form_approval' => $approval_form]);
     }
 
@@ -256,6 +288,14 @@ class FormApprovalController extends Controller
             $dtrp['timelog'] = date('h:i A', strtotime($dtrp['timelog']));
 
             $file_form['dtrp'] = $dtrp;
+
+            $params = ['form' => $file_form[$form]];
+        } elseif($form == 'ofd') {
+            $ofd = EmployeeOfd::find($id);
+            $ofd['start'] = date('h:i A', strtotime($ofd['starttime']));
+            $ofd['start'] = date('h:i A', strtotime($ofd['endtime']));
+
+            $file_form['ofd'] = $ofd;
 
             $params = ['form' => $file_form[$form]];
         }

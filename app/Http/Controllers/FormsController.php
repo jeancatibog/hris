@@ -16,6 +16,7 @@ use App\EmployeeOvertime;
 use App\EmployeeObt;
 use App\CompanyPolicy;
 use App\EmployeeDtrp;
+use App\EmployeeOfd;
 use App\Http\Controllers\TimekeepingController;
 
 class FormsController extends Controller
@@ -34,6 +35,11 @@ class FormsController extends Controller
     public function index()
     {
         // DB::enableQueryLog();
+        $role = DB::table('employee_setup AS es')
+            ->leftJoin('roles AS r', 'es.role_id', '=', 'r.id')
+            ->where('es.employee_id', Auth::user()->employee_id)
+            ->select('r.name AS role')->first();
+
         $leave_forms = DB::table('employee_leaves AS el')
 	        ->leftJoin('employees AS emp', 'el.employee_id', '=', 'emp.id')
 	        ->leftJoin('form_type AS ft', 'el.form_type_id', '=', 'ft.id')
@@ -58,10 +64,18 @@ class FormsController extends Controller
 	        ->leftJoin('form_status AS fs', 'obt.form_status_id', '=', 'fs.id')
 	        ->where('employee_id', '=', Auth::user()->employee_id)
 	        ->select('obt.*', 'fs.status')->paginate(5); 
+
+        $ofd_forms = DB::table('employee_ofd AS ofd')
+            ->leftJoin('form_status AS fs', 'ofd.form_status_id', '=', 'fs.id')
+            ->where('employee_id', '=', Auth::user()->employee_id)
+            ->select('ofd.*', 'fs.status')->paginate(5); 
+        // echo "<pre>";print_r($role->role);die("sda");
         // dd(DB::getQueryLog());
         $forms['leaves'] = $leave_forms;
         $forms['ot'] = $ot_forms;
         $forms['obt'] = $obt_forms;
+        $forms['ofd'] = $ofd_forms;
+        $forms['role'] = $role->role;
         return view('forms/index', ['forms' => $forms]);
     }
 
@@ -137,10 +151,18 @@ class FormsController extends Controller
                 'contact_info'      =>  $request['contact_info'],
                 'contact_position'  =>  $request['contact_position'],
                 'company_to_visit'  =>  $request['company_to_visit'],
-                'company_location'  =>  $request['company_location'],
-                'form_status_id'=>  $status
+                'company_location'  =>  $request['company_location']
             ]);
 
+        } elseif ($request['ftype'] == 'ofd') {
+            EmployeeOfd::create([
+                'employee_id'   =>  $request['employee_id'],
+                'date'          =>  date('Y-m-d', strtotime($request['date'])),
+                'start'         =>  date('H:i:s', strtotime($request['start'])),
+                'end'           =>  date('H:i:s', strtotime($request['end'])),
+                'reason'        =>  $request['reason'],
+                'form_status_id'=>  $status,
+            ]);
         } else {
             EmployeeDtrp::create([
                 'employee_id'   =>  $request['employee_id'],
@@ -192,8 +214,16 @@ class FormsController extends Controller
             $file_form['obt'] = $obt;
 
             $params = ['form' => $file_form[$form]];
-        }
+        } elseif($form == 'ofd') {
+            $ofd = EmployeeOfd::find($id);
+            $ofd['start'] = date('h:i A', strtotime($ofd['start']));
+            $ofd['end'] = date('h:i A', strtotime($ofd['end']));
 
+            $file_form['ofd'] = $ofd;
+
+            $params = ['form' => $file_form[$form]];
+        }
+        
         return view('forms/'.$form.'/edit', $params);
     }
 
@@ -254,6 +284,17 @@ class FormsController extends Controller
                 'company_location'  =>  $request['company_location']
             ];
             EmployeeObt::where('id', $id)
+                ->update($input);
+        } elseif ($request['ftype'] == 'ofd') {
+            $input = [
+                'employee_id'       =>  $request['employee_id'],
+                'date'              =>  date('Y-m-d', strtotime($request['date'])),
+                'start'             =>  date('H:i:s', strtotime($request['start'])),
+                'end'               =>  date('H:i:s', strtotime($request['end'])),
+                'reason'            =>  $request['reason'],
+                'form_status_id'    =>  $status
+            ];
+            EmployeeOfd::where('id', $id)
                 ->update($input);
         }
         

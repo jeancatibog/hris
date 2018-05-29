@@ -31,16 +31,14 @@
       <!-- Sidebar Menu -->
       <ul class="sidebar-menu">
         <!-- Optionally, you can add icons to the links -->
-        @if (in_array($setup->role_id, array(1,2,3,4,5,6,7), true))
+        @if (in_array($setup->role_id, array(1,2,3,4,5,6,7,8,8,9,10), true))
           <li class="active"><a href="{{ url('dashboard') }}"><i class="fa fa-home"></i> <span>Dashboard</span></a></li>
         @endif
-        @if (in_array($setup->role_id, array(2,3,4,5,6,7), true))
+
           <li><a href="{{ url('dtr') }}"><i class="fa fa-calendar"></i> <span>My Attendance</span></a></li>
-        @endif
-        @if (in_array($setup->role_id, array(2,3,4,5,6,7), true))
           <li><a href="{{ url('forms') }}"><i class="fa fa-pencil-square-o"></i> <span>File Form</span></a></li>
-        @endif
-        @if (in_array($setup->role_id, array(2,3,4,6), true))
+        
+        @if (in_array($setup->role_id, array(1,2,3,4,6,7,8), true))
           <li><a href="{{ url('form-approval') }}"><i class="fa fa-file-text-o"></i> <span>Form Approval</span></a></li>
         @endif
         @if (in_array($setup->role_id, array(2,3), true))
@@ -49,7 +47,10 @@
         @if (in_array($setup->role_Id, array(2,3), true))
           <li><a href="{{ url('reports') }}">Reports</a></li>
         @endif
-        @if (in_array($setup->role_id, array(1,2), true))
+        
+          <li><a href="{{ url('system-management/accounts') }}"><i class="fa fa-sitemap"></i><span>Accounts Leads</span></a></li>
+      
+        @if (in_array($setup->role_id, array(1,2,3), true))
           <li class="treeview">
             <a href="#"><i class="fa fa-cogs"></i> <span>System Management</span>
               <span class="pull-right-container">
