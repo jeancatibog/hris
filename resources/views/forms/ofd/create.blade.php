@@ -31,11 +31,11 @@
                         <div class="form-group{{ $errors->has('start') ? ' has-error' : '' }}">
                             <label class="col-md-4 control-label">Start</label>
                             <div class="col-md-6">
-                                <div class="input-group bootstrap-timepicker">
+                                <div class="input-group bootstrap-datetimepicker">
                                     <div class="input-group-addon">
                                         <i class="fa fa-clock-o"></i>
                                     </div>
-                                    <input type="text" value="{{ old('start') }}" name="start" class="form-control pull-right timepicker" id="datetimeFrom" required>
+                                    <input type="text" value="{{ old('start') }}" name="start" class="form-control pull-right datetimepicker" id="datetimeFrom" required>
                                 </div>
                             @if ($errors->has('start'))
                                 <span class="help-block">
@@ -47,11 +47,11 @@
                         <div class="form-group{{ $errors->has('end') ? ' has-error' : '' }}">
                             <label class="col-md-4 control-label">End</label>
                             <div class="col-md-6">
-                                <div class="input-group bootstrap-timepicker">
+                                <div class="input-group bootstrap-datetimepicker">
                                     <div class="input-group-addon">
                                         <i class="fa fa-clock-o"></i>
                                     </div>
-                                    <input type="text" value="{{ old('end') }}" name="end" class="form-control pull-right timepicker" id="datetimeTo" required>
+                                    <input type="text" value="{{ old('end') }}" name="end" class="form-control pull-right datetimepicker" id="datetimeTo" required>
                                 </div>
                             @if ($errors->has('end'))
                                 <span class="help-block">

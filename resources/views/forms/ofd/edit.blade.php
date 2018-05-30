@@ -33,11 +33,11 @@
                         <div class="form-group{{ $errors->has('start') ? ' has-error' : '' }}">
                             <label class="col-md-4 control-label">Start</label>
                             <div class="col-md-6">
-                                <div class="input-group bootstrap-timepicker">
+                                <div class="input-group bootstrap-datetimepicker">
                                     <div class="input-group-addon">
                                         <i class="fa fa-clock-o"></i>
                                     </div>
-                                    <input type="text" value="{{ $form->start }}" name="start" class="form-control pull-right timepicker" id="datetimeFrom" required {{$disabled}}>
+                                    <input type="text" value="{{ $form->start }}" name="start" class="form-control pull-right datetimepicker" id="datetimeFrom" required {{$disabled}}>
                                 </div>
                             @if ($errors->has('start'))
                                 <span class="help-block">
@@ -49,11 +49,11 @@
                         <div class="form-group{{ $errors->has('end') ? ' has-error' : '' }}">
                             <label class="col-md-4 control-label">End</label>
                             <div class="col-md-6">
-                                <div class="input-group bootstrap-timepicker">
+                                <div class="input-group bootstrap-datetimepicker">
                                     <div class="input-group-addon">
                                         <i class="fa fa-clock-o"></i>
                                     </div>
-                                    <input type="text" value="{{ $form->end }}" name="end" class="form-control pull-right timepicker" id="datetimeTo" required {{$disabled}}>
+                                    <input type="text" value="{{ $form->end }}" name="end" class="form-control pull-right datetimepicker" id="datetimeTo" required {{$disabled}}>
                                 </div>
                             @if ($errors->has('end'))
                                 <span class="help-block">

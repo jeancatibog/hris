@@ -402,8 +402,21 @@ class TimekeepingController extends Controller
                     $obtIn = $workdate . " " . $obt->starttime;
                     $obtOut = $workdate . " " . $obt->endtime;
                     
-                    $actualIn = strtotime($actualIn) < strtotime($obtIn) ? $obtIn : $actualIn;
-                    $actualOut = strtotime($actualOut) < strtotime($obtOut) ? $obtOut : $actualOut;
+                    $actualIn = strtotime($actualIn) < strtotime($obtIn) ? $actualIn : $obtIn;
+                    $actualOut = strtotime($actualOut) < strtotime($obtOut) ? $actualOut : $obtOut;
+                }
+
+                /* check if there is OFD filed approved */
+                $ofd = DB::table('employee_ofd AS ofd')
+                    ->leftJoin('employees AS e', 'efd.employee_id', '=', 'e.id')
+                    ->leftJoin('employee_setup AS es', 'e.id', 'es.employee_id')
+                    ->where('ofd.employee_id', $empId)
+                    ->where('ofd.date', $workdate)
+                    ->where('ofd.form_status_id', 3)->get()->first();
+
+                if( !empty($ofd) ) {
+                    $actualIn = strtotime($actualIn) < strtotime($ofd->start) ? $actualIn : $ofd->start;
+                    $actualOut = strtotime($actualOut) < strtotime($ofd->end) ? $actualOut : $ofd->end; 
                 }
 
 

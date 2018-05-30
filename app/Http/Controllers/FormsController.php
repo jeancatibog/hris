@@ -158,8 +158,8 @@ class FormsController extends Controller
             EmployeeOfd::create([
                 'employee_id'   =>  $request['employee_id'],
                 'date'          =>  date('Y-m-d', strtotime($request['date'])),
-                'start'         =>  date('H:i:s', strtotime($request['start'])),
-                'end'           =>  date('H:i:s', strtotime($request['end'])),
+                'start'         =>  date('Y-m-d H:i:s', strtotime($request['start'])),
+                'end'           =>  date('Y-m-d H:i:s', strtotime($request['end'])),
                 'reason'        =>  $request['reason'],
                 'form_status_id'=>  $status,
             ]);
@@ -216,8 +216,8 @@ class FormsController extends Controller
             $params = ['form' => $file_form[$form]];
         } elseif($form == 'ofd') {
             $ofd = EmployeeOfd::find($id);
-            $ofd['start'] = date('h:i A', strtotime($ofd['start']));
-            $ofd['end'] = date('h:i A', strtotime($ofd['end']));
+            $ofd['start'] = date('Y-m-d h:i A', strtotime($ofd['start']));
+            $ofd['end'] = date('Y-m-d h:i A', strtotime($ofd['end']));
 
             $file_form['ofd'] = $ofd;
 
@@ -289,8 +289,8 @@ class FormsController extends Controller
             $input = [
                 'employee_id'       =>  $request['employee_id'],
                 'date'              =>  date('Y-m-d', strtotime($request['date'])),
-                'start'             =>  date('H:i:s', strtotime($request['start'])),
-                'end'               =>  date('H:i:s', strtotime($request['end'])),
+                'start'             =>  date('Y-m-d H:i:s', strtotime($request['start'])),
+                'end'               =>  date('Y-m-d H:i:s', strtotime($request['end'])),
                 'reason'            =>  $request['reason'],
                 'form_status_id'    =>  $status
             ];

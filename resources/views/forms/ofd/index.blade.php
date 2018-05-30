@@ -14,8 +14,8 @@
   @foreach ($ofd as $freeday)
       <tr role="row" class="odd">
         <td>{{ $freeday->date }}</td>
-        <td>{{ date("h:i A", strtotime($freeday->start)) }}</td>
-        <td>{{ date("h:i A", strtotime($freeday->end)) }}</td>
+        <td>{{ date("Y-m-d h:i A", strtotime($freeday->start)) }}</td>
+        <td>{{ date("Y-m-d h:i A", strtotime($freeday->end)) }}</td>
         <td>{{ $freeday->reason }}</td>
         <td>{{ $freeday->status }}</td>
         <td>

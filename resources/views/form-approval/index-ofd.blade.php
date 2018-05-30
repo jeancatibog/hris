@@ -15,8 +15,8 @@
       <tr role="row" class="odd">
         <td>{{ $free->name }}</td>
         <td>{{ $free->date }}</td>
-        <td>{{ date("h:i A", strtotime($free->start)) }}</td>
-        <td>{{ date("h:i A", strtotime($free->end)) }}</td>
+        <td>{{ date("Y-m-d h:i A", strtotime($free->start)) }}</td>
+        <td>{{ date("Y-m-d h:i A", strtotime($free->end)) }}</td>
         <td>{{ $free->reason }}</td>
         <td>{{ $free->status }}</td>
         <td>

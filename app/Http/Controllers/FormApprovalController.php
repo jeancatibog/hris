@@ -293,8 +293,8 @@ class FormApprovalController extends Controller
             $params = ['form' => $file_form[$form]];
         } elseif($form == 'ofd') {
             $ofd = EmployeeOfd::find($id);
-            $ofd['start'] = date('h:i A', strtotime($ofd['starttime']));
-            $ofd['start'] = date('h:i A', strtotime($ofd['endtime']));
+            $ofd['start'] = date('Y-m-d h:i A', strtotime($ofd['start']));
+            $ofd['end'] = date('Y-m-d h:i A', strtotime($ofd['end']));
 
             $file_form['ofd'] = $ofd;
 
