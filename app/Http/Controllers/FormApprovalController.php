@@ -16,6 +16,7 @@ use App\EmployeeOvertime;
 use App\EmployeeObt;
 use App\CompanyPolicy;
 use App\EmployeeDtrp;
+use App\EmployeeOfd;
 use App\Http\Controllers\TimekeepingController;
 
 class FormApprovalController extends Controller
@@ -342,7 +343,10 @@ class FormApprovalController extends Controller
         } elseif ($request['ftype'] == 'dtrp') {
             EmployeeDtrp::where('id', $id)
                 ->update($input);
-        } 
+        } else {
+            EmployeeOfd::where('id', $id)
+                ->update($input);
+        }
         
         return redirect()->intended('form-approval');
     }

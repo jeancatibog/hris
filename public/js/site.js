@@ -93,6 +93,7 @@ function registerEvents() {
             'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
         }
     });
+
     $.ajax({
       url: url,
       type: 'GET',
@@ -143,6 +144,9 @@ function registerEvents() {
             event.stopPropagation();
           }); 
         }, 1000);
+      },
+      error:function(){
+        alert("Something is wrong.");
       }
     });
   });

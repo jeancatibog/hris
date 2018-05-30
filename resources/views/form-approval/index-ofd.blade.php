@@ -1,7 +1,6 @@
 <table id="example2" class="table table-bordered table-hover dataTable" role="grid" aria-describedby="example2_info">
   <thead>
     <tr role="row">
-      <th width="1%" tabindex="0" aria-controls="example2" rowspan="1" colspan="1"></th>
       <th width="20%" class="sorting" tabindex="0" aria-controls="example2" rowspan="1" colspan="1" aria-label="date from: activate to sort column ascending">Employee Name</th>
       <th width="8%" class="sorting" tabindex="0" aria-controls="example2" rowspan="1" colspan="1" aria-label="date from: activate to sort column ascending">Date</th>
       <th width="14%" class="sorting" tabindex="0" aria-controls="example2" rowspan="1" colspan="1" aria-label="datetime start: activate to sort column ascending">Start</th>
